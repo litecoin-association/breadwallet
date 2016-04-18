@@ -27,7 +27,7 @@
 #import "NSMutableData+Bitcoin.h"
 #import "NSData+Bitcoin.h"
 
-#define MAX_TIME_DRIFT    (2*60*60)     // the furthest in the future a block is allowed to be timestamped
+#define MAX_TIME_DRIFT    (150*60)     // the furthest in the future a block is allowed to be timestamped
 #define MAX_PROOF_OF_WORK 0x1e0ffff0u   // highest value for difficulty target (higher values are less difficult)
 #define TARGET_TIMESPAN   (84*60*60) // the targeted timespan between difficulty target adjustments
 
@@ -142,8 +142,8 @@ totalTransactions:(uint32_t)totalTransactions hashes:(NSData *)hashes flags:(NSD
 {
     // target is in "compact" format, where the most significant byte is the size of resulting value in bytes, the next
     // bit is the sign, and the remaining 23bits is the value after having been right shifted by (size - 3)*8 bits
-    static const uint32_t maxsize = MAX_PROOF_OF_WORK >> 24, maxtarget = MAX_PROOF_OF_WORK & 0x00ffffffu;
-    uint32_t size = _target >> 24, target = _target & 0x00ffffffu;
+    static const uint32_t maxsize = MAX_PROOF_OF_WORK >> 20, maxtarget = MAX_PROOF_OF_WORK & 0x00ffffffu;
+    uint32_t size = _target >> 20, target = _target & 0x00ffffffu;
     NSMutableData *d = [NSMutableData data];
     UInt256 merkleRoot, t = UINT256_ZERO;
     int hashIdx = 0, flagIdx = 0;
@@ -256,8 +256,8 @@ totalTransactions:(uint32_t)totalTransactions hashes:(NSData *)hashes flags:(NSD
 
     // target is in "compact" format, where the most significant byte is the size of resulting value in bytes, the next
     // bit is the sign, and the remaining 23bits is the value after having been right shifted by (size - 3)*8 bits
-    static const uint32_t maxsize = MAX_PROOF_OF_WORK >> 24, maxtarget = MAX_PROOF_OF_WORK & 0x00ffffffu;
-    int32_t timespan = (int32_t)((int64_t)previous.timestamp - (int64_t)time), size = previous.target >> 24;
+    static const uint32_t maxsize = MAX_PROOF_OF_WORK >> 20, maxtarget = MAX_PROOF_OF_WORK & 0x00ffffffu;
+    int32_t timespan = (int32_t)((int64_t)previous.timestamp - (int64_t)time), size = previous.target >> 20;
     uint64_t target = previous.target & 0x00ffffffu;
 
     // limit difficulty transition to -75% or +400%
@@ -275,7 +275,7 @@ totalTransactions:(uint32_t)totalTransactions hashes:(NSData *)hashes flags:(NSD
     // limit to MAX_PROOF_OF_WORK
     if (size > maxsize || (size == maxsize && target > maxtarget)) target = maxtarget, size = maxsize;
 
-    return (_target == ((uint32_t)target | size << 24)) ? YES : NO;
+    return (_target == ((uint32_t)target | size << 20)) ? YES : NO;
 }
 
 // recursively walks the merkle tree in depth first order, calling leaf(hash, flag) for each stored hash, and
