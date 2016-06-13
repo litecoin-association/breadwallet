@@ -99,9 +99,9 @@
     _balance = UINT64_MAX;
 	
 	self.sendViewController = [self.storyboard instantiateViewControllerWithIdentifier:@"SendViewController"];
-	self.sendViewController.tabBarItem = [[UITabBarItem alloc] initWithTabBarSystemItem:UITabBarSystemItemContacts tag:0];
+	self.sendViewController.tabBarItem = [[UITabBarItem alloc] initWithTitle:@"Send" image:[UIImage imageNamed:@"sampleTabIcon"] selectedImage:[UIImage imageNamed:@"sampleTabIconSelected"]];
     self.receiveViewController = [self.storyboard instantiateViewControllerWithIdentifier:@"ReceiveViewController"];
-	self.receiveViewController.tabBarItem = [[UITabBarItem alloc] initWithTabBarSystemItem:UITabBarSystemItemFeatured tag:1];
+	self.receiveViewController.tabBarItem = [[UITabBarItem alloc] initWithTitle:@"Recieve" image:[UIImage imageNamed:@"sampleTabIcon"] selectedImage:[UIImage imageNamed:@"sampleTabIconSelected"]];
 //    self.pageViewController = [self.storyboard instantiateViewControllerWithIdentifier:@"PageViewController"];
 	self.tabBarController = [self.storyboard instantiateViewControllerWithIdentifier:@"TabBarController"];
 
@@ -112,6 +112,8 @@
 	[self addChildViewController:self.tabBarController];
 	[self.view insertSubview:self.tabBarController.view belowSubview:self.splash];
 	[self.tabBarController didMoveToParentViewController:self];
+	
+	[[UITabBarItem appearance] setTitleTextAttributes:[NSDictionary dictionaryWithObjectsAndKeys:[UIColor blackColor], NSForegroundColorAttributeName, nil] forState:UIControlStateNormal];
 	
 //    self.pageViewController.dataSource = self;
 //    [self.pageViewController setViewControllers:@[self.sendViewController]
