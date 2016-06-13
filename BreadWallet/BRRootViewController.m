@@ -142,16 +142,26 @@
                 }
         
                 BRSendViewController *c = self.sendViewController;
-                
-                [self.pageViewController setViewControllers:(c ? @[c] : @[])
-                direction:UIPageViewControllerNavigationDirectionForward animated:NO completion:^(BOOL finished) {
-                    _url = note.userInfo[@"url"];
-                    
-                    if (self.didAppear && [UIApplication sharedApplication].protectedDataAvailable) {
-                        _url = nil;
-                        [c performSelector:@selector(handleURL:) withObject:note.userInfo[@"url"] afterDelay:0.0];
-                    }
-                }];
+				
+				if ([self.tabBarController.viewControllers containsObject:c]) {
+					[self.tabBarController setSelectedViewController:c];
+					_url = note.userInfo[@"url"];
+					
+					if (self.didAppear && [UIApplication sharedApplication].protectedDataAvailable) {
+						_url = nil;
+						[c performSelector:@selector(handleURL:) withObject:note.userInfo[@"url"] afterDelay:0.0];
+					}
+				}
+				
+//                [self.pageViewController setViewControllers:(c ? @[c] : @[])
+//                direction:UIPageViewControllerNavigationDirectionForward animated:NO completion:^(BOOL finished) {
+//                    _url = note.userInfo[@"url"];
+//                    
+//                    if (self.didAppear && [UIApplication sharedApplication].protectedDataAvailable) {
+//                        _url = nil;
+//                        [c performSelector:@selector(handleURL:) withObject:note.userInfo[@"url"] afterDelay:0.0];
+//                    }
+//                }];
             }
         }];
 
@@ -169,15 +179,25 @@
                 
                 BRSendViewController *sendController = self.sendViewController;
 
-                [self.pageViewController setViewControllers:(sendController ? @[sendController] : @[])
-                direction:UIPageViewControllerNavigationDirectionForward animated:NO completion:^(BOOL finished) {
-                    _file = note.userInfo[@"file"];
-                    
-                    if (self.didAppear && [UIApplication sharedApplication].protectedDataAvailable) {
-                        _file = nil;
-                        [sendController handleFile:note.userInfo[@"file"]];
-                    }
-                }];
+				if ([self.tabBarController.viewControllers containsObject:sendController]) {
+					[self.tabBarController setSelectedViewController:sendController];
+					_file = note.userInfo[@"file"];
+					
+					if (self.didAppear && [UIApplication sharedApplication].protectedDataAvailable) {
+						_file = nil;
+						[sendController handleFile:note.userInfo[@"file"]];
+					}
+				}
+				
+//                [self.pageViewController setViewControllers:(sendController ? @[sendController] : @[])
+//                direction:UIPageViewControllerNavigationDirectionForward animated:NO completion:^(BOOL finished) {
+//                    _file = note.userInfo[@"file"];
+//                    
+//                    if (self.didAppear && [UIApplication sharedApplication].protectedDataAvailable) {
+//                        _file = nil;
+//                        [sendController handleFile:note.userInfo[@"file"]];
+//                    }
+//                }];
             }
         }];
     
@@ -461,8 +481,13 @@
             completion:^{
                 self.splash.hidden = YES;
                 self.navigationController.navigationBar.hidden = NO;
-                [self.pageViewController setViewControllers:@[self.receiveViewController]
-                 direction:UIPageViewControllerNavigationDirectionForward animated:NO completion:nil];
+				
+				if ([self.tabBarController.viewControllers containsObject:self.receiveViewController]) {
+					[self.tabBarController setSelectedViewController:self.receiveViewController];
+				}
+				
+//                [self.pageViewController setViewControllers:@[self.receiveViewController]
+//                 direction:UIPageViewControllerNavigationDirectionForward animated:NO completion:nil];
             }];
 
             manager.didAuthenticate = YES;
@@ -841,14 +866,24 @@
     if (sender == self.receiveViewController) {
         BRSendViewController *sendController = self.sendViewController;
 
-        [(id)self.pageViewController setViewControllers:@[sendController]
-         direction:UIPageViewControllerNavigationDirectionReverse animated:YES
-         completion:^(BOOL finished) { [sendController tip:sender]; }];
+		if ([self.tabBarController.viewControllers containsObject:sendController]) {
+			[self.tabBarController setSelectedViewController:sendController];
+			[sendController tip:sender];
+		}
+		
+//        [(id)self.pageViewController setViewControllers:@[sendController]
+//         direction:UIPageViewControllerNavigationDirectionReverse animated:YES
+//         completion:^(BOOL finished) { [sendController tip:sender]; }];
     }
     else if (sender == self.sendViewController) {
 //        self.scrollView.scrollEnabled = YES;
-        [(id)self.pageViewController setViewControllers:@[self.receiveViewController]
-         direction:UIPageViewControllerNavigationDirectionForward animated:YES completion:nil];
+		
+		if ([self.tabBarController.viewControllers containsObject:self.receiveViewController]) {
+			[self.tabBarController setSelectedViewController:self.receiveViewController];
+		}
+		
+//        [(id)self.pageViewController setViewControllers:@[self.receiveViewController]
+//         direction:UIPageViewControllerNavigationDirectionForward animated:YES completion:nil];
     }
     else if (self.showTips && manager.seedCreationTime + 60*60*24 < [NSDate timeIntervalSinceReferenceDate]) {
         self.showTips = NO;
@@ -932,8 +967,14 @@
         [[UIApplication sharedApplication] setStatusBarHidden:NO];
         self.splash.hidden = YES;
         [self stopActivityWithSuccess:YES];
-        [self.pageViewController setViewControllers:@[self.receiveViewController]
-         direction:UIPageViewControllerNavigationDirectionForward animated:NO completion:nil];
+		self.ta
+		
+		if ([self.tabBarController.viewControllers containsObject:self.receiveViewController]) {
+			[self.tabBarController setSelectedViewController:self.receiveViewController];
+		}
+		
+//        [self.pageViewController setViewControllers:@[self.receiveViewController]
+//         direction:UIPageViewControllerNavigationDirectionForward animated:NO completion:nil];
         self.receiveViewController.paymentRequest =
             [BRPaymentRequest requestWithString:@"n2eMqTT929pb1RDNuqEnxdaLau1rxy3efi"];
         [self.receiveViewController updateAddress];
