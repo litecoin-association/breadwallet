@@ -107,6 +107,7 @@
 
 	self.tabBarController.delegate = self;
 	self.tabBarController.viewControllers = @[self.sendViewController, self.receiveViewController];
+	[self.tabBarController setSelectedViewController:self.sendViewController];
 	self.tabBarController.view.frame = self.view.bounds;
 	[self addChildViewController:self.tabBarController];
 	[self.view insertSubview:self.tabBarController.view belowSubview:self.splash];
@@ -250,6 +251,7 @@
                 self.navigationItem.titleView = self.logo;
                 self.navigationItem.leftBarButtonItem.image = [UIImage imageNamed:@"burger"];
                 self.navigationItem.rightBarButtonItem = self.lock;
+				self.tabBarController.view.alpha = 1.0;
 //                self.pageViewController.view.alpha = 1.0;
                 [UIApplication sharedApplication].applicationIconBadgeNumber = 0; // reset app badge number
             }
@@ -421,6 +423,7 @@
     [super viewWillAppear:animated];
 
     self.navigationItem.leftBarButtonItem.image = [UIImage imageNamed:@"burger"];
+	self.tabBarController.view.alpha = 1.0;
 //    self.pageViewController.view.alpha = 1.0;
     if ([BRWalletManager sharedInstance].didAuthenticate) [self unlock:nil];
 }
@@ -499,6 +502,7 @@
         if (_balance == UINT64_MAX && [defs objectForKey:BALANCE_KEY]) self.balance = [defs doubleForKey:BALANCE_KEY];
         self.splash.hidden = YES;
         self.navigationController.navigationBar.hidden = NO;
+		self.tabBarController.view.alpha = 1.0;
 //        self.pageViewController.view.alpha = 1.0;
         [self.receiveViewController updateAddress];
         if (self.reachability.currentReachabilityStatus == NotReachable) [self showErrorBar];
@@ -822,7 +826,8 @@
 
         if (self.inNextTip) return NO; // break out of recursive loop
         self.inNextTip = YES;
-        ret = [self.pageViewController.viewControllers.lastObject nextTip];
+		ret = [self.tabBarController.selectedViewController nextTip];
+        //ret = [self.pageViewController.viewControllers.lastObject nextTip];
         self.inNextTip = NO;
         return ret;
     }
@@ -851,7 +856,8 @@
     }
     else if (self.showTips) {
         self.showTips = NO;
-        [self.pageViewController.viewControllers.lastObject tip:self];
+		[self.tabBarController.selectedViewController tip:self];
+        //[self.pageViewController.viewControllers.lastObject tip:self];
     }
 
     return YES;
@@ -954,6 +960,7 @@
             manager.didAuthenticate = NO;
             self.navigationItem.titleView = self.logo;
             self.navigationItem.rightBarButtonItem = self.lock;
+			self.tabBarController.view.alpha = 1.0;
 //            self.pageViewController.view.alpha = 1.0;
             self.navigationController.navigationBar.hidden = YES;
             [[UIApplication sharedApplication] setStatusBarHidden:YES];
@@ -984,38 +991,38 @@
 }
 #endif
 
-#pragma mark - UIPageViewControllerDataSource
+//#pragma mark - UIPageViewControllerDataSource
+//
+//- (UIViewController *)pageViewController:(UIPageViewController *)pageViewController
+//viewControllerBeforeViewController:(UIViewController *)viewController
+//{
+//    return (viewController == self.receiveViewController) ? self.sendViewController : nil;
+//}
+//
+//- (UIViewController *)pageViewController:(UIPageViewController *)pageViewController
+//viewControllerAfterViewController:(UIViewController *)viewController
+//{
+//    return (viewController == self.sendViewController) ? self.receiveViewController : nil;
+//}
+//
+//- (NSInteger)presentationCountForPageViewController:(UIPageViewController *)pageViewController
+//{
+//    return 0;
+//}
+//
+//- (NSInteger)presentationIndexForPageViewController:(UIPageViewController *)pageViewController
+//{
+//    return (pageViewController.viewControllers.lastObject == self.receiveViewController) ? 1 : 0;
+//}
 
-- (UIViewController *)pageViewController:(UIPageViewController *)pageViewController
-viewControllerBeforeViewController:(UIViewController *)viewController
-{
-    return (viewController == self.receiveViewController) ? self.sendViewController : nil;
-}
-
-- (UIViewController *)pageViewController:(UIPageViewController *)pageViewController
-viewControllerAfterViewController:(UIViewController *)viewController
-{
-    return (viewController == self.sendViewController) ? self.receiveViewController : nil;
-}
-
-- (NSInteger)presentationCountForPageViewController:(UIPageViewController *)pageViewController
-{
-    return 0;
-}
-
-- (NSInteger)presentationIndexForPageViewController:(UIPageViewController *)pageViewController
-{
-    return (pageViewController.viewControllers.lastObject == self.receiveViewController) ? 1 : 0;
-}
-
-#pragma mark - UIScrollViewDelegate
-
-- (void)scrollViewDidScroll:(UIScrollView *)scrollView
-{
-    CGFloat off = scrollView.contentOffset.x + (scrollView.contentInset.left < 0 ? scrollView.contentInset.left : 0);
-    
-    self.wallpaperXLeft.constant = -PARALAX_RATIO*off;
-}
+//#pragma mark - UIScrollViewDelegate
+//
+//- (void)scrollViewDidScroll:(UIScrollView *)scrollView
+//{
+//    CGFloat off = scrollView.contentOffset.x + (scrollView.contentInset.left < 0 ? scrollView.contentInset.left : 0);
+//    
+//    self.wallpaperXLeft.constant = -PARALAX_RATIO*off;
+//}
 
 #pragma mark - UIAlertViewDelegate
 
@@ -1100,13 +1107,19 @@ viewControllerAfterViewController:(UIViewController *)viewController
         [UIView animateWithDuration:[self transitionDuration:transitionContext] delay:0.0 usingSpringWithDamping:0.8
         initialSpringVelocity:0 options:UIViewAnimationOptionCurveEaseOut animations:^{
             to.view.center = CGPointMake(to.view.center.x, containerView.frame.size.height/2);
-            self.pageViewController.view.alpha = 0.0;
-            self.pageViewController.view.center = CGPointMake(self.pageViewController.view.center.x,
-                                                              containerView.frame.size.height/4.0);
+			self.tabBarController.view.alpha = 0.0;
+			self.tabBarController.view.center = CGPointMake(self.tabBarController.view.center.x,
+															containerView.frame.size.height/4.0);
+//            self.pageViewController.view.alpha = 0.0;
+//            self.pageViewController.view.center = CGPointMake(self.pageViewController.view.center.x,
+//                                                              containerView.frame.size.height/4.0);
         } completion:^(BOOL finished) {
-            self.pageViewController.view.center = CGPointMake(self.pageViewController.view.center.x,
-                                                              containerView.frame.size.height/2.0);
-            
+			self.tabBarController.view.center = CGPointMake(self.tabBarController.view.center.x,
+															  containerView.frame.size.height/2.0);
+			
+//            self.pageViewController.view.center = CGPointMake(self.pageViewController.view.center.x,
+//                                                              containerView.frame.size.height/2.0);
+			
             if (! manager.didAuthenticate) {
                 item.rightBarButtonItem = rightButton;
                 if (self.percent.hidden) item.titleView = titleView;
@@ -1141,16 +1154,24 @@ viewControllerAfterViewController:(UIViewController *)viewController
         [containerView layoutIfNeeded];
         self.burger.center = CGPointMake(26.0, 40.0);
         [self.burger setX:NO completion:nil];
-        self.pageViewController.view.alpha = 0.0;
-        self.pageViewController.view.center = CGPointMake(self.pageViewController.view.center.x,
-                                                          containerView.frame.size.height/4.0);
+		self.tabBarController.view.alpha = 0.0;
+		self.tabBarController.view.center = CGPointMake(self.tabBarController.view.center.x,
+														  containerView.frame.size.height/4.0);
+		
+//        self.pageViewController.view.alpha = 0.0;
+//        self.pageViewController.view.center = CGPointMake(self.pageViewController.view.center.x,
+//                                                          containerView.frame.size.height/4.0);
 
         [UIView animateWithDuration:[self transitionDuration:transitionContext] delay:0.0 usingSpringWithDamping:0.8
         initialSpringVelocity:0 options:UIViewAnimationOptionCurveEaseOut animations:^{
             from.view.center = CGPointMake(from.view.center.x, containerView.frame.size.height*3/2);
-            self.pageViewController.view.alpha = 1.0;
-            self.pageViewController.view.center = CGPointMake(self.pageViewController.view.center.x,
-                                                              containerView.frame.size.height/2);
+			self.tabBarController.view.alpha = 1.0;
+			self.tabBarController.view.center = CGPointMake(self.tabBarController.view.center.x,
+															  containerView.frame.size.height/2);
+			
+//            self.pageViewController.view.alpha = 1.0;
+//            self.pageViewController.view.center = CGPointMake(self.pageViewController.view.center.x,
+//                                                              containerView.frame.size.height/2);
         } completion:^(BOOL finished) {
             item.rightBarButtonItem = rightButton;
             item.titleView = titleView;
