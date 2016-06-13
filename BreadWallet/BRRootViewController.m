@@ -60,7 +60,7 @@
 @property (nonatomic, strong) IBOutlet BRBouncyBurgerButton *burger;
 @property (nonatomic, strong) IBOutlet NSLayoutConstraint *wallpaperXLeft;
 
-@property (nonatomic, strong) UIScrollView *scrollView;
+//@property (nonatomic, strong) UIScrollView *scrollView;
 @property (nonatomic, strong) BRBubbleView *tipView;
 @property (nonatomic, assign) BOOL showTips, inNextTip, didAppear;
 @property (nonatomic, assign) uint64_t balance;
@@ -120,12 +120,12 @@
 //    [self.view insertSubview:self.pageViewController.view belowSubview:self.splash];
 //    [self.pageViewController didMoveToParentViewController:self];
 
-    for (UIView *view in self.pageViewController.view.subviews) {
-        if (! [view isKindOfClass:[UIScrollView class]]) continue;
-        self.scrollView = (id)view;
-        self.scrollView.delegate = self;
-        break;
-    }
+//    for (UIView *view in self.pageViewController.view.subviews) {
+//        if (! [view isKindOfClass:[UIScrollView class]]) continue;
+//        self.scrollView = (id)view;
+//        self.scrollView.delegate = self;
+//        break;
+//    }
 
     BRWalletManager *manager = [BRWalletManager sharedInstance];
 
@@ -551,10 +551,10 @@
     }
 }
 
-- (void)viewDidLayoutSubviews
-{
-    [self scrollViewDidScroll:self.scrollView];
-}
+//- (void)viewDidLayoutSubviews
+//{
+//    [self scrollViewDidScroll:self.scrollView];
+//}
 
 - (void)dealloc
 {
@@ -846,7 +846,7 @@
          completion:^(BOOL finished) { [sendController tip:sender]; }];
     }
     else if (sender == self.sendViewController) {
-        self.scrollView.scrollEnabled = YES;
+//        self.scrollView.scrollEnabled = YES;
         [(id)self.pageViewController setViewControllers:@[self.receiveViewController]
          direction:UIPageViewControllerNavigationDirectionForward animated:YES completion:nil];
     }
