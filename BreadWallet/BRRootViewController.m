@@ -102,7 +102,7 @@
 	self.sendViewController.tabBarItem = [[UITabBarItem alloc] initWithTabBarSystemItem:UITabBarSystemItemContacts tag:0];
     self.receiveViewController = [self.storyboard instantiateViewControllerWithIdentifier:@"ReceiveViewController"];
 	self.receiveViewController.tabBarItem = [[UITabBarItem alloc] initWithTabBarSystemItem:UITabBarSystemItemFeatured tag:1];
-    self.pageViewController = [self.storyboard instantiateViewControllerWithIdentifier:@"PageViewController"];
+//    self.pageViewController = [self.storyboard instantiateViewControllerWithIdentifier:@"PageViewController"];
 	self.tabBarController = [self.storyboard instantiateViewControllerWithIdentifier:@"TabBarController"];
 
 	self.tabBarController.delegate = self;
@@ -230,7 +230,7 @@
                 self.navigationItem.titleView = self.logo;
                 self.navigationItem.leftBarButtonItem.image = [UIImage imageNamed:@"burger"];
                 self.navigationItem.rightBarButtonItem = self.lock;
-                self.pageViewController.view.alpha = 1.0;
+//                self.pageViewController.view.alpha = 1.0;
                 [UIApplication sharedApplication].applicationIconBadgeNumber = 0; // reset app badge number
             }
         }];
@@ -401,7 +401,7 @@
     [super viewWillAppear:animated];
 
     self.navigationItem.leftBarButtonItem.image = [UIImage imageNamed:@"burger"];
-    self.pageViewController.view.alpha = 1.0;
+//    self.pageViewController.view.alpha = 1.0;
     if ([BRWalletManager sharedInstance].didAuthenticate) [self unlock:nil];
 }
 
@@ -474,7 +474,7 @@
         if (_balance == UINT64_MAX && [defs objectForKey:BALANCE_KEY]) self.balance = [defs doubleForKey:BALANCE_KEY];
         self.splash.hidden = YES;
         self.navigationController.navigationBar.hidden = NO;
-        self.pageViewController.view.alpha = 1.0;
+//        self.pageViewController.view.alpha = 1.0;
         [self.receiveViewController updateAddress];
         if (self.reachability.currentReachabilityStatus == NotReachable) [self showErrorBar];
 
@@ -919,7 +919,7 @@
             manager.didAuthenticate = NO;
             self.navigationItem.titleView = self.logo;
             self.navigationItem.rightBarButtonItem = self.lock;
-            self.pageViewController.view.alpha = 1.0;
+//            self.pageViewController.view.alpha = 1.0;
             self.navigationController.navigationBar.hidden = YES;
             [[UIApplication sharedApplication] setStatusBarHidden:YES];
             self.splash.hidden = NO;
