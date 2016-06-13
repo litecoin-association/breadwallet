@@ -406,7 +406,7 @@
             <objects>
                 <navigationController definesPresentationContext="YES" id="BeO-Yt-c4D" sceneMemberID="viewController">
                     <simulatedScreenMetrics key="simulatedDestinationMetrics" type="retina47"/>
-                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="BYa-tz-DlK" customClass="BRNavigationBar">
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="BYa-tz-DlK">
                         <autoresizingMask key="autoresizingMask"/>
                         <gestureRecognizers/>
                         <textAttributes key="titleTextAttributes">
