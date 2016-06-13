@@ -60,7 +60,6 @@
 @property (nonatomic, strong) IBOutlet BRBouncyBurgerButton *burger;
 @property (nonatomic, strong) IBOutlet NSLayoutConstraint *wallpaperXLeft;
 
-//@property (nonatomic, strong) UIScrollView *scrollView;
 @property (nonatomic, strong) BRBubbleView *tipView;
 @property (nonatomic, assign) BOOL showTips, inNextTip, didAppear;
 @property (nonatomic, assign) uint64_t balance;
@@ -102,7 +101,7 @@
 	self.sendViewController.tabBarItem = [[UITabBarItem alloc] initWithTitle:@"Send" image:[UIImage imageNamed:@"sampleTabIcon"] selectedImage:[UIImage imageNamed:@"sampleTabIconSelected"]];
     self.receiveViewController = [self.storyboard instantiateViewControllerWithIdentifier:@"ReceiveViewController"];
 	self.receiveViewController.tabBarItem = [[UITabBarItem alloc] initWithTitle:@"Recieve" image:[UIImage imageNamed:@"sampleTabIcon"] selectedImage:[UIImage imageNamed:@"sampleTabIconSelected"]];
-//    self.pageViewController = [self.storyboard instantiateViewControllerWithIdentifier:@"PageViewController"];
+
 	self.tabBarController = [self.storyboard instantiateViewControllerWithIdentifier:@"TabBarController"];
 
 	self.tabBarController.delegate = self;
@@ -114,21 +113,7 @@
 	[self.tabBarController didMoveToParentViewController:self];
 	
 	[[UITabBarItem appearance] setTitleTextAttributes:[NSDictionary dictionaryWithObjectsAndKeys:[UIColor blackColor], NSForegroundColorAttributeName, nil] forState:UIControlStateNormal];
-	
-//    self.pageViewController.dataSource = self;
-//    [self.pageViewController setViewControllers:@[self.sendViewController]
-//     direction:UIPageViewControllerNavigationDirectionForward animated:NO completion:nil];
-//    self.pageViewController.view.frame = self.view.bounds;
-//    [self addChildViewController:self.pageViewController];
-//    [self.view insertSubview:self.pageViewController.view belowSubview:self.splash];
-//    [self.pageViewController didMoveToParentViewController:self];
 
-//    for (UIView *view in self.pageViewController.view.subviews) {
-//        if (! [view isKindOfClass:[UIScrollView class]]) continue;
-//        self.scrollView = (id)view;
-//        self.scrollView.delegate = self;
-//        break;
-//    }
 
     BRWalletManager *manager = [BRWalletManager sharedInstance];
 
@@ -155,16 +140,6 @@
 						[c performSelector:@selector(handleURL:) withObject:note.userInfo[@"url"] afterDelay:0.0];
 					}
 				}
-				
-//                [self.pageViewController setViewControllers:(c ? @[c] : @[])
-//                direction:UIPageViewControllerNavigationDirectionForward animated:NO completion:^(BOOL finished) {
-//                    _url = note.userInfo[@"url"];
-//                    
-//                    if (self.didAppear && [UIApplication sharedApplication].protectedDataAvailable) {
-//                        _url = nil;
-//                        [c performSelector:@selector(handleURL:) withObject:note.userInfo[@"url"] afterDelay:0.0];
-//                    }
-//                }];
             }
         }];
 
@@ -191,16 +166,6 @@
 						[sendController handleFile:note.userInfo[@"file"]];
 					}
 				}
-				
-//                [self.pageViewController setViewControllers:(sendController ? @[sendController] : @[])
-//                direction:UIPageViewControllerNavigationDirectionForward animated:NO completion:^(BOOL finished) {
-//                    _file = note.userInfo[@"file"];
-//                    
-//                    if (self.didAppear && [UIApplication sharedApplication].protectedDataAvailable) {
-//                        _file = nil;
-//                        [sendController handleFile:note.userInfo[@"file"]];
-//                    }
-//                }];
             }
         }];
     
@@ -254,7 +219,6 @@
                 self.navigationItem.leftBarButtonItem.image = [UIImage imageNamed:@"burger"];
                 self.navigationItem.rightBarButtonItem = self.lock;
 				self.tabBarController.view.alpha = 1.0;
-//                self.pageViewController.view.alpha = 1.0;
                 [UIApplication sharedApplication].applicationIconBadgeNumber = 0; // reset app badge number
             }
         }];
@@ -426,7 +390,6 @@
 
     self.navigationItem.leftBarButtonItem.image = [UIImage imageNamed:@"burger"];
 	self.tabBarController.view.alpha = 1.0;
-//    self.pageViewController.view.alpha = 1.0;
     if ([BRWalletManager sharedInstance].didAuthenticate) [self unlock:nil];
 }
 
@@ -493,9 +456,6 @@
 				if ([self.tabBarController.viewControllers containsObject:self.receiveViewController]) {
 					[self.tabBarController setSelectedViewController:self.receiveViewController];
 				}
-				
-//                [self.pageViewController setViewControllers:@[self.receiveViewController]
-//                 direction:UIPageViewControllerNavigationDirectionForward animated:NO completion:nil];
             }];
 
             manager.didAuthenticate = YES;
@@ -508,7 +468,6 @@
         self.splash.hidden = YES;
         self.navigationController.navigationBar.hidden = NO;
 		self.tabBarController.view.alpha = 1.0;
-//        self.pageViewController.view.alpha = 1.0;
         [self.receiveViewController updateAddress];
         if (self.reachability.currentReachabilityStatus == NotReachable) [self showErrorBar];
 
@@ -585,11 +544,6 @@
     }
 }
 
-//- (void)viewDidLayoutSubviews
-//{
-//    [self scrollViewDidScroll:self.scrollView];
-//}
-
 - (void)dealloc
 {
     [NSObject cancelPreviousPerformRequestsWithTarget:self];
@@ -646,7 +600,7 @@
 		[label sizeToFit];
 		self.navigationItem.titleView = label;
 		
-        //self.navigationItem.title = [NSString stringWithFormat:@"%@ LTC", [manager stringForAmount:balance]];
+        //self.navigationItem.title = [NSString stringWithFormat:@"%@", [manager stringForAmount:balance]];
     }
 }
 
@@ -849,7 +803,6 @@
         if (self.inNextTip) return NO; // break out of recursive loop
         self.inNextTip = YES;
 		ret = [self.tabBarController.selectedViewController nextTip];
-        //ret = [self.pageViewController.viewControllers.lastObject nextTip];
         self.inNextTip = NO;
         return ret;
     }
@@ -879,7 +832,6 @@
     else if (self.showTips) {
         self.showTips = NO;
 		[self.tabBarController.selectedViewController tip:self];
-        //[self.pageViewController.viewControllers.lastObject tip:self];
     }
 
     return YES;
@@ -913,20 +865,11 @@
 			[self.tabBarController setSelectedViewController:sendController];
 			[sendController tip:sender];
 		}
-		
-//        [(id)self.pageViewController setViewControllers:@[sendController]
-//         direction:UIPageViewControllerNavigationDirectionReverse animated:YES
-//         completion:^(BOOL finished) { [sendController tip:sender]; }];
     }
     else if (sender == self.sendViewController) {
-//        self.scrollView.scrollEnabled = YES;
-		
 		if ([self.tabBarController.viewControllers containsObject:self.receiveViewController]) {
 			[self.tabBarController setSelectedViewController:self.receiveViewController];
 		}
-		
-//        [(id)self.pageViewController setViewControllers:@[self.receiveViewController]
-//         direction:UIPageViewControllerNavigationDirectionForward animated:YES completion:nil];
     }
     else if (self.showTips && manager.seedCreationTime + 60*60*24 < [NSDate timeIntervalSinceReferenceDate]) {
         self.showTips = NO;
@@ -998,7 +941,6 @@
             self.navigationItem.titleView = self.logo;
             self.navigationItem.rightBarButtonItem = self.lock;
 			self.tabBarController.view.alpha = 1.0;
-//            self.pageViewController.view.alpha = 1.0;
             self.navigationController.navigationBar.hidden = YES;
             [[UIApplication sharedApplication] setStatusBarHidden:YES];
             self.splash.hidden = NO;
@@ -1017,8 +959,6 @@
 			[self.tabBarController setSelectedViewController:self.receiveViewController];
 		}
 		
-//        [self.pageViewController setViewControllers:@[self.receiveViewController]
-//         direction:UIPageViewControllerNavigationDirectionForward animated:NO completion:nil];
         self.receiveViewController.paymentRequest =
             [BRPaymentRequest requestWithString:@"n2eMqTT929pb1RDNuqEnxdaLau1rxy3efi"];
         [self.receiveViewController updateAddress];
@@ -1028,38 +968,6 @@
 }
 #endif
 
-//#pragma mark - UIPageViewControllerDataSource
-//
-//- (UIViewController *)pageViewController:(UIPageViewController *)pageViewController
-//viewControllerBeforeViewController:(UIViewController *)viewController
-//{
-//    return (viewController == self.receiveViewController) ? self.sendViewController : nil;
-//}
-//
-//- (UIViewController *)pageViewController:(UIPageViewController *)pageViewController
-//viewControllerAfterViewController:(UIViewController *)viewController
-//{
-//    return (viewController == self.sendViewController) ? self.receiveViewController : nil;
-//}
-//
-//- (NSInteger)presentationCountForPageViewController:(UIPageViewController *)pageViewController
-//{
-//    return 0;
-//}
-//
-//- (NSInteger)presentationIndexForPageViewController:(UIPageViewController *)pageViewController
-//{
-//    return (pageViewController.viewControllers.lastObject == self.receiveViewController) ? 1 : 0;
-//}
-
-//#pragma mark - UIScrollViewDelegate
-//
-//- (void)scrollViewDidScroll:(UIScrollView *)scrollView
-//{
-//    CGFloat off = scrollView.contentOffset.x + (scrollView.contentInset.left < 0 ? scrollView.contentInset.left : 0);
-//    
-//    self.wallpaperXLeft.constant = -PARALAX_RATIO*off;
-//}
 
 #pragma mark - UIAlertViewDelegate
 
@@ -1147,15 +1055,9 @@
 			self.tabBarController.view.alpha = 0.0;
 			self.tabBarController.view.center = CGPointMake(self.tabBarController.view.center.x,
 															containerView.frame.size.height/4.0);
-//            self.pageViewController.view.alpha = 0.0;
-//            self.pageViewController.view.center = CGPointMake(self.pageViewController.view.center.x,
-//                                                              containerView.frame.size.height/4.0);
         } completion:^(BOOL finished) {
 			self.tabBarController.view.center = CGPointMake(self.tabBarController.view.center.x,
 															  containerView.frame.size.height/2.0);
-			
-//            self.pageViewController.view.center = CGPointMake(self.pageViewController.view.center.x,
-//                                                              containerView.frame.size.height/2.0);
 			
             if (! manager.didAuthenticate) {
                 item.rightBarButtonItem = rightButton;
@@ -1194,10 +1096,6 @@
 		self.tabBarController.view.alpha = 0.0;
 		self.tabBarController.view.center = CGPointMake(self.tabBarController.view.center.x,
 														  containerView.frame.size.height/4.0);
-		
-//        self.pageViewController.view.alpha = 0.0;
-//        self.pageViewController.view.center = CGPointMake(self.pageViewController.view.center.x,
-//                                                          containerView.frame.size.height/4.0);
 
         [UIView animateWithDuration:[self transitionDuration:transitionContext] delay:0.0 usingSpringWithDamping:0.8
         initialSpringVelocity:0 options:UIViewAnimationOptionCurveEaseOut animations:^{
@@ -1205,10 +1103,6 @@
 			self.tabBarController.view.alpha = 1.0;
 			self.tabBarController.view.center = CGPointMake(self.tabBarController.view.center.x,
 															  containerView.frame.size.height/2);
-			
-//            self.pageViewController.view.alpha = 1.0;
-//            self.pageViewController.view.center = CGPointMake(self.pageViewController.view.center.x,
-//                                                              containerView.frame.size.height/2);
         } completion:^(BOOL finished) {
             item.rightBarButtonItem = rightButton;
             item.titleView = titleView;
