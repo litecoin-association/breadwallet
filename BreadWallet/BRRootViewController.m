@@ -629,7 +629,24 @@
     [[NSUserDefaults standardUserDefaults] setDouble:balance forKey:BALANCE_KEY];
 
     if (self.percent.hidden) {
-        self.navigationItem.title = [NSString stringWithFormat:@"%@", [manager stringForAmount:balance]];
+		
+		UILabel *label = [[UILabel alloc] init];
+		UIFont *titleFont = [UIFont fontWithName:@"HelveticaNeue" size:25.0];
+		UIFont *smallFont = [UIFont fontWithName:@"HelveticaNeue-Light" size:12.0];
+		NSString *simpleString = [NSString stringWithFormat:@"%@  LTC", [manager stringForAmount:balance]];
+		NSRange range = [simpleString rangeOfString:@"  LTC"];
+		range.length = (simpleString.length - range.location);
+		
+		NSMutableAttributedString *stylizedString = [[NSMutableAttributedString alloc] initWithString:simpleString];
+		NSNumber *offsetAmount = @(titleFont.capHeight - smallFont.capHeight);
+		[stylizedString addAttribute:NSFontAttributeName value:smallFont range:range];
+		[stylizedString addAttribute:NSBaselineOffsetAttributeName value:offsetAmount range:range];
+		label.font = titleFont;
+		label.attributedText = stylizedString;
+		[label sizeToFit];
+		self.navigationItem.titleView = label;
+		
+        //self.navigationItem.title = [NSString stringWithFormat:@"%@ LTC", [manager stringForAmount:balance]];
     }
 }
 
