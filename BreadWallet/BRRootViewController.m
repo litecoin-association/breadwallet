@@ -97,18 +97,28 @@
 #endif
 
     _balance = UINT64_MAX;
-    
+	
+	self.sendViewController = [self.storyboard instantiateViewControllerWithIdentifier:@"SendViewController"];
+	self.sendViewController.tabBarItem = [[UITabBarItem alloc] initWithTabBarSystemItem:UITabBarSystemItemContacts tag:0];
     self.receiveViewController = [self.storyboard instantiateViewControllerWithIdentifier:@"ReceiveViewController"];
-    self.sendViewController = [self.storyboard instantiateViewControllerWithIdentifier:@"SendViewController"];
+	self.receiveViewController.tabBarItem = [[UITabBarItem alloc] initWithTabBarSystemItem:UITabBarSystemItemFeatured tag:1];
     self.pageViewController = [self.storyboard instantiateViewControllerWithIdentifier:@"PageViewController"];
+	self.tabBarController = [self.storyboard instantiateViewControllerWithIdentifier:@"TabBarController"];
 
-    self.pageViewController.dataSource = self;
-    [self.pageViewController setViewControllers:@[self.sendViewController]
-     direction:UIPageViewControllerNavigationDirectionForward animated:NO completion:nil];
-    self.pageViewController.view.frame = self.view.bounds;
-    [self addChildViewController:self.pageViewController];
-    [self.view insertSubview:self.pageViewController.view belowSubview:self.splash];
-    [self.pageViewController didMoveToParentViewController:self];
+	self.tabBarController.delegate = self;
+	self.tabBarController.viewControllers = @[self.sendViewController, self.receiveViewController];
+	self.tabBarController.view.frame = self.view.bounds;
+	[self addChildViewController:self.tabBarController];
+	[self.view insertSubview:self.tabBarController.view belowSubview:self.splash];
+	[self.tabBarController didMoveToParentViewController:self];
+	
+//    self.pageViewController.dataSource = self;
+//    [self.pageViewController setViewControllers:@[self.sendViewController]
+//     direction:UIPageViewControllerNavigationDirectionForward animated:NO completion:nil];
+//    self.pageViewController.view.frame = self.view.bounds;
+//    [self addChildViewController:self.pageViewController];
+//    [self.view insertSubview:self.pageViewController.view belowSubview:self.splash];
+//    [self.pageViewController didMoveToParentViewController:self];
 
     for (UIView *view in self.pageViewController.view.subviews) {
         if (! [view isKindOfClass:[UIScrollView class]]) continue;

@@ -30,13 +30,14 @@
 
 @class BRReceiveViewController, BRSendViewController;
 
-@interface BRRootViewController : UIViewController <UIAlertViewDelegate, UIPageViewControllerDataSource,
+@interface BRRootViewController : UIViewController <UIAlertViewDelegate, UIPageViewControllerDataSource, UITabBarControllerDelegate,
 UIScrollViewDelegate, UINavigationControllerDelegate, UIViewControllerTransitioningDelegate,
 UIViewControllerAnimatedTransitioning>
 
 @property (nonatomic, strong) IBOutlet BRReceiveViewController *receiveViewController;
 @property (nonatomic, strong) IBOutlet BRSendViewController *sendViewController;
 @property (nonatomic, strong) IBOutlet UIPageViewController *pageViewController;
+@property (nonatomic, strong) IBOutlet UITabBarController *tabBarController;
 
 - (IBAction)tip:(id)sender;
 
