@@ -448,6 +448,9 @@
     if ([UIApplication sharedApplication].protectedDataAvailable) {
         [self performSelector:@selector(protectedViewDidAppear) withObject:nil afterDelay:0.0];
     }
+	
+	[[self findHairlineImageViewUnder:self.navigationController.navigationBar] setHidden:YES];
+	[[self findHairlineImageViewUnder:self.tabBarController.tabBar] setHidden:YES];
     
     [super viewDidAppear:animated];
 }
@@ -861,6 +864,21 @@
     }
 
     return YES;
+}
+
+#pragma mark - UIBarHandlers
+
+- (UIImageView *)findHairlineImageViewUnder:(UIView *)view {
+	if ([view isKindOfClass:UIImageView.class] && view.bounds.size.height <= 1.0) {
+		return (UIImageView *)view;
+	}
+	for (UIView *subview in view.subviews) {
+		UIImageView *imageView = [self findHairlineImageViewUnder:subview];
+		if (imageView) {
+			return imageView;
+		}
+	}
+	return nil;
 }
 
 #pragma mark - IBAction
