@@ -1514,18 +1514,7 @@
                 </tabBarController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="aZd-Bb-RwR" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="117.5" y="1429.5"/>
-        </scene>
-        <!--Page View Controller-->
-        <scene sceneID="9U9-46-WI3">
-            <objects>
-                <pageViewController storyboardIdentifier="PageViewController" transitionStyle="scroll" navigationOrientation="horizontal" spineLocation="none" id="BJV-cw-xC1" sceneMemberID="viewController">
-                    <navigationItem key="navigationItem" id="H4U-Yj-ekO"/>
-                    <simulatedScreenMetrics key="simulatedDestinationMetrics" type="retina47"/>
-                </pageViewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="n4f-g4-nN4" userLabel="First Responder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="568.125" y="1430.2816901408451"/>
+            <point key="canvasLocation" x="567.5" y="1429.5"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="c3l-CQ-xKB">
