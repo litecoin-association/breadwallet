@@ -27,6 +27,7 @@
 #import "BRRootViewController.h"
 #import "BRReceiveViewController.h"
 #import "BRSendViewController.h"
+#import "BRHistoryViewController.h"
 #import "BRSettingsViewController.h"
 #import "BRRestoreViewController.h"
 #import "BRAppDelegate.h"
@@ -101,11 +102,13 @@
 	self.sendViewController.tabBarItem = [[UITabBarItem alloc] initWithTitle:NSLocalizedString(@"Send", nil) image:[UIImage imageNamed:@"send-icon"] selectedImage:[UIImage imageNamed:@"send-sel-icon"]];
     self.receiveViewController = [self.storyboard instantiateViewControllerWithIdentifier:@"ReceiveViewController"];
 	self.receiveViewController.tabBarItem = [[UITabBarItem alloc] initWithTitle:NSLocalizedString(@"Receive", nil) image:[UIImage imageNamed:@"recieve-icon"] selectedImage:[UIImage imageNamed:@"recieve-sel-icon"]];
+    self.historyViewController = [self.storyboard instantiateViewControllerWithIdentifier:@"HistoryViewController"];
+    self.historyViewController.tabBarItem = [[UITabBarItem alloc] initWithTitle:NSLocalizedString(@"History", nil) image:[UIImage imageNamed:@"tx-icon"] selectedImage:[UIImage imageNamed:@"tx-sel-icon"]];
 
 	self.tabBarController = [self.storyboard instantiateViewControllerWithIdentifier:@"TabBarController"];
 
 	self.tabBarController.delegate = self;
-	self.tabBarController.viewControllers = @[self.sendViewController, self.receiveViewController];
+	self.tabBarController.viewControllers = @[self.sendViewController, self.receiveViewController, self.historyViewController];
 	[self.tabBarController setSelectedViewController:self.sendViewController];
 	self.tabBarController.view.frame = self.view.bounds;
 	[self addChildViewController:self.tabBarController];

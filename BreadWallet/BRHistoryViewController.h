@@ -26,6 +26,11 @@
 
 #import <UIKit/UIKit.h>
 
-@interface BRHistoryViewController : UIViewController // <UITableViewDataSource, UITableViewDelegate>
+@class BRTransaction;
+
+@interface BRHistoryViewController : UITableViewController <UIAlertViewDelegate, UINavigationControllerDelegate,
+UIViewControllerTransitioningDelegate, UIViewControllerAnimatedTransitioning>
+
+@property (nonatomic, strong) BRTransaction *transaction;
 
 @end
