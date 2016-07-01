@@ -28,12 +28,13 @@
 
 #define PARALAX_RATIO    0.25
 
-@class BRReceiveViewController, BRSendViewController;
+@class BRReceiveViewController, BRSendViewController, BRHistoryViewController;
 
 @interface BRRootViewController : UIViewController <UIAlertViewDelegate, UITabBarControllerDelegate, UINavigationControllerDelegate, UIViewControllerTransitioningDelegate, UIViewControllerAnimatedTransitioning>
 
 @property (nonatomic, strong) IBOutlet BRReceiveViewController *receiveViewController;
 @property (nonatomic, strong) IBOutlet BRSendViewController *sendViewController;
+@property (nonatomic, strong) IBOutlet BRHistoryViewController *historyViewController;
 @property (nonatomic, strong) IBOutlet UITabBarController *tabBarController;
 
 - (IBAction)tip:(id)sender;
