@@ -790,4 +790,10 @@ static NSString *dateFormat(NSString *template)
     return self;
 }
 
+#pragma mark - Tips Stuff
+- (BOOL)nextTip
+{
+    return NO;
+}
+
 @end
