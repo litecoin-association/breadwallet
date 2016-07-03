@@ -126,6 +126,10 @@
 		BAC7B6BE1BD9C29900165B84 /* BRPhoneWCSessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = BAC7B6BD1BD9C29900165B84 /* BRPhoneWCSessionManager.m */; };
 		BAE12BF21B2DEE7F00895CC5 /* TodayExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = BAE12BE51B2DEE7F00895CC5 /* TodayExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		BAE12C061B2DEEF700895CC5 /* BRTodayViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = BAE12C051B2DEEF700895CC5 /* BRTodayViewController.m */; };
+		DFC59ED91D29372C00D3C74E /* receive.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = DFC59ED71D29372C00D3C74E /* receive.mp4 */; };
+		DFC59EDA1D29372C00D3C74E /* send.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = DFC59ED81D29372C00D3C74E /* send.mp4 */; };
+		DFC59EDC1D2937A600D3C74E /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DFC59EDB1D2937A600D3C74E /* MediaPlayer.framework */; };
+		DFC59EE11D29389E00D3C74E /* BRTutorial.m in Sources */ = {isa = PBXBuildFile; fileRef = DFC59EE01D29389E00D3C74E /* BRTutorial.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -501,6 +505,11 @@
 		BAE12BEA1B2DEE7F00895CC5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		BAE12C041B2DEEF700895CC5 /* BRTodayViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BRTodayViewController.h; sourceTree = "<group>"; };
 		BAE12C051B2DEEF700895CC5 /* BRTodayViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BRTodayViewController.m; sourceTree = "<group>"; };
+		DFC59ED71D29372C00D3C74E /* receive.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = receive.mp4; sourceTree = "<group>"; };
+		DFC59ED81D29372C00D3C74E /* send.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = send.mp4; sourceTree = "<group>"; };
+		DFC59EDB1D2937A600D3C74E /* MediaPlayer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MediaPlayer.framework; path = System/Library/Frameworks/MediaPlayer.framework; sourceTree = SDKROOT; };
+		DFC59EDF1D29389E00D3C74E /* BRTutorial.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BRTutorial.h; sourceTree = "<group>"; };
+		DFC59EE01D29389E00D3C74E /* BRTutorial.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BRTutorial.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -515,6 +524,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DFC59EDC1D2937A600D3C74E /* MediaPlayer.framework in Frameworks */,
 				225383011C694D7400968BEE /* CoreLocation.framework in Frameworks */,
 				22D3613D1C56F2CD0057CF76 /* libsqlite3.tbd in Frameworks */,
 				222E7F581C46E9BE009AB45D /* SystemConfiguration.framework in Frameworks */,
@@ -840,6 +850,7 @@
 		75D5F3C0191EC270004AB296 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				DFC59EDB1D2937A600D3C74E /* MediaPlayer.framework */,
 				225383001C694D7400968BEE /* CoreLocation.framework */,
 				22D3613C1C56F2CD0057CF76 /* libsqlite3.tbd */,
 				222E7F571C46E9BE009AB45D /* SystemConfiguration.framework */,
@@ -858,9 +869,11 @@
 		75D5F3C7191EC270004AB296 /* LoafWallet */ = {
 			isa = PBXGroup;
 			children = (
+				DFC59EDD1D29384500D3C74E /* Assets */,
 				BAC7B6BF1BD9C2B500165B84 /* AppleWatch */,
 				752E289C19234A4700DB5A3C /* Models */,
 				752E289B19234A3F00DB5A3C /* Views */,
+				DFC59EDE1D29387200D3C74E /* Utils */,
 				75BA5D02192296010040304C /* Controllers */,
 				752E28B019234B0500DB5A3C /* Categories */,
 				75D5F3D0191EC270004AB296 /* BRAppDelegate.h */,
@@ -986,6 +999,32 @@
 				BAE12BEA1B2DEE7F00895CC5 /* Info.plist */,
 			);
 			path = TodayExtension;
+			sourceTree = "<group>";
+		};
+		DFC59ED61D29372C00D3C74E /* Tutorials */ = {
+			isa = PBXGroup;
+			children = (
+				DFC59ED71D29372C00D3C74E /* receive.mp4 */,
+				DFC59ED81D29372C00D3C74E /* send.mp4 */,
+			);
+			path = Tutorials;
+			sourceTree = SOURCE_ROOT;
+		};
+		DFC59EDD1D29384500D3C74E /* Assets */ = {
+			isa = PBXGroup;
+			children = (
+				DFC59ED61D29372C00D3C74E /* Tutorials */,
+			);
+			name = Assets;
+			sourceTree = "<group>";
+		};
+		DFC59EDE1D29387200D3C74E /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+				DFC59EDF1D29389E00D3C74E /* BRTutorial.h */,
+				DFC59EE01D29389E00D3C74E /* BRTutorial.m */,
+			);
+			name = Utils;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -1228,7 +1267,9 @@
 			files = (
 				75D5F3E0191EC270004AB296 /* Images.xcassets in Resources */,
 				22FBC9701CE3A9D5009578B7 /* bread-buy.tar in Resources */,
+				DFC59EDA1D29372C00D3C74E /* send.mp4 in Resources */,
 				757E09991ADB8EEB006FD352 /* Localizable.strings in Resources */,
+				DFC59ED91D29372C00D3C74E /* receive.mp4 in Resources */,
 				75F2E0D31BE9803900EAE861 /* Launch Screen.storyboard in Resources */,
 				75C0E3BF1B1BA294007BC531 /* BIP39Words.plist in Resources */,
 				75E83CF61B5F997A0038FB70 /* coinflip.aiff in Resources */,
@@ -1301,6 +1342,7 @@
 				752E28AF19234AE300DB5A3C /* BRTxOutputEntity.m in Sources */,
 				84F046E71D1009080035D658 /* BRNavigationItem.m in Sources */,
 				22DE8CF11D02407F007F07F3 /* BRWalletConstants.m in Sources */,
+				DFC59EE11D29389E00D3C74E /* BRTutorial.m in Sources */,
 				BAA4843C1B3EFFAF0075C749 /* UIImage+Utils.m in Sources */,
 				1B49E3E31CFBC32800B64632 /* BRGenerateViewController.m in Sources */,
 				2292799F1C695D2800C98E78 /* BRTar.swift in Sources */,
