@@ -6,13 +6,13 @@
 "4rD-ne-4oP.title" = "Cancel";
 
 /* Class = "WKInterfaceLabel"; text = "Open breadwallet iPhone app to setup your wallet"; ObjectID = "Gat-bm-t3w"; */
-"Gat-bm-t3w.text" = "Open breadwallet iPhone app to setup your wallet";
+"Gat-bm-t3w.text" = "Open LoafWallet iPhone app to setup your wallet";
 
 /* Class = "WKInterfaceButton"; title = "OK"; ObjectID = "R3B-Zx-omu"; */
 "R3B-Zx-omu.title" = "OK";
 
 /* Class = "WKInterfaceLabel"; text = "Open breadwallet iPhone app to setup your wallet"; ObjectID = "VXj-KF-nqM"; */
-"VXj-KF-nqM.text" = "Open breadwallet iPhone app to setup your wallet";
+"VXj-KF-nqM.text" = "Open LoafWallet iPhone app to setup your wallet";
 
 /* Class = "WKInterfaceController"; title = "Balance"; ObjectID = "ZKF-gb-hhm"; */
 "ZKF-gb-hhm.title" = "Balance";

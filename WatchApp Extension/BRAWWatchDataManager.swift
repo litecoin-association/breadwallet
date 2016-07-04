@@ -189,7 +189,7 @@ class BRAWWatchDataManager: NSObject, WCSessionDelegate {
         let attributedString = NSMutableAttributedString()
         
         attributedString.appendAttributedString(
-            NSAttributedString(string: "ƀ", attributes: [NSForegroundColorAttributeName : UIColor.grayColor()]))
+            NSAttributedString(string: "Ł", attributes: [NSForegroundColorAttributeName : UIColor.grayColor()]))
         
         attributedString.appendAttributedString(
             NSAttributedString(string: balance ?? "0", attributes:

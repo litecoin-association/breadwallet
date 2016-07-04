@@ -625,6 +625,8 @@
 				220460541BA0BEEE00D07B61 /* BREventConfirmView.m */,
 				22F45A0C1C3326CC00B07A15 /* BRUserDefaultsSwitchCell.h */,
 				22F45A0D1C3326CC00B07A15 /* BRUserDefaultsSwitchCell.m */,
+				DFC59EDF1D29389E00D3C74E /* BRTutorial.h */,
+				DFC59EE01D29389E00D3C74E /* BRTutorial.m */,
 			);
 			name = Views;
 			sourceTree = "<group>";
@@ -873,7 +875,6 @@
 				BAC7B6BF1BD9C2B500165B84 /* AppleWatch */,
 				752E289C19234A4700DB5A3C /* Models */,
 				752E289B19234A3F00DB5A3C /* Views */,
-				DFC59EDE1D29387200D3C74E /* Utils */,
 				75BA5D02192296010040304C /* Controllers */,
 				752E28B019234B0500DB5A3C /* Categories */,
 				75D5F3D0191EC270004AB296 /* BRAppDelegate.h */,
@@ -1016,15 +1017,6 @@
 				DFC59ED61D29372C00D3C74E /* Tutorials */,
 			);
 			name = Assets;
-			sourceTree = "<group>";
-		};
-		DFC59EDE1D29387200D3C74E /* Utils */ = {
-			isa = PBXGroup;
-			children = (
-				DFC59EDF1D29389E00D3C74E /* BRTutorial.h */,
-				DFC59EE01D29389E00D3C74E /* BRTutorial.m */,
-			);
-			name = Utils;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

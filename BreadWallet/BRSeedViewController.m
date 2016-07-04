@@ -29,6 +29,7 @@
 #import "BRPeerManager.h"
 #import "NSMutableData+Bitcoin.h"
 #import "BREventManager.h"
+#import "BRTutorial.h"
 
 #define LABEL_MARGIN       20.0
 #define WRITE_TOGGLE_DELAY 15.0
@@ -47,6 +48,7 @@ int tapCount = 0;
 @property (nonatomic, strong) id resignActiveObserver, screenshotObserver;
 @property (strong, nonatomic) IBOutlet UIButton *continueButton;
 @property (strong, nonatomic) IBOutlet UIView *tutorialView;
+@property (strong, nonatomic) BRTutorial *tutorial;
 
 @end
 
@@ -221,11 +223,11 @@ int tapCount = 0;
     tapCount += 1;
     
     if (tapCount == 1) {
-        
+
         self.titleLabel.text = NSLocalizedString(@"Receive", nil);
         self.descriptionLabel.text = NSLocalizedString(@"Receive Litecoins with your receive address. Share you Litecoin Address with others, and request a payment. Your Litecoin address can be copied to your clipboard, sent via email and shared via other forms of social media.", nil);
     } else if (tapCount == 2) {
-        
+
         self.titleLabel.text = NSLocalizedString(@"History", nil);
         self.descriptionLabel.text = NSLocalizedString(@"Browse through your transaction history, secured with your passcode. This is not visible to others, unless they possess your LoafWallet passcode. Find indepth details about every transaction.", nil);
         [self.progessButton setTitle:@"→" forState:UIControlStateNormal];
