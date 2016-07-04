@@ -34,7 +34,7 @@ FOUNDATION_EXPORT NSString* _Nonnull const BRWalletBalanceChangedNotification;
 
 #define SATOSHIS           100000000LL
 #define MAX_MONEY          (84000000LL*SATOSHIS)
-#define DEFAULT_FEE_PER_KB ((5000ULL*1000 + 190)/191) // bitcoind 0.11 minimum relay fee on a 191byte tx
+#define DEFAULT_FEE_PER_KB ((5000ULL*1000 + TX_INPUT_SIZE - 1)/TX_INPUT_SIZE) // bitcoind 0.11 min relay fee on one txin
 #define MIN_FEE_PER_KB     ((TX_FEE_PER_KB*1000 + 190)/191) // minimum relay fee on a 191byte tx
 #define MAX_FEE_PER_KB     ((1000000ULL*1000 + 190)/191) // slightly higher than a 1000bit fee on a 191byte tx
 
@@ -90,10 +90,10 @@ typedef struct _BRUTXO {
 // largest amount that can be sent from the wallet after fees
 @property (nonatomic, readonly) uint64_t maxOutputAmount;
 
-- (instancetype _Nullable)initWithContext:(NSManagedObjectContext * _Nonnull)context
+- (instancetype _Nullable)initWithContext:(NSManagedObjectContext * _Nullable)context
                                  sequence:(id<BRKeySequence> _Nonnull)sequence
-                          masterPublicKey:(NSData * _Nonnull)masterPublicKey
-                              seed:(NSData * _Nonnull(^ _Nonnull)(NSString * _Nonnull authprompt, uint64_t amount))seed;
+                          masterPublicKey:(NSData * _Nullable)masterPublicKey
+                            seed:(NSData * _Nullable(^ _Nonnull)(NSString * _Nullable authprompt, uint64_t amount))seed;
 
 // true if the address is controlled by the wallet
 - (BOOL)containsAddress:(NSString * _Nonnull)address;
@@ -132,7 +132,7 @@ typedef struct _BRUTXO {
 // true if no previous wallet transaction spends any of the given transaction's inputs, and no inputs are invalid
 - (BOOL)transactionIsValid:(BRTransaction * _Nonnull)transaction;
 
-// true if transaction cannot be immediately spent (i.e. if it or an input tx can be replaced-by-fee)
+// true if transaction cannot be immediately spent (i.e. if it or an input tx can be replaced-by-fee, via BIP125)
 - (BOOL)transactionIsPending:(BRTransaction * _Nonnull)transaction;
 
 // true if tx is considered 0-conf safe (valid and not pending, timestamp is greater than 0, and no unverified inputs)

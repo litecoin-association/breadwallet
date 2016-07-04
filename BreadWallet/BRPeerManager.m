@@ -230,7 +230,7 @@ static const char *dns_seeds[] = {
             _blocks = nil;
             _bloomFilter = nil;
             _lastBlock = nil;
-            [self.connectedPeers makeObjectsPerformSelector:@selector(disconnect)];
+            [[self.connectedPeers copy] makeObjectsPerformSelector:@selector(disconnect)];
         }];
 
     return self;
@@ -429,7 +429,7 @@ static const char *dns_seeds[] = {
 {
     NSUInteger count = 0;
 
-    for (BRPeer *peer in self.connectedPeers) {
+    for (BRPeer *peer in [self.connectedPeers copy]) {
         if (peer.status == BRPeerStatusConnected) count++;
     }
 
@@ -641,7 +641,7 @@ static const char *dns_seeds[] = {
 
     // instead of publishing to all peers, leave out the download peer to see if the tx propogates and gets relayed back
     // TODO: XXX connect to a random peer with an empty or fake bloom filter just for publishing
-    if (self.peerCount > 1) [peers removeObject:self.downloadPeer];
+    if (self.peerCount > 1 && self.downloadPeer) [peers removeObject:self.downloadPeer];
 
     dispatch_async(dispatch_get_main_queue(), ^{
         [self performSelector:@selector(txTimeout:) withObject:hash afterDelay:PROTOCOL_TIMEOUT];
@@ -1172,7 +1172,8 @@ static const char *dns_seeds[] = {
         if (callback) [self.publishedCallback removeObjectForKey:hash];
 
         if ([self.txRelays[hash] count] >= PEER_MAX_CONNECTIONS &&
-            [manager.wallet transactionForHash:transaction.txHash].blockHeight == TX_UNCONFIRMED) {
+            [manager.wallet transactionForHash:transaction.txHash].blockHeight == TX_UNCONFIRMED &&
+            [manager.wallet transactionForHash:transaction.txHash].timestamp == 0) {
             [self setBlockHeight:TX_UNCONFIRMED andTimestamp:[NSDate timeIntervalSinceReferenceDate]
              forTxHashes:@[hash]]; // set timestamp when tx is verified
         }
@@ -1224,7 +1225,8 @@ static const char *dns_seeds[] = {
         if (callback) [self.publishedCallback removeObjectForKey:hash];
 
         if ([self.txRelays[hash] count] >= PEER_MAX_CONNECTIONS &&
-            [manager.wallet transactionForHash:txHash].blockHeight == TX_UNCONFIRMED) {
+            [manager.wallet transactionForHash:txHash].blockHeight == TX_UNCONFIRMED &&
+            [manager.wallet transactionForHash:txHash].timestamp == 0) {
             [self setBlockHeight:TX_UNCONFIRMED andTimestamp:[NSDate timeIntervalSinceReferenceDate]
              forTxHashes:@[hash]]; // set timestamp when tx is verified
         }
@@ -1504,10 +1506,10 @@ static const char *dns_seeds[] = {
         if (p.feePerKb > maxFeePerKb) secondFeePerKb = maxFeePerKb, maxFeePerKb = p.feePerKb;
     }
     
-    if (secondFeePerKb > MIN_FEE_PER_KB && secondFeePerKb <= MAX_FEE_PER_KB &&
-        secondFeePerKb > manager.wallet.feePerKb) {
-        NSLog(@"increasing feePerKb to %llu based on feefilter messages from peers", secondFeePerKb);
-        manager.wallet.feePerKb = secondFeePerKb;
+    if (secondFeePerKb*3/2 > MIN_FEE_PER_KB && secondFeePerKb*3/2 <= MAX_FEE_PER_KB &&
+        secondFeePerKb*3/2 > manager.wallet.feePerKb) {
+        NSLog(@"increasing feePerKb to %llu based on feefilter messages from peers", secondFeePerKb*3/2);
+        manager.wallet.feePerKb = secondFeePerKb*3/2;
     }
 }
 

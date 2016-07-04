@@ -42,6 +42,9 @@
 // key used for authenticated API calls, i.e. bitauth: https://github.com/bitpay/bitauth
 - (NSString *)authPrivateKeyFromSeed:(NSData *)seed;
 
+// key used for BitID: https://github.com/bitid/bitid/blob/master/BIP_draft.md
+- (NSString *)bitIdPrivateKey:(uint32_t)n forURI:(NSString *)uri fromSeed:(NSData *)seed;
+
 - (NSString *)serializedPrivateMasterFromSeed:(NSData *)seed;
 - (NSString *)serializedMasterPublicKey:(NSData *)masterPublicKey;
 

@@ -44,6 +44,27 @@ extension String {
         return hash as String
     }
     
+    func parseQueryString() -> [String: [String]] {
+        var ret = [String: [String]]()
+        var strippedString = self
+        if self.substringToIndex(self.startIndex.advancedBy(1)) == "?" {
+            strippedString = self.substringFromIndex(self.startIndex.advancedBy(1))
+        }
+        strippedString = strippedString.stringByReplacingOccurrencesOfString("+", withString: " ")
+        strippedString = strippedString.stringByRemovingPercentEncoding!
+        for s in strippedString.componentsSeparatedByString("&") {
+            let kp = s.componentsSeparatedByString("=")
+            if kp.count == 2 {
+                if var k = ret[kp[0]] {
+                    k.append(kp[1])
+                } else {
+                    ret[kp[0]] = [kp[1]]
+                }
+            }
+        }
+        return ret
+    }
+    
     static func buildQueryString(options: [String: [String]]?, includeQ: Bool = false) -> String {
         var s = ""
         if let options = options where options.count > 0 {

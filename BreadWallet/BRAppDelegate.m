@@ -102,6 +102,7 @@
 - (void)applicationDidBecomeActive:(UIApplication *)application
 {
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        if (self.balance == UINT64_MAX) self.balance = [BRWalletManager sharedInstance].wallet.balance;
         [self updatePlatform];
     });
 }
@@ -195,6 +196,8 @@ performFetchWithCompletionHandler:(void (^)(UIBackgroundFetchResult))completionH
 {
     BRWalletManager *manager = [BRWalletManager sharedInstance];
     
+    self.balance = UINT64_MAX; // this gets set in applicationDidBecomActive:
+    
     self.balanceObserver =
         [[NSNotificationCenter defaultCenter] addObserverForName:BRWalletBalanceChangedNotification object:nil queue:nil
         usingBlock:^(NSNotification * _Nonnull note) {
@@ -227,8 +230,6 @@ performFetchWithCompletionHandler:(void (^)(UIBackgroundFetchResult))completionH
             
             self.balance = manager.wallet.balance;
         }];
-    
-    self.balance = manager.wallet.balance;
 }
 
 - (void)setupPreferenceDefaults {

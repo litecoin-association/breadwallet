@@ -1062,6 +1062,21 @@
                           @"[BRBIP32Sequence publicKey:internal:masterPublicKey:]");
 }
 
+#if ! BITCOIN_TESTNET
+- (void)testBIP32SequenceBitIdPrivateKey
+{
+    BRBIP32Sequence *seq = [BRBIP32Sequence new];
+    NSData *seed = [[BRBIP39Mnemonic new]
+                    deriveKeyFromPhrase:@"inhale praise target steak garlic cricket paper better evil almost sadness "
+                    "crawl city banner amused fringe fox insect roast aunt prefer hollow basic ladder"
+                    withPassphrase:nil];
+    NSString *privKey = [seq bitIdPrivateKey:0 forURI:@"http://bitid.bitcoin.blue/callback" fromSeed:seed];
+    NSString *addr = [BRKey keyWithPrivateKey:privKey].address;
+
+    XCTAssertEqualObjects(addr, @"1J34vj4wowwPYafbeibZGht3zy3qERoUM1");
+}
+#endif
+
 - (void)testBIP32SequenceSerializedPrivateMasterFromSeed
 {
     BRBIP32Sequence *seq = [BRBIP32Sequence new];
@@ -1118,17 +1133,30 @@
 
     XCTAssertEqual(w.balance, SATOSHIS, @"[BRWallet registerTransaction]");
 
+    tx = [BRTransaction new];
+    [tx addInputHash:UINT256_ZERO index:2 script:script signature:NULL sequence:UINT32_MAX - 1];
+    [tx addOutputAddress:w.receiveAddress amount:SATOSHIS];
+    tx.lockTime = 1000;
+    tx.blockHeight = TX_UNCONFIRMED;
+    [tx signWithPrivateKeys:@[k.privateKey]];
+    [w registerTransaction:tx]; // test pending tx with future lockTime
+
+    XCTAssertEqual(w.balance, SATOSHIS, @"[BRWallet registerTransaction]");
+
+    [w setBlockHeight:1000 andTimestamp:1 forTxHashes:@[uint256_obj(tx.txHash)]];
+    XCTAssertEqual(w.balance, SATOSHIS*2, @"[BRWallet registerTransaction]");
+
     tx = [w transactionFor:SATOSHIS/2 to:k.address withFee:NO];
 
     XCTAssertNotNil(tx, @"[BRWallet transactionFor:to:withFee:]");
 
-    [w signTransaction:tx withPrompt:nil];
+    [w signTransaction:tx withPrompt:@""];
 
     XCTAssertTrue(tx.isSigned, @"[BRWallet signTransaction]");
 
     [w registerTransaction:tx];
 
-    XCTAssertEqual(w.balance, SATOSHIS/2, @"[BRWallet balance]");
+    XCTAssertEqual(w.balance, SATOSHIS*3/2, @"[BRWallet balance]");
 
 #if ! BITCOIN_TESTNET
     w = [[BRWallet alloc] initWithContext:nil sequence:[BRBIP32Sequence new] masterPublicKey:nil
@@ -1312,6 +1340,8 @@
     
     hash = *(UInt256 *)@"00000000000080b66c911bd5ba14a74260057311eaeb1982802f7010f1a9f090".hexToData.reverse.bytes;
     XCTAssertTrue(uint256_eq(b.blockHash, hash), @"[BRMerkleBlock blockHash]");
+
+    XCTAssertEqualObjects(block, b.data, @"[BRMerkleBlock toData]");
 
     XCTAssertTrue(b.valid, @"[BRMerkleBlock isValid]");
 

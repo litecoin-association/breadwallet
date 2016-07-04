@@ -71,7 +71,7 @@
 {
     NSRange r = [self.text rangeOfString:self.copyableText];
 
-    if (r.location == NSNotFound) return CGRectZero;
+    if (r.location == NSNotFound) return self.bounds;
 
     CGRect start = [[self.text substringToIndex:r.location] boundingRectWithSize:self.bounds.size options:0
                     attributes:@{NSFontAttributeName:self.font} context:nil],

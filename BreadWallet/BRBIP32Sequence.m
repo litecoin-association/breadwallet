@@ -238,6 +238,41 @@ static NSString *serialize(uint8_t depth, uint32_t fingerprint, uint32_t child, 
     return [NSString base58checkWithData:privKey];
 }
 
+// key used for BitID: https://github.com/bitid/bitid/blob/master/BIP_draft.md
+- (NSString *)bitIdPrivateKey:(uint32_t)n forURI:(NSString *)uri fromSeed:(NSData *)seed
+{
+    NSUInteger len = [uri lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
+    NSMutableData *data = [NSMutableData dataWithCapacity:sizeof(n) + len];
+    
+    [data appendUInt32:n];
+    [data appendBytes:uri.UTF8String length:len];
+
+    UInt256 hash = data.SHA256;
+    UInt512 I;
+    
+    HMAC(&I, SHA512, sizeof(UInt512), BIP32_SEED_KEY, strlen(BIP32_SEED_KEY), seed.bytes, seed.length);
+    
+    UInt256 secret = *(UInt256 *)&I, chain = *(UInt256 *)&I.u8[sizeof(UInt256)];
+    uint8_t version = BITCOIN_PRIVKEY;
+    
+#if BITCOIN_TESTNET
+    version = BITCOIN_PRIVKEY_TEST;
+#endif
+
+    CKDpriv(&secret, &chain, 13 | BIP32_HARD); // m/13H
+    CKDpriv(&secret, &chain, CFSwapInt32LittleToHost(hash.u32[0]) | BIP32_HARD); // m/13H/aH
+    CKDpriv(&secret, &chain, CFSwapInt32LittleToHost(hash.u32[1]) | BIP32_HARD); // m/13H/aH/bH
+    CKDpriv(&secret, &chain, CFSwapInt32LittleToHost(hash.u32[2]) | BIP32_HARD); // m/13H/aH/bH/cH
+    CKDpriv(&secret, &chain, CFSwapInt32LittleToHost(hash.u32[3]) | BIP32_HARD); // m/13H/aH/bH/cH/dH
+
+    NSMutableData *privKey = [NSMutableData secureDataWithCapacity:34];
+    
+    [privKey appendBytes:&version length:1];
+    [privKey appendBytes:&secret length:sizeof(secret)];
+    [privKey appendBytes:"\x01" length:1]; // specifies compressed pubkey format
+    return [NSString base58checkWithData:privKey];
+}
+
 #pragma mark - serializations
 
 - (NSString *)serializedPrivateMasterFromSeed:(NSData *)seed

@@ -180,6 +180,7 @@
                                                length:sizeof(UInt256)].reverse];
                     detailLabel.text = [NSString stringWithFormat:@"%@\n%@", [s substringToIndex:s.length/2],
                                         [s substringFromIndex:s.length/2]];
+                    detailLabel.copyableText = s;
                     break;
                     
                 case 1:

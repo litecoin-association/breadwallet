@@ -40,6 +40,7 @@
 #import "NSMutableData+Bitcoin.h"
 #import "NSData+Bitcoin.h"
 #import "BREventManager.h"
+#import "breadwallet-Swift.h"
 
 #define SCAN_TIP      NSLocalizedString(@"Scan someone else's QR code to get their bitcoin address. "\
                                          "You can send a payment to anyone with an address.", nil)
@@ -270,6 +271,8 @@ static NSString *sanitizeString(NSString *s)
     }
     else if ([url.scheme isEqual:@"litecoin"]) {
         [self confirmRequest:[BRPaymentRequest requestWithURL:url]];
+    } else if ([BRBitID isBitIDURL:url]) {
+        [self handleBitIDURL:url];
     }
     else {
         [[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"unsupported url", nil) message:url.absoluteString
@@ -328,6 +331,71 @@ static NSString *sanitizeString(NSString *s)
     [[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"unsupported or corrupted document", nil) message:nil
       delegate:nil cancelButtonTitle:NSLocalizedString(@"ok", nil) otherButtonTitles:nil] show];
 }
+
+- (void)handleBitIDURL:(NSURL *)url
+{
+    if ([UIAlertController class] == nil) {
+        return;
+    }
+    BRBitID *bitid = [[BRBitID alloc] initWithUrl:url];
+    
+    void (^actionHandler)(UIAlertAction * _Nonnull) = ^(UIAlertAction * _Nonnull action) {
+        [self dismissViewControllerAnimated:YES completion:nil];
+        if (action.style == UIAlertActionStyleDefault) {
+            BRActivityViewController *activityVC = [[BRActivityViewController alloc] initWithMessage:
+                                                    NSLocalizedString(@"Signing...", nil)];
+            void (^callbackHandler)(id, id, id) = ^(NSData *data, NSURLResponse *resp, NSError *error) {
+                [self.navigationController dismissViewControllerAnimated:YES completion:nil];
+                NSHTTPURLResponse *httpResp = (NSHTTPURLResponse *)resp;
+                if (error == nil && (httpResp.statusCode >= 200 && httpResp.statusCode < 300)) {
+                    // successfully sent bitid callback request. show a brief success message
+                    UIAlertController *successAlert =
+                    [UIAlertController alertControllerWithTitle:@"Successfully Authenticated" message:nil
+                                                 preferredStyle:UIAlertControllerStyleAlert];
+                    [self.navigationController presentViewController:successAlert animated:YES completion:nil];
+                    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)),
+                                   dispatch_get_main_queue(), ^{
+                                       [self dismissViewControllerAnimated:YES completion:nil];
+                                   });
+                } else {
+                    // show the user an error alert
+                    UIAlertController *errorAlert =
+                    [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Authentication Error", nil)
+                                                        message:NSLocalizedString(@"Please check with the service. "
+                                                                                  "You may need to try again.", nil)
+                                                 preferredStyle:UIAlertControllerStyleAlert];
+                    [errorAlert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"OK", nil)
+                                                                   style:UIAlertActionStyleCancel
+                                                                 handler:^(UIAlertAction * _Nonnull action) {
+                                                                     [self dismissViewControllerAnimated:YES
+                                                                                              completion:nil];
+                                                                 }]];
+                    [self.navigationController presentViewController:errorAlert animated:YES completion:nil];
+                }
+            };
+            // attempt to avoid frozen pin input bug 
+            CFRunLoopPerformBlock([[NSRunLoop mainRunLoop] getCFRunLoop], kCFRunLoopCommonModes, ^{
+                [bitid runCallback:callbackHandler];
+                [self.navigationController presentViewController:activityVC animated:YES completion:nil];
+            });
+        }
+    };
+    
+    NSString *message = [NSString stringWithFormat:
+                         NSLocalizedString(@"%@ is requesting authentication using your bitcoin wallet.", nil),
+                         bitid.siteName];
+    UIAlertController *alertController =
+        [UIAlertController alertControllerWithTitle:NSLocalizedString(@"BitID Authentication Request", nil)
+                                            message:message preferredStyle:UIAlertControllerStyleAlert];
+    [alertController addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Deny", nil)
+                                                        style:UIAlertActionStyleCancel
+                                                      handler:actionHandler]];
+    [alertController addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Approve", nil)
+                                                        style:UIAlertActionStyleDefault
+                                                      handler:actionHandler]];
+    [self.navigationController presentViewController:alertController animated:YES completion:nil];
+}
+
 
 // generate a description of a transaction so the user can review and decide whether to confirm or cancel
 - (NSString *)promptForAmount:(uint64_t)amount fee:(uint64_t)fee address:(NSString *)address name:(NSString *)name
@@ -1029,8 +1097,13 @@ fromConnection:(AVCaptureConnection *)connection
         NSString *addr = [codeObject.stringValue stringByTrimmingCharactersInSet:
                           [NSCharacterSet whitespaceAndNewlineCharacterSet]];
         BRPaymentRequest *request = [BRPaymentRequest requestWithString:addr];
-
-        if (request.isValid || [addr isValidBitcoinPrivateKey] || [addr isValidBitcoinBIP38Key] ||
+        if ([BRBitID isBitIDURL:request.url]) {
+            [self.scanController stop];
+            [self.navigationController dismissViewControllerAnimated:YES completion:^{
+                [self handleBitIDURL:request.url];
+                [self resetQRGuide];
+            }];
+        } else if (request.isValid || [addr isValidBitcoinPrivateKey] || [addr isValidBitcoinBIP38Key] ||
             (request.r.length > 0 && [request.scheme isEqual:@"bitcoin"])) {
             self.scanController.cameraGuide.image = [UIImage imageNamed:@"cameraguide-green"];
             [self.scanController stop];
@@ -1077,8 +1150,7 @@ fromConnection:(AVCaptureConnection *)connection
                 }
                 else [self confirmRequest:request];
             }
-        }
-        else {
+        } else {
             [BRPaymentRequest fetch:request.r timeout:5.0
             completion:^(BRPaymentProtocolRequest *req, NSError *error) { // check to see if it's a BIP73 url
                 dispatch_async(dispatch_get_main_queue(), ^{

@@ -16,3 +16,5 @@
 #include "BRSocketHelpers.h"
 #include <pthread.h>
 #include <errno.h>
+#import "BRBip39Mnemonic.h"
+#import "BRBip32Sequence.h"

@@ -59,6 +59,7 @@ static NSUInteger txAddressIndex(BRTransaction *tx, NSArray *chain) {
 @property (nonatomic, strong) NSOrderedSet *utxos;
 @property (nonatomic, strong) NSMutableDictionary *allTx;
 @property (nonatomic, strong) NSArray *balanceHistory;
+@property (nonatomic, assign) uint32_t bestBlockHeight;
 @property (nonatomic, strong) NSData *(^seed)(NSString *authprompt, uint64_t amount);
 @property (nonatomic, strong) NSManagedObjectContext *moc;
 
@@ -241,10 +242,13 @@ masterPublicKey:(NSData *)masterPublicKey seed:(NSData *(^)(NSString *authprompt
         if (! tx1 || ! tx2) return NO;
         if (tx1.blockHeight > tx2.blockHeight) return YES;
         if (tx1.blockHeight < tx2.blockHeight) return NO;
-        if ([tx1.inputHashes containsObject:uint256_obj(tx2.txHash)]) return YES;
-        if ([tx2.inputHashes containsObject:uint256_obj(tx1.txHash)]) return NO;
-        if ([self.invalidTx containsObject:tx1] && ! [self.invalidTx containsObject:tx2]) return YES;
-        if ([self.pendingTx containsObject:tx1] && ! [self.pendingTx containsObject:tx2]) return YES;
+        
+        NSValue *hash1 = uint256_obj(tx1.txHash), *hash2 = uint256_obj(tx2.txHash);
+        
+        if ([tx1.inputHashes containsObject:hash2]) return YES;
+        if ([tx2.inputHashes containsObject:hash1]) return NO;
+        if ([self.invalidTx containsObject:hash1] && ! [self.invalidTx containsObject:hash2]) return YES;
+        if ([self.pendingTx containsObject:hash1] && ! [self.pendingTx containsObject:hash2]) return YES;
         
         for (NSValue *hash in tx1.inputHashes) {
             if (_isAscending(self.allTx[hash], tx2)) return YES;
@@ -272,6 +276,7 @@ masterPublicKey:(NSData *)masterPublicKey seed:(NSData *(^)(NSString *authprompt
     NSMutableOrderedSet *utxos = [NSMutableOrderedSet orderedSet];
     NSMutableSet *spentOutputs = [NSMutableSet set], *invalidTx = [NSMutableSet set], *pendingTx = [NSMutableSet set];
     NSMutableArray *balanceHistory = [NSMutableArray array];
+    uint32_t now = [NSDate timeIntervalSinceReferenceDate] + NSTimeIntervalSince1970;
 
     for (BRTransaction *tx in [self.transactions reverseObjectEnumerator]) {
         @autoreleasepool {
@@ -279,9 +284,7 @@ masterPublicKey:(NSData *)masterPublicKey seed:(NSData *(^)(NSString *authprompt
             NSSet *inputs;
             uint32_t i = 0, n = 0;
             BOOL pending = NO;
-            BRTransaction *transaction;
             UInt256 h;
-            BRUTXO o;
             
             for (NSValue *hash in tx.inputHashes) {
                 n = [tx.inputIndexes[i++] unsignedIntValue];
@@ -304,10 +307,14 @@ masterPublicKey:(NSData *)masterPublicKey seed:(NSData *(^)(NSString *authprompt
             
             // check if any inputs are pending
             if (tx.blockHeight == TX_UNCONFIRMED) {
-                if (transaction.size > TX_MAX_SIZE) pending = YES; // check transaction size is under TX_MAX_SIZE
+                if (tx.size > TX_MAX_SIZE) pending = YES; // check transaction size is under TX_MAX_SIZE
                 
-                for (NSNumber *sequence in tx.inputSequences) { // check that all sequence numbers are final (not RBF)
-                    if (sequence.unsignedIntValue < UINT32_MAX) pending = YES;
+                for (NSNumber *sequence in tx.inputSequences) {
+                    if (sequence.unsignedIntValue < UINT32_MAX - 1) pending = YES; // check for replace-by-fee
+                    if (sequence.unsignedIntValue < UINT32_MAX && tx.lockTime < TX_MAX_LOCK_HEIGHT &&
+                        tx.lockTime > self.bestBlockHeight + 1) pending = YES; // future lockTime
+                    if (sequence.unsignedIntValue < UINT32_MAX && tx.lockTime >= TX_MAX_LOCK_HEIGHT &&
+                        tx.lockTime > now) pending = YES; // future locktime
                 }
             
                 for (NSNumber *amount in tx.outputAmounts) { // check that no outputs are dust
@@ -338,6 +345,9 @@ masterPublicKey:(NSData *)masterPublicKey seed:(NSData *(^)(NSString *authprompt
             [spent intersectSet:spentOutputs];
             
             for (NSValue *output in spent) { // remove any spent outputs from UTXO set
+                BRTransaction *transaction;
+                BRUTXO o;
+                
                 [output getValue:&o];
                 transaction = self.allTx[uint256_obj(o.hash)];
                 [utxos removeObject:output];
@@ -674,8 +684,13 @@ masterPublicKey:(NSData *)masterPublicKey seed:(NSData *(^)(NSString *authprompt
     if (transaction.blockHeight != TX_UNCONFIRMED) return NO; // confirmed transactions are not pending
     if (transaction.size > TX_MAX_SIZE) return YES; // check transaction size is under TX_MAX_SIZE
     
-    for (NSNumber *sequence in transaction.inputSequences) { // check that all sequence numbers are final (not RBF)
-        if (sequence.unsignedIntValue < UINT32_MAX) return YES;
+    // check for future lockTime or replace-by-fee: https://github.com/bitcoin/bips/blob/master/bip-0125.mediawiki
+    for (NSNumber *sequence in transaction.inputSequences) {
+        if (sequence.unsignedIntValue < UINT32_MAX - 1) return YES;
+        if (sequence.unsignedIntValue < UINT32_MAX && transaction.lockTime < TX_MAX_LOCK_HEIGHT &&
+            transaction.lockTime > self.bestBlockHeight + 1) return YES;
+        if (sequence.unsignedIntValue < UINT32_MAX && transaction.lockTime >= TX_MAX_LOCK_HEIGHT &&
+            transaction.lockTime > [NSDate timeIntervalSinceReferenceDate] + NSTimeIntervalSince1970) return YES;
     }
     
     for (NSNumber *amount in transaction.outputAmounts) { // check that no outputs are dust
@@ -711,6 +726,8 @@ masterPublicKey:(NSData *)masterPublicKey seed:(NSData *(^)(NSString *authprompt
     NSMutableArray *hashes = [NSMutableArray array];
     BOOL needsUpdate = NO;
 
+    if (height != TX_UNCONFIRMED && height > self.bestBlockHeight) self.bestBlockHeight = height;
+
     for (NSValue *hash in txHashes) {
         BRTransaction *tx = self.allTx[hash];
         UInt256 h;
@@ -722,7 +739,7 @@ masterPublicKey:(NSData *)masterPublicKey seed:(NSData *(^)(NSString *authprompt
         if ([self containsTransaction:tx]) {
             [hash getValue:&h];
             [hashes addObject:[NSData dataWithBytes:&h length:sizeof(h)]];
-            if ([self.pendingTx containsObject:tx] || [self.invalidTx containsObject:tx]) needsUpdate = YES;
+            if ([self.pendingTx containsObject:hash] || [self.invalidTx containsObject:hash]) needsUpdate = YES;
         }
         else if (height != TX_UNCONFIRMED) [self.allTx removeObjectForKey:hash]; // remove confirmed non-wallet tx
     }

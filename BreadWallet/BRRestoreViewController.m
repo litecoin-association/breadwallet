@@ -238,7 +238,7 @@
 {
     if (buttonIndex == alertView.cancelButtonIndex) return;
     
-    if ([[alertView buttonTitleAtIndex:buttonIndex] isEqual:NSLocalizedString(@"close app", nil)]) abort();
+    if ([[alertView buttonTitleAtIndex:buttonIndex] isEqual:NSLocalizedString(@"close app", nil)]) exit(0);
 }
 
 #pragma mark - UIActionSheetDelegate

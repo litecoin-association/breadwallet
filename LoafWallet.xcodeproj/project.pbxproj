@@ -40,6 +40,8 @@
 		22DE8CF31D02407F007F07F3 /* BRWalletConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 22DE8CF01D02407F007F07F3 /* BRWalletConstants.m */; };
 		22DE8CF41D02407F007F07F3 /* BRWalletConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 22DE8CF01D02407F007F07F3 /* BRWalletConstants.m */; };
 		22F04A001C9714EF00F137D8 /* BRUserDefaultsSwitchCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 22F45A0D1C3326CC00B07A15 /* BRUserDefaultsSwitchCell.m */; };
+		22F7B6D51D1479FA007CC848 /* BRBitID.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22F7B6D41D1479FA007CC848 /* BRBitID.swift */; };
+		22F7B6DA1D14A665007CC848 /* BRActivityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22F7B6D91D14A665007CC848 /* BRActivityView.swift */; };
 		22FBC9701CE3A9D5009578B7 /* bread-buy.tar in Resources */ = {isa = PBXBuildFile; fileRef = 22FBC96F1CE3A9D5009578B7 /* bread-buy.tar */; };
 		22FCD22C1C0E68C80066D798 /* BRTarTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22FCD22B1C0E68C80066D798 /* BRTarTests.swift */; };
 		22FF2C381BED381400B36384 /* BRAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22FF2C371BED381400B36384 /* BRAPIClient.swift */; };
@@ -250,6 +252,8 @@
 		22F45A0C1C3326CC00B07A15 /* BRUserDefaultsSwitchCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BRUserDefaultsSwitchCell.h; sourceTree = "<group>"; };
 		22F45A0D1C3326CC00B07A15 /* BRUserDefaultsSwitchCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BRUserDefaultsSwitchCell.m; sourceTree = "<group>"; };
 		22F45A0F1C3329EB00B07A15 /* BRUserDefaultsConstants.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BRUserDefaultsConstants.h; sourceTree = "<group>"; };
+		22F7B6D41D1479FA007CC848 /* BRBitID.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BRBitID.swift; sourceTree = "<group>"; };
+		22F7B6D91D14A665007CC848 /* BRActivityView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BRActivityView.swift; sourceTree = "<group>"; };
 		22FBC96F1CE3A9D5009578B7 /* bread-buy.tar */ = {isa = PBXFileReference; lastKnownFileType = archive.tar; path = "bread-buy.tar"; sourceTree = "<group>"; };
 		22FCD22B1C0E68C80066D798 /* BRTarTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BRTarTests.swift; sourceTree = "<group>"; };
 		22FF2C361BED381400B36384 /* breadwallet-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "breadwallet-Bridging-Header.h"; sourceTree = "<group>"; };
@@ -627,6 +631,7 @@
 				22F45A0D1C3326CC00B07A15 /* BRUserDefaultsSwitchCell.m */,
 				DFC59EDF1D29389E00D3C74E /* BRTutorial.h */,
 				DFC59EE01D29389E00D3C74E /* BRTutorial.m */,
+				22F7B6D91D14A665007CC848 /* BRActivityView.swift */,
 			);
 			name = Views;
 			sourceTree = "<group>";
@@ -670,6 +675,7 @@
 				22FF2C361BED381400B36384 /* breadwallet-Bridging-Header.h */,
 				220128D11C753C670001CAC1 /* BRSocketHelpers.c */,
 				220128D21C753C670001CAC1 /* BRSocketHelpers.h */,
+				22F7B6D41D1479FA007CC848 /* BRBitID.swift */,
 			);
 			name = Models;
 			sourceTree = "<group>";
@@ -1365,6 +1371,7 @@
 				752E28D619234C3600DB5A3C /* BRPeer.m in Sources */,
 				752E28D819234C3600DB5A3C /* BRPeerManager.m in Sources */,
 				752E28D419234C3600DB5A3C /* BRPaymentProtocol.m in Sources */,
+				22F7B6D51D1479FA007CC848 /* BRBitID.swift in Sources */,
 				22005B961C9276AF00F87733 /* BRLinkPlugin.swift in Sources */,
 				752E28D519234C3600DB5A3C /* BRPaymentRequest.m in Sources */,
 				7525B619192453840041C0F2 /* BRNavigationBar.m in Sources */,
@@ -1373,6 +1380,7 @@
 				75878BC1192AEC3F002505AB /* BRReceiveViewController.m in Sources */,
 				75878BBF192ACD46002505AB /* BRAmountViewController.m in Sources */,
 				759816E719357D6F005060EA /* BRBubbleView.m in Sources */,
+				22F7B6DA1D14A665007CC848 /* BRActivityView.swift in Sources */,
 				757BE7E3192C0E9D0061CB20 /* BRRestoreViewController.m in Sources */,
 				1BA766201D11AB1A0029F807 /* BRHistoryViewController.m in Sources */,
 				757BE7E6192C1FF70061CB20 /* BRWelcomeViewController.m in Sources */,

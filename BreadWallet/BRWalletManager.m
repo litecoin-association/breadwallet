@@ -276,7 +276,7 @@ static NSDictionary *getKeychainDict(NSString *key, NSError **error)
     _currencyPrices = [defs arrayForKey:CURRENCY_PRICES_KEY];
     self.localCurrencyCode = ([defs stringForKey:LOCAL_CURRENCY_CODE_KEY]) ?
         [defs stringForKey:LOCAL_CURRENCY_CODE_KEY] : [[NSLocale currentLocale] objectForKey:NSLocaleCurrencyCode];
-    [self updateExchangeRate];
+    dispatch_async(dispatch_get_main_queue(), ^{ [self updateExchangeRate]; });
 }
 
 - (void)dealloc
@@ -688,7 +688,7 @@ static NSDictionary *getKeychainDict(NSString *key, NSError **error)
                 self.seedPhrase = nil;
 
                 dispatch_after(dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC/10), dispatch_get_main_queue(), ^{
-                    abort();
+                    exit(0);
                 });
 
                 return NO;
@@ -1037,12 +1037,8 @@ completion:(void (^)(NSArray *utxos, NSArray *amounts, NSArray *scripts, NSError
     NSMutableCharacterSet *charset = [[NSCharacterSet URLQueryAllowedCharacterSet] mutableCopy];
     
     [charset removeCharactersInString:@"&="];
-
-    for (NSString *addr in addresses) {
-        [args addObject:[@"address=" stringByAppendingString:[addr
-         stringByAddingPercentEncodingWithAllowedCharacters:charset]]];
-    }
-
+    [args addObject:[@"addrs=" stringByAppendingString:[[addresses componentsJoinedByString:@","]
+                                                        stringByAddingPercentEncodingWithAllowedCharacters:charset]]];
     [req setValue:USER_AGENT forHTTPHeaderField:@"User-Agent"];
     req.HTTPMethod = @"POST";
     req.HTTPBody = [[args componentsJoinedByString:@"&"] dataUsingEncoding:NSUTF8StringEncoding];
@@ -1317,7 +1313,7 @@ replacementString:(NSString *)string
     _pinField = nil;
 
     if (buttonIndex == alertView.cancelButtonIndex) {
-        if (buttonIndex >= 0 && [[alertView buttonTitleAtIndex:buttonIndex] isEqual:@"abort"]) abort();
+        if (buttonIndex >= 0 && [[alertView buttonTitleAtIndex:buttonIndex] isEqual:@"abort"]) exit(0);
         if (self.sweepCompletion) self.sweepCompletion(nil, 0, nil);
         self.sweepKey = nil;
         self.sweepCompletion = nil;
