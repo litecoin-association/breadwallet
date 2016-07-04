@@ -93,6 +93,14 @@ int tapCount = 0;
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    
+    NSUserDefaults *defs = [NSUserDefaults standardUserDefaults];
+    
+    if (! [defs boolForKey:WALLET_NEEDS_BACKUP_KEY]) {
+        self.continueButton.hidden = YES;
+    } else if ([defs boolForKey:WALLET_NEEDS_BACKUP_KEY]) {
+        self.continueButton.hidden = NO;
+    }
     // Do any additional setup after loading the view.
     
     self.tutorialView.hidden = YES;
