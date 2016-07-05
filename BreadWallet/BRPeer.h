@@ -120,6 +120,7 @@ typedef enum : NSInteger {
 @property (nonatomic, readonly) uint32_t lastblock;
 @property (nonatomic, readonly) uint64_t feePerKb; // minimum tx fee rate peer will accept
 @property (nonatomic, readonly) NSTimeInterval pingTime;
+@property (nonatomic, readonly) NSTimeInterval relaySpeed; // headers or block->totalTx per second being relayed
 @property (nonatomic, assign) NSTimeInterval timestamp; // timestamp reported by peer (interval since refrence date)
 @property (nonatomic, assign) int16_t misbehavin;
 

@@ -64,7 +64,7 @@ typedef enum : uint32_t {
 @property (nonatomic, strong) Reachability *reachability;
 @property (nonatomic, strong) id reachabilityObserver;
 @property (nonatomic, assign) uint64_t localNonce;
-@property (nonatomic, assign) NSTimeInterval startTime;
+@property (nonatomic, assign) NSTimeInterval pingStartTime, relayStartTime;
 @property (nonatomic, strong) BRMerkleBlock *currentBlock;
 @property (nonatomic, strong) NSMutableOrderedSet *knownBlockHashes, *knownTxHashes, *currentBlockTxHashes;
 @property (nonatomic, strong) NSData *lastBlockHash;
@@ -303,7 +303,7 @@ services:(uint64_t)services
     [msg appendString:USER_AGENT]; // user agent
     [msg appendUInt32:0]; // last block received
     [msg appendUInt8:0]; // relay transactions (no for SPV bloom filter mode)
-    self.startTime = [NSDate timeIntervalSinceReferenceDate];
+    self.pingStartTime = [NSDate timeIntervalSinceReferenceDate];
     [self sendMessage:msg type:MSG_VERSION];
 }
 
@@ -379,6 +379,7 @@ services:(uint64_t)services
     [msg appendBytes:&hashStop length:sizeof(hashStop)];
     NSLog(@"%@:%u calling getheaders with locators: %@", self.host, self.port,
           @[locators.firstObject, locators.lastObject]);
+    if (self.relayStartTime == 0) self.relayStartTime = [NSDate timeIntervalSinceReferenceDate];
     [self sendMessage:msg type:MSG_GETHEADERS];
 }
 
@@ -464,7 +465,7 @@ services:(uint64_t)services
         if (! self.pongHandlers) self.pongHandlers = [NSMutableArray array];
         [self.pongHandlers addObject:(pongHandler) ? [pongHandler copy] : [^(BOOL success) {} copy]];
         [msg appendUInt64:self.localNonce];
-        self.startTime = [NSDate timeIntervalSinceReferenceDate];
+        self.pingStartTime = [NSDate timeIntervalSinceReferenceDate];
         [self sendMessage:msg type:MSG_PING];
     });
 }
@@ -547,8 +548,8 @@ services:(uint64_t)services
         return;
     }
     
-    _pingTime = [NSDate timeIntervalSinceReferenceDate] - self.startTime; // use verack time as initial ping time
-    self.startTime = 0;
+    _pingTime = [NSDate timeIntervalSinceReferenceDate] - self.pingStartTime; // use verack time as initial ping time
+    self.pingStartTime = 0;
     NSLog(@"%@:%u got verack in %fs", self.host, self.port, self.pingTime);
     self.gotVerack = YES;
     [self didConnect];
@@ -741,6 +742,14 @@ services:(uint64_t)services
     }
 
     NSLog(@"%@:%u got %u headers", self.host, self.port, (int)count);
+
+    if (_relayStartTime != 0) { // keep track of relay peformance
+        NSTimeInterval speed = count/([NSDate timeIntervalSinceReferenceDate] - self.relayStartTime);
+        
+        if (_relaySpeed == 0) _relaySpeed = speed;
+        _relaySpeed = _relaySpeed*0.9 + speed*0.1;
+        _relayStartTime = 0;
+    }
     
     // To improve chain download performance, if this message contains 2000 headers then request the next 2000 headers
     // immediately, and switch to requesting blocks when we receive a header newer than earliestKeyTime
@@ -897,12 +906,12 @@ services:(uint64_t)services
         return;
     }
 
-    if (self.startTime > 1) {
-        NSTimeInterval pingTime = [NSDate timeIntervalSinceReferenceDate] - self.startTime;
+    if (self.pingStartTime > 1) {
+        NSTimeInterval pingTime = [NSDate timeIntervalSinceReferenceDate] - self.pingStartTime;
     
         // 50% low pass filter on current ping time
         _pingTime = self.pingTime*0.5 + pingTime*0.5;
-        self.startTime = 0;
+        self.pingStartTime = 0;
     }
     
     NSLog(@"%@:%u got pong in %fs", self.host, self.port, self.pingTime);
@@ -1017,10 +1026,10 @@ services:(uint64_t)services
         case NSStreamEventOpenCompleted:
             NSLog(@"%@:%u %@ stream connected in %fs", self.host, self.port,
                   (aStream == self.inputStream) ? @"input" : (aStream == self.outputStream ? @"output" : @"unknown"),
-                  [NSDate timeIntervalSinceReferenceDate] - self.startTime);
+                  [NSDate timeIntervalSinceReferenceDate] - self.pingStartTime);
 
             if (aStream == self.outputStream) {
-                self.startTime = [NSDate timeIntervalSinceReferenceDate]; // don't count connect time in ping time
+                self.pingStartTime = [NSDate timeIntervalSinceReferenceDate]; // don't count connect time in ping time
                 [NSObject cancelPreviousPerformRequestsWithTarget:self]; // cancel pending socket connect timeout
                 [self performSelector:@selector(disconnectWithError:)
                  withObject:[NSError errorWithDomain:@"LoafWallet" code:BITCOIN_TIMEOUT_CODE
