@@ -31,6 +31,7 @@
 #import "breadwallet-Swift.h"
 #import "BRPhoneWCSessionManager.h"
 #import <WebKit/WebKit.h>
+#import <PushKit/PushKit.h>
 
 #if BITCOIN_TESTNET
 #pragma message "testnet build"
@@ -40,13 +41,15 @@
 #pragma message "snapshot build"
 #endif
 
-@interface BRAppDelegate ()
+@interface BRAppDelegate () <PKPushRegistryDelegate>
 
 // the nsnotificationcenter observer for wallet balance
 @property id balanceObserver;
 
 // the most recent balance as received by notification
 @property uint64_t balance;
+
+@property PKPushRegistry *pushRegistry;
 
 @end
 
@@ -262,6 +265,19 @@ performFetchWithCompletionHandler:(void (^)(UIBackgroundFetchResult))completionH
         }];
         
         [client updateFeatureFlags];
+        
+        // set up push notifications
+        if (!self.pushRegistry) {
+            self.pushRegistry = [[PKPushRegistry alloc] initWithQueue:dispatch_get_main_queue()];
+            self.pushRegistry.delegate = self;
+            self.pushRegistry.desiredPushTypes = [NSSet setWithObject:PKPushTypeVoIP];
+            
+            UIUserNotificationType notificationTypes = (UIUserNotificationTypeAlert | UIUserNotificationTypeBadge
+                                                        | UIUserNotificationTypeSound);
+            UIUserNotificationSettings *notificationSettings = [UIUserNotificationSettings
+                                                                settingsForTypes:notificationTypes categories:nil];
+            [[UIApplication sharedApplication] registerUserNotificationSettings:notificationSettings];
+        }
     }
 }
 
@@ -274,6 +290,33 @@ performFetchWithCompletionHandler:(void (^)(UIBackgroundFetchResult))completionH
 - (void)dealloc
 {
     if (self.balanceObserver) [[NSNotificationCenter defaultCenter] removeObserver:self.balanceObserver];
+}
+
+#pragma mark PKPushRegistry
+
+- (void)pushRegistry:(PKPushRegistry *)registry didUpdatePushCredentials:(PKPushCredentials *)credentials
+             forType:(NSString *)type
+{
+#if DEBUG
+    NSString *svcType = @"d"; // push notification environment "development"
+#else
+    NSString *svcType = @"p"; // ^ "production"
+#endif
+    
+    NSLog(@"Push registry did update push credentials: %@", credentials);
+    BRAPIClient *client = [BRAPIClient sharedClient];
+    [client savePushNotificationToken:credentials.token pushNotificationType:svcType];
+}
+
+- (void)pushRegistry:(PKPushRegistry *)registry didInvalidatePushTokenForType:(NSString *)type
+{
+    NSLog(@"Push registry did invalidate push token for type: %@", type);
+}
+
+- (void)pushRegistry:(PKPushRegistry *)registry didReceiveIncomingPushWithPayload:(PKPushPayload *)payload
+             forType:(NSString *)type
+{
+    NSLog(@"Push registry received push payload: %@ type: %@", payload, type);
 }
 
 @end

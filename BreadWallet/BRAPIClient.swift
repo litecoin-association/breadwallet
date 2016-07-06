@@ -394,6 +394,30 @@ func httpDateNow() -> String {
         task.resume()
     }
     
+    // MARK: push notifications
+    public func savePushNotificationToken(token: NSData, pushNotificationType: String = "d") {
+        let req = NSMutableURLRequest(URL: url("/me/push-devices"))
+        req.HTTPMethod = "POST"
+        req.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        req.setValue("application/json", forHTTPHeaderField: "Accept")
+        let reqJson = [
+            "token": token.hexString,
+            "service": "apns",
+            "data": ["e": pushNotificationType]
+        ]
+        do {
+            let dat = try NSJSONSerialization.dataWithJSONObject(reqJson, options: .PrettyPrinted)
+            req.HTTPBody = dat
+        } catch (let e) {
+            log("JSON Serialization error \(e)")
+            return //handler(NSError(domain: BRAPIClientErrorDomain, code: 500, userInfo: [
+                //NSLocalizedDescriptionKey: NSLocalizedString("JSON Serialization Error", comment: "")]))
+        }
+        dataTaskWithRequest(req, authenticated: true, retryCount: 0) { (dat, resp, er) in
+            self.log("token resp: \(resp)")
+        }
+    }
+    
     // MARK: feature flags API
     
     public func defaultsKeyForFeatureFlag(name: String) -> String {

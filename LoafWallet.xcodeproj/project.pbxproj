@@ -35,6 +35,7 @@
 		22B6A44A1C0ECB7800673913 /* BRBSPatchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22B6A4491C0ECB7800673913 /* BRBSPatchTests.swift */; };
 		22BF17471CDF831800AA41C6 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22BF17461CDF831800AA41C6 /* Extensions.swift */; };
 		22D3613D1C56F2CD0057CF76 /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 22D3613C1C56F2CD0057CF76 /* libsqlite3.tbd */; };
+		22DC3A231D2C8DD100A72EA5 /* PushKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 22DC3A221D2C8DD100A72EA5 /* PushKit.framework */; };
 		22DE8CF11D02407F007F07F3 /* BRWalletConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 22DE8CF01D02407F007F07F3 /* BRWalletConstants.m */; };
 		22DE8CF21D02407F007F07F3 /* BRWalletConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 22DE8CF01D02407F007F07F3 /* BRWalletConstants.m */; };
 		22DE8CF31D02407F007F07F3 /* BRWalletConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 22DE8CF01D02407F007F07F3 /* BRWalletConstants.m */; };
@@ -247,6 +248,7 @@
 		22B6A4491C0ECB7800673913 /* BRBSPatchTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BRBSPatchTests.swift; sourceTree = "<group>"; };
 		22BF17461CDF831800AA41C6 /* Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		22D3613C1C56F2CD0057CF76 /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = usr/lib/libsqlite3.tbd; sourceTree = SDKROOT; };
+		22DC3A221D2C8DD100A72EA5 /* PushKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PushKit.framework; path = System/Library/Frameworks/PushKit.framework; sourceTree = SDKROOT; };
 		22DE8CF01D02407F007F07F3 /* BRWalletConstants.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BRWalletConstants.m; sourceTree = "<group>"; };
 		22F45A0A1C30EAB700B07A15 /* BRAWKeypad.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BRAWKeypad.swift; sourceTree = "<group>"; };
 		22F45A0C1C3326CC00B07A15 /* BRUserDefaultsSwitchCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BRUserDefaultsSwitchCell.h; sourceTree = "<group>"; };
@@ -529,6 +531,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				DFC59EDC1D2937A600D3C74E /* MediaPlayer.framework in Frameworks */,
+				22DC3A231D2C8DD100A72EA5 /* PushKit.framework in Frameworks */,
 				225383011C694D7400968BEE /* CoreLocation.framework in Frameworks */,
 				22D3613D1C56F2CD0057CF76 /* libsqlite3.tbd in Frameworks */,
 				222E7F581C46E9BE009AB45D /* SystemConfiguration.framework in Frameworks */,
@@ -859,6 +862,7 @@
 			isa = PBXGroup;
 			children = (
 				DFC59EDB1D2937A600D3C74E /* MediaPlayer.framework */,
+				22DC3A221D2C8DD100A72EA5 /* PushKit.framework */,
 				225383001C694D7400968BEE /* CoreLocation.framework */,
 				22D3613C1C56F2CD0057CF76 /* libsqlite3.tbd */,
 				222E7F571C46E9BE009AB45D /* SystemConfiguration.framework */,
