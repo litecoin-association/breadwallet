@@ -1189,6 +1189,9 @@
 							com.apple.DataProtection = {
 								enabled = 1;
 							};
+							com.apple.Push = {
+								enabled = 1;
+							};
 						};
 					};
 					75D5F3E4191EC270004AB296 = {
