@@ -46,18 +46,7 @@ void scrypt(const void *pw, size_t pwlen, const void *salt, size_t slen, long n,
 passphrase:(NSString *)passphrase;
 
 // generates a BIP38 key from an "intermediate code" and 24 bytes of cryptographically random data (seedb),
-// compressed indicates if compressed pubKey format should be used for the bitcoin address
-+ (NSString *)BIP38KeyWithIntermediateCode:(NSString *)code seedb:(NSData *)seedb compressed:(BOOL)compressed;
-
-// generates a BIP38 key from an "intermediate code" and 24 bytes of cryptographically random data (seedb),
-// compressed indicates if compressed pubKey format should be used for the bitcoin address, confcode (optional) will
-// be set to the "confirmation code"
-+ (NSString *)BIP38KeyWithIntermediateCode:(NSString *)code seedb:(NSData *)seedb compressed:(BOOL)compressed
-confirmationCode:(NSString **)confcode __deprecated;
-
-// returns true if the "confirmation code" confirms that the given bitcoin address depends on the specified passphrase
-+ (BOOL)confirmWithBIP38ConfirmationCode:(NSString *)code address:(NSString *)address passphrase:(NSString *)passphrase
-__deprecated;
++ (NSString *)BIP38KeyWithIntermediateCode:(NSString *)code seedb:(NSData *)seedb;
 
 - (instancetype)initWithBIP38Key:(NSString *)key andPassphrase:(NSString *)passphrase;
 

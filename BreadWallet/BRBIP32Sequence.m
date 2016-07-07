@@ -53,20 +53,20 @@
 //
 static void CKDpriv(UInt256 *k, UInt256 *c, uint32_t i)
 {
-    uint8_t buf[sizeof(BRPubKey) + sizeof(i)];
+    uint8_t buf[sizeof(BRECPoint) + sizeof(i)];
     UInt512 I;
     
     if (i & BIP32_HARD) {
         buf[0] = 0;
         *(UInt256 *)&buf[1] = *k;
     }
-    else secp256k1_point_mul(buf, NULL, *k, 1);
+    else BRSecp256k1PointGen((BRECPoint *)buf, k);
 
-    *(uint32_t *)&buf[sizeof(BRPubKey)] = CFSwapInt32HostToBig(i);
+    *(uint32_t *)&buf[sizeof(BRECPoint)] = CFSwapInt32HostToBig(i);
 
     HMAC(&I, SHA512, sizeof(UInt512), c, sizeof(*c), buf, sizeof(buf)); // I = HMAC-SHA512(c, k|P(k) || i)
     
-    *k = secp256k1_mod_add(*(UInt256 *)&I, *k); // k = IL + k (mod n)
+    BRSecp256k1ModAdd(k, (UInt256 *)&I); // k = IL + k (mod n)
     *c = *(UInt256 *)&I.u8[sizeof(UInt256)]; // c = IR
     
     memset(buf, 0, sizeof(buf));
@@ -87,27 +87,23 @@ static void CKDpriv(UInt256 *k, UInt256 *c, uint32_t i)
 // - In case parse256(IL) >= n or Ki is the point at infinity, the resulting key is invalid, and one should proceed with
 //   the next value for i.
 //
-static void CKDpub(BRPubKey *K, UInt256 *c, uint32_t i)
+static void CKDpub(BRECPoint *K, UInt256 *c, uint32_t i)
 {
     if (i & BIP32_HARD) return; // can't derive private child key from public parent key
 
     uint8_t buf[sizeof(*K) + sizeof(i)];
     UInt512 I;
-    BRPubKey pIL;
     
-    *(BRPubKey *)buf = *K;
+    *(BRECPoint *)buf = *K;
     *(uint32_t *)&buf[sizeof(*K)] = CFSwapInt32HostToBig(i);
 
     HMAC(&I, SHA512, sizeof(UInt512), c, sizeof(*c), buf, sizeof(buf)); // I = HMAC-SHA512(c, P(K) || i)
     
     *c = *(UInt256 *)&I.u8[sizeof(UInt256)]; // c = IR
-
-    secp256k1_point_mul(&pIL, NULL, *(UInt256 *)&I, 1);
-    secp256k1_point_add(K, &pIL, K, YES); // K = P(IL) + K
+    BRSecp256k1PointAdd(K, (UInt256 *)&I); // K = P(IL) + K
     
     memset(buf, 0, sizeof(buf));
     memset(&I, 0, sizeof(I));
-    memset(&pIL, 0, sizeof(pIL));
 }
 
 // helper function for serializing BIP32 master public/private keys to standard export format
@@ -158,10 +154,10 @@ static NSString *serialize(uint8_t depth, uint32_t fingerprint, uint32_t child, 
 
 - (NSData *)publicKey:(uint32_t)n internal:(BOOL)internal masterPublicKey:(NSData *)masterPublicKey
 {
-    if (masterPublicKey.length < 4 + sizeof(UInt256) + sizeof(BRPubKey)) return nil;
+    if (masterPublicKey.length < 4 + sizeof(UInt256) + sizeof(BRECPoint)) return nil;
 
     UInt256 chain = *(const UInt256 *)((const uint8_t *)masterPublicKey.bytes + 4);
-    BRPubKey pubKey = *(const BRPubKey *)((const uint8_t *)masterPublicKey.bytes + 36);
+    BRECPoint pubKey = *(const BRECPoint *)((const uint8_t *)masterPublicKey.bytes + 36);
 
     CKDpub(&pubKey, &chain, internal ? 1 : 0); // internal or external chain
     CKDpub(&pubKey, &chain, n); // nth key in chain
@@ -294,7 +290,7 @@ static NSString *serialize(uint8_t depth, uint32_t fingerprint, uint32_t child, 
     
     uint32_t fingerprint = CFSwapInt32BigToHost(*(const uint32_t *)masterPublicKey.bytes);
     UInt256 chain = *(UInt256 *)((const uint8_t *)masterPublicKey.bytes + 4);
-    BRPubKey pubKey = *(BRPubKey *)((const uint8_t *)masterPublicKey.bytes + 36);
+    BRECPoint pubKey = *(BRECPoint *)((const uint8_t *)masterPublicKey.bytes + 36);
 
     return serialize(1, fingerprint, 0 | BIP32_HARD, chain, [NSData dataWithBytes:&pubKey length:sizeof(pubKey)]);
 }

@@ -281,11 +281,19 @@ static UInt512 derive_key(NSData *passpoint, uint32_t addresshash, uint64_t entr
     return dk;
 }
 
-static NSData *point_multiply(NSData *point, UInt256 factor, BOOL compressed)
+static NSData *point_gen(UInt256 factor)
 {
-    NSMutableData *d = [NSMutableData secureDataWithLength:compressed ? 33 : 65];
+    NSMutableData *d = [NSMutableData secureDataWithLength:33];
     
-    secp256k1_point_mul(d.mutableBytes, point.bytes, factor, compressed);
+    BRSecp256k1PointGen(d.mutableBytes, &factor);
+    return d;
+}
+
+static NSData *point_mul(NSData *point, UInt256 factor)
+{
+    NSMutableData *d = [NSMutableData secureDataWithData:point];
+    
+    BRSecp256k1PointGen(d.mutableBytes, &factor);
     return d;
 }
 
@@ -307,7 +315,7 @@ static NSData *point_multiply(NSData *point, UInt256 factor, BOOL compressed)
 
     [code appendBytes:"\x2C\xE9\xB3\xE1\xFF\x39\xE2\x53" length:8];
     [code appendBytes:&salt length:sizeof(salt)];
-    [code appendData:point_multiply(nil, derive_passfactor(0, salt, passphrase), YES)]; // passpoint = G*passfactor
+    [code appendData:point_gen(derive_passfactor(0, salt, passphrase))]; // passpoint = G*passfactor
     return [NSString base58checkWithData:code];
 }
 
@@ -329,13 +337,13 @@ passphrase:(NSString *)passphrase
 
     [code appendBytes:"\x2C\xE9\xB3\xE1\xFF\x39\xE2\x51" length:8];
     [code appendData:entropy];
-    [code appendData:point_multiply(nil, passfactor, YES)]; // passpoint = G*passfactor
+    [code appendData:point_gen(passfactor)]; // passpoint = G*passfactor
     return [NSString base58checkWithData:code];
 }
 
 // generates a BIP38 key from an "intermediate code" and 24 bytes of cryptographically random data (seedb),
 // compressed indicates if compressed pubKey format should be used for the bitcoin address
-+ (NSString *)BIP38KeyWithIntermediateCode:(NSString *)code seedb:(NSData *)seedb compressed:(BOOL)compressed
++ (NSString *)BIP38KeyWithIntermediateCode:(NSString *)code seedb:(NSData *)seedb
 {
     NSData *d = code.base58checkToData; // d = 0x2C 0xE9 0xB3 0xE1 0xFF 0x39 0xE2 0x51|0x53 + entropy + passpoint
 
@@ -343,10 +351,10 @@ passphrase:(NSString *)passphrase
 
     NSData *passpoint = [NSData dataWithBytesNoCopy:(uint8_t *)d.bytes + 16 length:33 freeWhenDone:NO];
     UInt256 factorb = seedb.SHA256_2; // factorb = SHA256(SHA256(seedb))
-    NSData *pubKey = point_multiply(passpoint, factorb, compressed), // pubKey = passpoint*factorb
+    NSData *pubKey = point_mul(passpoint, factorb), // pubKey = passpoint*factorb
            *address = [[BRKey keyWithPublicKey:pubKey].address dataUsingEncoding:NSUTF8StringEncoding];
     uint16_t prefix = CFSwapInt16HostToBig(BIP38_EC_PREFIX);
-    uint8_t flag = (compressed) ? BIP38_COMPRESSED_FLAG : 0;
+    uint8_t flag = BIP38_COMPRESSED_FLAG;
     uint32_t addresshash = (address) ? address.SHA256_2.u32[0] : 0;
     uint64_t entropy = *(const uint64_t *)((const uint8_t *)d.bytes + 8);
     UInt512 derived = derive_key(passpoint, addresshash, entropy);
@@ -373,89 +381,6 @@ passphrase:(NSString *)passphrase
     [key appendBytes:&encrypted1 length:8];
     [key appendBytes:&encrypted2 length:sizeof(encrypted2)];
     return [NSString base58checkWithData:key];
-}
-
-// generates a BIP38 key from an "intermediate code" and 24 bytes of cryptographically random data (seedb),
-// compressed indicates if compressed pubKey format should be used for the bitcoin address, confcode (optional) will
-// be set to the "confirmation code"
-+ (NSString *)BIP38KeyWithIntermediateCode:(NSString *)code seedb:(NSData *)seedb compressed:(BOOL)compressed
-confirmationCode:(NSString **)confcode
-{
-    if (confcode) {
-        NSData *d = code.base58checkToData; // d = 0x2C 0xE9 0xB3 0xE1 0xFF 0x39 0xE2 0x51|0x53 + entropy + passpoint
-        
-        if (d.length != 49 || seedb.length != 24) return nil;
-
-        NSData *passpoint = [NSData dataWithBytesNoCopy:(uint8_t *)d.bytes + 16 length:33 freeWhenDone:NO];
-        UInt256 factorb = seedb.SHA256_2; // factorb = SHA256(SHA256(seedb))
-        NSData *pubKey = point_multiply(passpoint, factorb, compressed), // pubKey = passpoint*factorb
-               *address = [[BRKey keyWithPublicKey:pubKey].address dataUsingEncoding:NSUTF8StringEncoding];
-        NSData *pointb = point_multiply(nil, factorb, YES); // pointb = G*factorb
-        NSMutableData *c = [NSMutableData secureData];
-        uint8_t flag = (compressed) ? BIP38_COMPRESSED_FLAG : 0;
-        uint32_t addresshash = (address) ? address.SHA256_2.u32[0] : 0;
-        uint64_t entropy = *(const uint64_t *)((const uint8_t *)d.bytes + 8);
-        UInt512 derived = derive_key(passpoint, addresshash, entropy);
-        UInt256 derived1 = *(UInt256 *)&derived, derived2 = *(UInt256 *)&derived.u64[4];
-        UInt128 pointbx1, pointbx2;
-        uint8_t pointbprefix = ((const uint8_t *)pointb.bytes)[0] ^ (derived2.u8[31] & 0x01);
-
-        // pointbx1 = AES256Encrypt(pointb[1...16] xor derived1[0...15], derived2)
-        pointbx1.u64[0] = ((const uint64_t *)((const uint8_t *)pointb.bytes + 1))[0] ^ derived1.u64[0];
-        pointbx1.u64[1] = ((const uint64_t *)((const uint8_t *)pointb.bytes + 1))[1] ^ derived1.u64[1];
-        AES256ECBEncrypt(&derived2, &pointbx1);
-
-        // pointbx2 = AES256Encrypt(pointb[17...32] xor derived1[16...31], derived2)
-        pointbx2.u64[0] = ((const uint64_t *)((const uint8_t *)pointb.bytes + 1))[2] ^ derived1.u64[2];
-        pointbx2.u64[1] = ((const uint64_t *)((const uint8_t *)pointb.bytes + 1))[3] ^ derived1.u64[3];
-        AES256ECBEncrypt(&derived2, &pointbx2);
-
-        [c appendBytes:"\x64\x3B\xF6\xA8\x9A" length:5];
-        [c appendBytes:&flag length:sizeof(flag)];
-        [c appendBytes:&addresshash length:sizeof(addresshash)];
-        [c appendBytes:&entropy length:sizeof(entropy)];
-        [c appendBytes:&pointbprefix length:sizeof(pointbprefix)];
-        [c appendBytes:&pointbx1 length:sizeof(pointbx1)];
-        [c appendBytes:&pointbx2 length:sizeof(pointbx2)];
-        *confcode = [NSString base58checkWithData:c];
-    }
-
-    return [self BIP38KeyWithIntermediateCode:code seedb:seedb compressed:compressed];
-}
-
-// returns true if the "confirmation code" confirms that the given bitcoin address depends on the specified passphrase
-+ (BOOL)confirmWithBIP38ConfirmationCode:(NSString *)code address:(NSString *)address passphrase:(NSString *)passphrase
-{
-    NSData *d = code.base58checkToData;
-
-    if (d.length != 51 || ! address || ! passphrase) return NO;
-
-    uint8_t flag = ((const uint8_t *)d.bytes)[5];
-    uint32_t addresshash = *(const uint32_t *)((const uint8_t *)d.bytes + 6);
-
-    if ([address dataUsingEncoding:NSUTF8StringEncoding].SHA256_2.u32[0] != addresshash) return NO;
-
-    uint64_t entropy = *(const uint64_t *)((const uint8_t *)d.bytes + 10);
-    uint8_t pointprefix = ((const uint8_t *)d.bytes)[18];
-    UInt128 pointbx1 = *(UInt128 *)((char *)d.bytes + 19), pointbx2 = *(UInt128 *)((char *)d.bytes + 35);
-    UInt256 passfactor = derive_passfactor(flag, entropy, passphrase);
-    NSData *pubKey, *passpoint = point_multiply(nil, passfactor, YES); // passpoint = G*passfactor
-    UInt512 derived = derive_key(passpoint, addresshash, entropy);
-    UInt256 derived1 = *(UInt256 *)&derived, derived2 = *(UInt256 *)&derived.u64[4];
-    NSMutableData *pointb = [NSMutableData secureDataWithLength:33];
-
-    ((uint8_t *)pointb.mutableBytes)[0] = pointprefix ^ (derived2.u8[31] & 0x01);
-
-    AES256ECBDecrypt(&derived2, &pointbx1); // pointb[1...16] xor derived1[0...15]
-    ((uint64_t *)((uint8_t *)pointb.mutableBytes + 1))[0] = pointbx1.u64[0] ^ derived1.u64[0];
-    ((uint64_t *)((uint8_t *)pointb.mutableBytes + 1))[1] = pointbx1.u64[1] ^ derived1.u64[1];
-    
-    AES256ECBDecrypt(&derived2, &pointbx2); // pointb[1...16] xor derived1[0...15]
-    ((uint64_t *)((uint8_t *)pointb.mutableBytes + 1))[2] = pointbx2.u64[0] ^ derived1.u64[2];
-    ((uint64_t *)((uint8_t *)pointb.mutableBytes + 1))[3] = pointbx2.u64[1] ^ derived1.u64[3];
-
-    pubKey = point_multiply(pointb, passfactor, flag & BIP38_COMPRESSED_FLAG); // pubKey = pointb*passfactor
-    return ([[BRKey keyWithPublicKey:pubKey].address isEqual:address]) ? YES : NO;
 }
 
 - (instancetype)initWithBIP38Key:(NSString *)key andPassphrase:(NSString *)passphrase
@@ -493,7 +418,7 @@ confirmationCode:(NSString **)confcode
         uint64_t entropy = *(const uint64_t *)((const uint8_t *)d.bytes + 7);
         UInt128 encrypted1 = UINT128_ZERO, encrypted2 = *(UInt128 *)((const uint8_t *)d.bytes + 23);
         UInt256 passfactor = derive_passfactor(flag, entropy, passphrase), factorb;
-        NSData *passpoint = point_multiply(nil, passfactor, YES); // passpoint = G*passfactor
+        NSData *passpoint = point_gen(passfactor); // passpoint = G*passfactor
         UInt512 derived = derive_key(passpoint, addresshash, entropy);
         UInt256 derived1 = *(UInt256 *)&derived, derived2 = *(UInt256 *)&derived.u64[4];
         NSMutableData *seedb = [NSMutableData secureDataWithLength:24];
@@ -511,7 +436,8 @@ confirmationCode:(NSString **)confcode
         ((uint64_t *)seedb.mutableBytes)[1] = encrypted1.u64[1] ^ derived1.u64[1];
 
         factorb = seedb.SHA256_2; // factorb = SHA256(SHA256(seedb))
-        secret = secp256k1_mod_mul(passfactor, factorb); // secret = passfactor*factorb mod N
+        secret = passfactor;
+        BRSecp256k1ModMul(&secret, &factorb); // secret = passfactor*factorb mod N
     }
 
     if (! (self = [self initWithSecret:secret compressed:flag & BIP38_COMPRESSED_FLAG])) return nil;

@@ -345,7 +345,7 @@
 #if ! BITCOIN_TESTNET && ! SKIP_BIP38
 - (void)testKeyWithBIP38Key
 {
-    NSString *intercode, *privkey;
+//    NSString *intercode, *privkey;
     BRKey *key;
 
     // non EC multiplied, uncompressed
@@ -392,24 +392,24 @@
     NSLog(@"privKey = %@", key.privateKey);
     XCTAssertEqualObjects(@"5K4caxezwjGCGfnoPTZ8tMcJBLB7Jvyjv4xxeacadhq8nLisLR2", key.privateKey,
                           @"[BRKey keyWithBIP38Key:andPassphrase:]");
-    intercode = [BRKey BIP38IntermediateCodeWithSalt:0xa50dba6772cb9383 andPassphrase:@"TestingOneTwoThree"];
-    NSLog(@"intercode = %@", intercode);
-    privkey = [BRKey BIP38KeyWithIntermediateCode:intercode
-               seedb:@"99241d58245c883896f80843d2846672d7312e6195ca1a6c".hexToData compressed:NO];
-    XCTAssertEqualObjects(@"6PfQu77ygVyJLZjfvMLyhLMQbYnu5uguoJJ4kMCLqWwPEdfpwANVS76gTX", privkey,
-                          @"[BRKey BIP38KeyWithIntermediateCode:]");
+//    intercode = [BRKey BIP38IntermediateCodeWithSalt:0xa50dba6772cb9383 andPassphrase:@"TestingOneTwoThree"];
+//    NSLog(@"intercode = %@", intercode);
+//    privkey = [BRKey BIP38KeyWithIntermediateCode:intercode
+//               seedb:@"99241d58245c883896f80843d2846672d7312e6195ca1a6c".hexToData compressed:NO];
+//    XCTAssertEqualObjects(@"6PfQu77ygVyJLZjfvMLyhLMQbYnu5uguoJJ4kMCLqWwPEdfpwANVS76gTX", privkey,
+//                          @"[BRKey BIP38KeyWithIntermediateCode:]");
 
     key = [BRKey keyWithBIP38Key:@"6PfLGnQs6VZnrNpmVKfjotbnQuaJK4KZoPFrAjx1JMJUa1Ft8gnf5WxfKd"
            andPassphrase:@"Satoshi"];
     NSLog(@"privKey = %@", key.privateKey);
     XCTAssertEqualObjects(@"5KJ51SgxWaAYR13zd9ReMhJpwrcX47xTJh2D3fGPG9CM8vkv5sH", key.privateKey,
                           @"[BRKey keyWithBIP38Key:andPassphrase:]");
-    intercode = [BRKey BIP38IntermediateCodeWithSalt:0x67010a9573418906 andPassphrase:@"Satoshi"];
-    NSLog(@"intercode = %@", intercode);
-    privkey = [BRKey BIP38KeyWithIntermediateCode:intercode
-               seedb:@"49111e301d94eab339ff9f6822ee99d9f49606db3b47a497".hexToData compressed:NO];
-    XCTAssertEqualObjects(@"6PfLGnQs6VZnrNpmVKfjotbnQuaJK4KZoPFrAjx1JMJUa1Ft8gnf5WxfKd", privkey,
-                          @"[BRKey BIP38KeyWithIntermediateCode:]");
+//    intercode = [BRKey BIP38IntermediateCodeWithSalt:0x67010a9573418906 andPassphrase:@"Satoshi"];
+//    NSLog(@"intercode = %@", intercode);
+//    privkey = [BRKey BIP38KeyWithIntermediateCode:intercode
+//               seedb:@"49111e301d94eab339ff9f6822ee99d9f49606db3b47a497".hexToData compressed:NO];
+//    XCTAssertEqualObjects(@"6PfLGnQs6VZnrNpmVKfjotbnQuaJK4KZoPFrAjx1JMJUa1Ft8gnf5WxfKd", privkey,
+//                          @"[BRKey BIP38KeyWithIntermediateCode:]");
 
     // EC multiplied, uncompressed, with lot/sequence number
     key = [BRKey keyWithBIP38Key:@"6PgNBNNzDkKdhkT6uJntUXwwzQV8Rr2tZcbkDcuC9DZRsS6AtHts4Ypo1j"
@@ -417,25 +417,25 @@
     NSLog(@"privKey = %@", key.privateKey);
     XCTAssertEqualObjects(@"5JLdxTtcTHcfYcmJsNVy1v2PMDx432JPoYcBTVVRHpPaxUrdtf8", key.privateKey,
                           @"[BRKey keyWithBIP38Key:andPassphrase:]");
-    intercode = [BRKey BIP38IntermediateCodeWithLot:263183 sequence:1 salt:0x4fca5a97u passphrase:@"MOLON LABE"];
-    NSLog(@"intercode = %@", intercode);
-    privkey = [BRKey BIP38KeyWithIntermediateCode:intercode
-               seedb:@"87a13b07858fa753cd3ab3f1c5eafb5f12579b6c33c9a53f".hexToData compressed:NO];
-    XCTAssertEqualObjects(@"6PgNBNNzDkKdhkT6uJntUXwwzQV8Rr2tZcbkDcuC9DZRsS6AtHts4Ypo1j", privkey,
-                          @"[BRKey BIP38KeyWithIntermediateCode:]");
+//    intercode = [BRKey BIP38IntermediateCodeWithLot:263183 sequence:1 salt:0x4fca5a97u passphrase:@"MOLON LABE"];
+//    NSLog(@"intercode = %@", intercode);
+//    privkey = [BRKey BIP38KeyWithIntermediateCode:intercode
+//               seedb:@"87a13b07858fa753cd3ab3f1c5eafb5f12579b6c33c9a53f".hexToData compressed:NO];
+//    XCTAssertEqualObjects(@"6PgNBNNzDkKdhkT6uJntUXwwzQV8Rr2tZcbkDcuC9DZRsS6AtHts4Ypo1j", privkey,
+//                          @"[BRKey BIP38KeyWithIntermediateCode:]");
 
     key = [BRKey keyWithBIP38Key:@"6PgGWtx25kUg8QWvwuJAgorN6k9FbE25rv5dMRwu5SKMnfpfVe5mar2ngH"
            andPassphrase:@"\u039c\u039f\u039b\u03a9\u039d \u039b\u0391\u0392\u0395"];
     NSLog(@"privKey = %@", key.privateKey);
     XCTAssertEqualObjects(@"5KMKKuUmAkiNbA3DazMQiLfDq47qs8MAEThm4yL8R2PhV1ov33D", key.privateKey,
                           @"[BRKey keyWithBIP38Key:andPassphrase:]");
-    intercode = [BRKey BIP38IntermediateCodeWithLot:806938 sequence:1 salt:0xc40ea76fu
-                 passphrase:@"\u039c\u039f\u039b\u03a9\u039d \u039b\u0391\u0392\u0395"];
-    NSLog(@"intercode = %@", intercode);
-    privkey = [BRKey BIP38KeyWithIntermediateCode:intercode
-               seedb:@"03b06a1ea7f9219ae364560d7b985ab1fa27025aaa7e427a".hexToData compressed:NO];
-    XCTAssertEqualObjects(@"6PgGWtx25kUg8QWvwuJAgorN6k9FbE25rv5dMRwu5SKMnfpfVe5mar2ngH", privkey,
-                          @"[BRKey BIP38KeyWithIntermediateCode:]");
+//    intercode = [BRKey BIP38IntermediateCodeWithLot:806938 sequence:1 salt:0xc40ea76fu
+//                 passphrase:@"\u039c\u039f\u039b\u03a9\u039d \u039b\u0391\u0392\u0395"];
+//    NSLog(@"intercode = %@", intercode);
+//    privkey = [BRKey BIP38KeyWithIntermediateCode:intercode
+//               seedb:@"03b06a1ea7f9219ae364560d7b985ab1fa27025aaa7e427a".hexToData compressed:NO];
+//    XCTAssertEqualObjects(@"6PgGWtx25kUg8QWvwuJAgorN6k9FbE25rv5dMRwu5SKMnfpfVe5mar2ngH", privkey,
+//                          @"[BRKey BIP38KeyWithIntermediateCode:]");
 
     // password NFC unicode normalization test
     key = [BRKey keyWithBIP38Key:@"6PRW5o9FLp4gJDDVqJQKJFTpMvdsSGJxMYHtHaQBF3ooa8mwD69bapcDQn"

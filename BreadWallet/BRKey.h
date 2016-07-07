@@ -26,26 +26,32 @@
 
 #import <Foundation/Foundation.h>
 
-typedef struct _BRPubKey {
-    uint8_t u8[33];
-} BRPubKey;
-
-#define brpubkey_obj(o) [NSValue value:&(o).form withObjCType:@encode(BRPubKey)]
-
 typedef union _UInt256 UInt256;
 typedef union _UInt160 UInt160;
 
-// add 256bit big endian ints (mod secp256k1 order)
-UInt256 secp256k1_mod_add(UInt256 a, UInt256 b);
+typedef struct {
+    uint8_t p[33];
+} BRECPoint;
 
-// multiply 256bit big endian ints (mod secp256k1 order)
-UInt256 secp256k1_mod_mul(UInt256 a, UInt256 b);
+// adds 256bit big endian ints a and b (mod secp256k1 order) and stores the result in a
+// returns true on success
+int BRSecp256k1ModAdd(UInt256 * _Nonnull a, const UInt256 * _Nonnull b);
 
-// add secp256k1 ec-points
-size_t secp256k1_point_add( void  * _Nonnull r, const void * _Nonnull a, const void * _Nonnull b, int compressed);
+// multiplies 256bit big endian ints a and b (mod secp256k1 order) and stores the result in a
+// returns true on success
+int BRSecp256k1ModMul(UInt256 * _Nonnull a, const UInt256 * _Nonnull b);
 
-// multiply secp256k1 ec-point by 256bit big endian int
-size_t secp256k1_point_mul(void * _Nonnull r, const void * _Nullable p, UInt256 i, int compressed);
+// multiplies secp256k1 generator by 256bit big endian int i and stores the result in p
+// returns true on success
+int BRSecp256k1PointGen(BRECPoint * _Nonnull p, const UInt256 * _Nonnull i);
+
+// multiplies secp256k1 generator by 256bit big endian int i and adds the result to ec-point p
+// returns true on success
+int BRSecp256k1PointAdd(BRECPoint * _Nonnull p, const UInt256 * _Nonnull i);
+
+// multiplies secp256k1 ec-point p by 256bit big endian int i and stores the result in p
+// returns true on success
+int BRSecp256k1PointMul(BRECPoint * _Nonnull p, const UInt256 * _Nonnull i);
 
 @interface BRKey : NSObject
 
