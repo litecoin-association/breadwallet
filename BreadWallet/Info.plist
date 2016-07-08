@@ -76,10 +76,10 @@
 			</array>
 		</dict>
 		<dict>
-			<key>CFBundleURLName</key>
-			<string>bitid</string>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>bitid</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>bitid</string>

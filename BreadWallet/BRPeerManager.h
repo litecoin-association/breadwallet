@@ -44,6 +44,7 @@ FOUNDATION_EXPORT NSString* _Nonnull const BRPeerManagerTxStatusNotification;
 @property (nonatomic, readonly) uint32_t estimatedBlockHeight; // last block height reported by current download peer
 @property (nonatomic, readonly) double syncProgress;
 @property (nonatomic, readonly) NSUInteger peerCount; // number of connected peers
+@property (nonatomic, readonly) NSString * _Nullable downloadPeerName;
 
 + (instancetype _Nullable)sharedInstance;
 

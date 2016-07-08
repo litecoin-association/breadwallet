@@ -88,7 +88,6 @@ int BRSecp256k1PointAdd(BRECPoint *p, const UInt256 *i)
             secp256k1_ec_pubkey_serialize(_ctx, (unsigned char *)p, &pLen, &pubkey, SECP256K1_EC_COMPRESSED));
 }
 
-
 // multiplies secp256k1 ec-point p by 256bit big endian int i and stores the result in p
 // returns true on success
 int BRSecp256k1PointMul(BRECPoint *p, const UInt256 *i)

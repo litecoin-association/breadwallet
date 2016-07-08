@@ -448,6 +448,11 @@ static const char *dns_seeds[] = {
     return count;
 }
 
+- (NSString *)downloadPeerName
+{
+    return [self.downloadPeer.host stringByAppendingFormat:@":%d", self.downloadPeer.port];
+}
+
 - (BRBloomFilter *)bloomFilterForPeer:(BRPeer *)peer
 {
     BRWalletManager *manager = [BRWalletManager sharedInstance];
@@ -1030,6 +1035,10 @@ static const char *dns_seeds[] = {
         [peer disconnect];
         return;
     }
+
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [[NSNotificationCenter defaultCenter] postNotificationName:BRPeerManagerTxStatusNotification object:nil];
+    });
 
     for (BRTransaction *tx in manager.wallet.allTransactions) {
         if (tx.blockHeight != TX_UNCONFIRMED) break;
