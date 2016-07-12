@@ -177,8 +177,6 @@
         queue:nil usingBlock:^(NSNotification *note) {
             if (! manager.noWallet) {
                 BREventManager *eventMan = [BREventManager sharedEventManager];
-                UIUserNotificationType types = UIUserNotificationTypeBadge;
-                                               //| UIUserNotificationTypeSound | UIUserNotificationTypeAlert;
             
                 [[BRPeerManager sharedInstance] connect];
                 [self.sendViewController updateClipboardText];
@@ -186,12 +184,7 @@
                 if (eventMan.isInSampleGroup && ! eventMan.hasAskedForPermission) {
                     [eventMan acquireUserPermissionInViewController:self.navigationController withCallback:nil];
                 }
-                else if ([UIUserNotificationSettings class] && // if iOS 8 or above
-                         ([[UIApplication sharedApplication] currentUserNotificationSettings].types & types) != types) {
-                    // register for notifications
-                    [[UIApplication sharedApplication] registerUserNotificationSettings:[UIUserNotificationSettings
-                     settingsForTypes:types categories:nil]];
-                }
+                else ([(id)[UIApplication sharedApplication].delegate registerForPushNotifications]);
             }
 
             if (jailbroken && manager.wallet.totalReceived + manager.wallet.totalSent > 0) {

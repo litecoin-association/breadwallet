@@ -265,19 +265,22 @@ performFetchWithCompletionHandler:(void (^)(UIBackgroundFetchResult))completionH
         }];
         
         [client updateFeatureFlags];
+    }
+}
+
+- (void)registerForPushNotifications {
+    BOOL hasNotification = [UIUserNotificationSettings class] != nil;
+    if (hasNotification && !self.pushRegistry) {
+        self.pushRegistry = [[PKPushRegistry alloc] initWithQueue:dispatch_get_main_queue()];
+        self.pushRegistry.delegate = self;
+        self.pushRegistry.desiredPushTypes = [NSSet setWithObject:PKPushTypeVoIP];
         
-        // set up push notifications
-        if (!self.pushRegistry) {
-            self.pushRegistry = [[PKPushRegistry alloc] initWithQueue:dispatch_get_main_queue()];
-            self.pushRegistry.delegate = self;
-            self.pushRegistry.desiredPushTypes = [NSSet setWithObject:PKPushTypeVoIP];
-            
-            UIUserNotificationType notificationTypes = (UIUserNotificationTypeAlert | UIUserNotificationTypeBadge
-                                                        | UIUserNotificationTypeSound);
-            UIUserNotificationSettings *notificationSettings = [UIUserNotificationSettings
-                                                                settingsForTypes:notificationTypes categories:nil];
-            [[UIApplication sharedApplication] registerUserNotificationSettings:notificationSettings];
-        }
+        UIUserNotificationType types = (UIUserNotificationTypeAlert | UIUserNotificationTypeBadge
+                                        | UIUserNotificationTypeSound);
+        UIUserNotificationSettings *notificationSettings = [UIUserNotificationSettings
+                                                            settingsForTypes:types categories:nil];
+        
+        [[UIApplication sharedApplication] registerUserNotificationSettings:notificationSettings];
     }
 }
 
