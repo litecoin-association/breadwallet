@@ -415,7 +415,7 @@ func httpDateNow() -> String {
         }
         dataTaskWithRequest(req, authenticated: true, retryCount: 0) { (dat, resp, er) in
             self.log("token resp: \(resp)")
-        }
+        }.resume()
     }
     
     // MARK: feature flags API
