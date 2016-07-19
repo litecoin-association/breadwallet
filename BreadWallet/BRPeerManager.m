@@ -471,6 +471,25 @@ static const char *dns_seeds[] = {
     BRUTXO o;
     NSData *d;
     NSUInteger i, elemCount = manager.wallet.addresses.count + manager.wallet.unspentOutputs.count;
+    NSMutableArray *inputs = [NSMutableArray new];
+
+    for (BRTransaction *tx in manager.wallet.allTransactions) { // find TXOs spent within the last 100 blocks
+        if (tx.blockHeight != TX_UNCONFIRMED && tx.blockHeight + 100 < self.lastBlockHeight) break;
+        i = 0;
+        
+        for (NSValue *hash in tx.inputHashes) {
+            [hash getValue:&o.hash];
+            o.n = [tx.inputIndexes[i++] unsignedIntValue];
+            
+            BRTransaction *t = [manager.wallet transactionForHash:o.hash];
+            
+            if (o.n < t.outputAddresses.count && [manager.wallet containsAddress:t.outputAddresses[o.n]]) {
+                [inputs addObject:brutxo_data(o)];
+                elemCount++;
+            }
+        }
+    }
+    
     BRBloomFilter *filter = [[BRBloomFilter alloc] initWithFalsePositiveRate:self.fpRate
                              forElementCount:(elemCount < 200 ? 300 : elemCount + 100) tweak:(uint32_t)peer.hash
                              flags:BLOOM_UPDATE_ALL];
@@ -487,23 +506,10 @@ static const char *dns_seeds[] = {
         if (! [filter containsData:d]) [filter insertData:d];
     }
     
-    for (BRTransaction *tx in manager.wallet.allTransactions) { // also add TXOs spent within the last 100 blocks
-        if (tx.blockHeight != TX_UNCONFIRMED && tx.blockHeight + 100 < self.lastBlockHeight) break;
-        i = 0;
-        
-        for (NSValue *hash in tx.inputHashes) {
-            [hash getValue:&o.hash];
-            o.n = [tx.inputIndexes[i++] unsignedIntValue];
-            
-            BRTransaction *t = [manager.wallet transactionForHash:o.hash];
-
-            if (o.n < t.outputAddresses.count && [manager.wallet containsAddress:t.outputAddresses[o.n]]) {
-                d = brutxo_data(o);
-                if (! [filter containsData:d]) [filter insertData:d];
-            }
-        }
+    for (d in inputs) { // also add TXOs spent within the last 100 blocks
+        if (! [filter containsData:d]) [filter insertData:d];
     }
-
+    
     // TODO: XXXX if already synced, recursively add inputs of unconfirmed receives
     _bloomFilter = filter;
     return _bloomFilter;
@@ -1313,10 +1319,10 @@ static const char *dns_seeds[] = {
     if (peer == self.downloadPeer && block.totalTransactions > 0) {
         NSMutableSet *fp = [NSMutableSet setWithArray:txHashes];
     
-        // 1% low pass filter, also weights each block by total transactions, using 800 tx per block as typical
+        // 1% low pass filter, also weights each block by total transactions, using 1400 tx per block as typical
         [fp minusSet:self.nonFpTx]; // wallet tx are not false-positives
         [self.nonFpTx removeAllObjects];
-        self.fpRate = self.fpRate*(1.0 - 0.01*block.totalTransactions/800) + 0.01*fp.count/800;
+        self.fpRate = self.fpRate*(1.0 - 0.01*block.totalTransactions/1400) + 0.01*fp.count/1400;
 
         // false positive rate sanity check
         if (self.downloadPeer.status == BRPeerStatusConnected && self.fpRate > BLOOM_DEFAULT_FALSEPOSITIVE_RATE*10.0) {
