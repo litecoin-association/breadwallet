@@ -63,8 +63,11 @@ typedef struct _BRUTXO {
 // returns the first unused internal address
 @property (nonatomic, readonly) NSString * _Nullable changeAddress;
 
-// all previously generated internal and external addresses
-@property (nonatomic, readonly) NSSet * _Nonnull addresses;
+// all previously generated external addresses
+@property (nonatomic, readonly) NSSet * _Nonnull allReceiveAddresses;
+
+// all previously generated internal addresses
+@property (nonatomic, readonly) NSSet * _Nonnull allChangeAddresses;
 
 // NSValue objects containing UTXO structs
 @property (nonatomic, readonly) NSArray * _Nonnull unspentOutputs;

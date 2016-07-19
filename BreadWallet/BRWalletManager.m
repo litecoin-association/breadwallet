@@ -322,7 +322,7 @@ static NSDictionary *getKeychainDict(NSString *key, NSError **error)
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             BRKey *k = [BRKey keyWithPublicKey:[self.sequence publicKey:0 internal:NO masterPublicKey:mpk]];
 
-            if (_wallet.addresses.count > 0 && k && ! [_wallet containsAddress:k.address]) {
+            if (_wallet.allReceiveAddresses.count > 0 && k && ! [_wallet containsAddress:k.address]) {
                 NSLog(@"wallet doesn't contain address: %@", k.address);
 #if DEBUG
                 abort(); // don't wipe core data for debug builds
@@ -1169,7 +1169,7 @@ completion:(void (^)(BRTransaction *tx, uint64_t fee, NSError *error))completion
             return;
         }
 
-        [tx addOutputAddress:self.wallet.changeAddress amount:balance - feeAmount];
+        [tx addOutputAddress:self.wallet.receiveAddress amount:balance - feeAmount];
 
         if (! [tx signWithPrivateKeys:@[privKey]]) {
             completion(nil, 0, [NSError errorWithDomain:@"LoafWallet" code:401 userInfo:@{NSLocalizedDescriptionKey:

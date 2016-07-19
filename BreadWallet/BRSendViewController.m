@@ -242,7 +242,9 @@ static NSString *sanitizeString(NSString *s)
                 }
                 else {
                     [UIPasteboard generalPasteboard].string =
-                        [[manager.wallet.addresses objectsPassingTest:^BOOL(id obj, BOOL *stop) {
+                        [[[manager.wallet.allReceiveAddresses
+                           setByAddingObjectsFromSet:manager.wallet.allChangeAddresses]
+                        objectsPassingTest:^BOOL(id obj, BOOL *stop) {
                             return [manager.wallet addressIsUsed:obj];
                         }].allObjects componentsJoinedByString:@"\n"];
 
@@ -693,9 +695,8 @@ memo:(NSString *)memo isSecure:(BOOL)isSecure
         uint64_t refundAmount = 0;
         NSMutableData *refundScript = [NSMutableData data];
     
-        // use the payment transaction's change address as the refund address, which prevents the same address being
-        // used in other transactions in the event no refund is ever issued
-        [refundScript appendScriptPubKeyForAddress:manager.wallet.changeAddress];
+        [refundScript appendScriptPubKeyForAddress:manager.wallet.receiveAddress];
+        
         for (NSNumber *amt in self.request.details.outputAmounts) {
             refundAmount += amt.unsignedLongLongValue;
         }

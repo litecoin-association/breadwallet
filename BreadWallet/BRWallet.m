@@ -402,10 +402,16 @@ masterPublicKey:(NSData *)masterPublicKey seed:(NSData *(^)(NSString *authprompt
     return [self addressesWithGapLimit:1 internal:YES].lastObject;
 }
 
-// all previously generated internal and external addresses
-- (NSSet *)addresses
+// all previously generated external addresses
+- (NSSet *)allReceiveAddresses
 {
-    return self.allAddresses;
+    return [NSSet setWithArray:self.externalAddresses];
+}
+
+// all previously generated external addresses
+- (NSSet *)allChangeAddresses
+{
+    return [NSSet setWithArray:self.internalAddresses];;
 }
 
 // NSData objects containing serialized UTXOs

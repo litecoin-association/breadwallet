@@ -470,7 +470,8 @@ static const char *dns_seeds[] = {
 
     BRUTXO o;
     NSData *d;
-    NSUInteger i, elemCount = manager.wallet.addresses.count + manager.wallet.unspentOutputs.count;
+    NSSet *addresses = [manager.wallet.allReceiveAddresses setByAddingObjectsFromSet:manager.wallet.allChangeAddresses];
+    NSUInteger i, elemCount = addresses.count + manager.wallet.unspentOutputs.count;
     NSMutableArray *inputs = [NSMutableArray new];
 
     for (BRTransaction *tx in manager.wallet.allTransactions) { // find TXOs spent within the last 100 blocks
@@ -494,8 +495,8 @@ static const char *dns_seeds[] = {
                              forElementCount:(elemCount < 200 ? 300 : elemCount + 100) tweak:(uint32_t)peer.hash
                              flags:BLOOM_UPDATE_ALL];
 
-    for (NSString *address in manager.wallet.addresses) {// add addresses to watch for tx receiveing money to the wallet
-        NSData *hash = address.addressToHash160;
+    for (NSString *addr in addresses) {// add addresses to watch for tx receiveing money to the wallet
+        NSData *hash = addr.addressToHash160;
 
         if (hash && ! [filter containsData:hash]) [filter insertData:hash];
     }
@@ -1220,7 +1221,7 @@ static const char *dns_seeds[] = {
     // unused addresses are still matched by the bloom filter
     NSArray *external = [manager.wallet addressesWithGapLimit:SEQUENCE_GAP_LIMIT_EXTERNAL internal:NO],
             *internal = [manager.wallet addressesWithGapLimit:SEQUENCE_GAP_LIMIT_INTERNAL internal:YES];
-        
+    
     for (NSString *address in [external arrayByAddingObjectsFromArray:internal]) {
         NSData *hash = address.addressToHash160;
 
