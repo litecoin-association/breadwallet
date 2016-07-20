@@ -168,18 +168,8 @@ func httpDateNow() -> String {
         return "\(proto)://\(host)"
     }
     
-    private var _serverPubKey: BRKey? = nil
-    var serverPubKey: BRKey {
-        if _serverPubKey == nil {
-            let encoded = "24jsCR3itNGbbmYbZnG6jW8gjguhqybCXsoUAgfqdjprz"
-            _serverPubKey = BRKey(publicKey: NSData(base58String: encoded))!
-        }
-        return _serverPubKey!
-    }
-    
     // the singleton
     static let sharedClient = BRAPIClient()
-    
     
     func log(s: String) {
         if !logEnabled {
@@ -414,7 +404,8 @@ func httpDateNow() -> String {
                 //NSLocalizedDescriptionKey: NSLocalizedString("JSON Serialization Error", comment: "")]))
         }
         dataTaskWithRequest(req, authenticated: true, retryCount: 0) { (dat, resp, er) in
-            self.log("token resp: \(resp)")
+            let dat2 = NSString(data: (dat != nil ? dat! : NSData()), encoding: NSUTF8StringEncoding)
+            self.log("token resp: \(resp) data: \(dat2)")
         }.resume()
     }
     
