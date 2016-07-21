@@ -10,12 +10,15 @@
 
 @implementation UIViewController (BRDrawerViewController)
 
-- (BRDrawerViewController *)drawerViewController {
-    UIViewController *viewController = self.parentViewController ? self.parentViewController : self.presentingViewController;
+- (BRDrawerViewController *)drawerViewController
+{
+    UIViewController *viewController =
+        self.parentViewController ? self.parentViewController : self.presentingViewController;
     while (!(viewController == nil || [viewController isKindOfClass:[BRDrawerViewController class]])) {
-        viewController = viewController.parentViewController ? viewController.parentViewController : viewController.presentingViewController;
+        viewController = viewController.parentViewController ? viewController.parentViewController
+                                                             : viewController.presentingViewController;
     }
-    
+
     return (BRDrawerViewController *)viewController;
 }
 
