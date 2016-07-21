@@ -115,6 +115,9 @@
 		75F2E0D61BEAA6A400EAE861 /* BRTxMetadataEntity.m in Sources */ = {isa = PBXBuildFile; fileRef = 75F2E0D51BEAA6A400EAE861 /* BRTxMetadataEntity.m */; };
 		84F046E71D1009080035D658 /* BRNavigationItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 84F046E61D1009080035D658 /* BRNavigationItem.m */; };
 		84F68C8A1975E9E2002FC300 /* BRScanViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 84F68C891975E9E2002FC300 /* BRScanViewController.m */; };
+		8F1B600B1D41182E00B54989 /* UIViewController+BRDrawerViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8F1B600A1D41182E00B54989 /* UIViewController+BRDrawerViewController.m */; };
+		8F929BB91D40DECE00FE0B1B /* BRMenuViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8F929BB81D40DECE00FE0B1B /* BRMenuViewController.m */; };
+		8F929BBC1D40DEE300FE0B1B /* BRDrawerViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8F929BBB1D40DEE300FE0B1B /* BRDrawerViewController.m */; };
 		BA4A72671BE11AFA00E39C01 /* BRAWWeakTimerTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA4A72661BE11AFA00E39C01 /* BRAWWeakTimerTarget.swift */; };
 		BA54D3CE1B2EA74000C9CB28 /* Media.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BA54D3CD1B2EA74000C9CB28 /* Media.xcassets */; };
 		BA6645961BD924EB007A6BB1 /* BRAWTransactionRowControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA6645951BD924EB007A6BB1 /* BRAWTransactionRowControl.swift */; };
@@ -491,6 +494,12 @@
 		84F046E61D1009080035D658 /* BRNavigationItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BRNavigationItem.m; sourceTree = "<group>"; };
 		84F68C881975E9E2002FC300 /* BRScanViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BRScanViewController.h; sourceTree = "<group>"; };
 		84F68C891975E9E2002FC300 /* BRScanViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BRScanViewController.m; sourceTree = "<group>"; };
+		8F1B60091D41182E00B54989 /* UIViewController+BRDrawerViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIViewController+BRDrawerViewController.h"; sourceTree = "<group>"; };
+		8F1B600A1D41182E00B54989 /* UIViewController+BRDrawerViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIViewController+BRDrawerViewController.m"; sourceTree = "<group>"; };
+		8F929BB71D40DECE00FE0B1B /* BRMenuViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BRMenuViewController.h; sourceTree = "<group>"; };
+		8F929BB81D40DECE00FE0B1B /* BRMenuViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BRMenuViewController.m; sourceTree = "<group>"; };
+		8F929BBA1D40DEE300FE0B1B /* BRDrawerViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BRDrawerViewController.h; sourceTree = "<group>"; };
+		8F929BBB1D40DEE300FE0B1B /* BRDrawerViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BRDrawerViewController.m; sourceTree = "<group>"; };
 		BA4A72661BE11AFA00E39C01 /* BRAWWeakTimerTarget.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BRAWWeakTimerTarget.swift; sourceTree = "<group>"; };
 		BA4EECDF1B351AE200D443A3 /* BRAppGroupConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BRAppGroupConstants.h; sourceTree = "<group>"; };
 		BA54D3CD1B2EA74000C9CB28 /* Media.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Media.xcassets; sourceTree = "<group>"; };
@@ -729,6 +738,8 @@
 		752E28B019234B0500DB5A3C /* Categories */ = {
 			isa = PBXGroup;
 			children = (
+				8F1B60091D41182E00B54989 /* UIViewController+BRDrawerViewController.h */,
+				8F1B600A1D41182E00B54989 /* UIViewController+BRDrawerViewController.m */,
 				752E28E519234DA200DB5A3C /* NSString+Bitcoin.h */,
 				752E28E619234DA200DB5A3C /* NSString+Bitcoin.m */,
 				752E28DD19234DA200DB5A3C /* NSData+Bitcoin.h */,
@@ -814,6 +825,10 @@
 		75BA5D02192296010040304C /* Controllers */ = {
 			isa = PBXGroup;
 			children = (
+				8F929BBA1D40DEE300FE0B1B /* BRDrawerViewController.h */,
+				8F929BBB1D40DEE300FE0B1B /* BRDrawerViewController.m */,
+				8F929BB71D40DECE00FE0B1B /* BRMenuViewController.h */,
+				8F929BB81D40DECE00FE0B1B /* BRMenuViewController.m */,
 				759FBB32193290F600AB4465 /* BRRootViewController.h */,
 				759FBB33193290F600AB4465 /* BRRootViewController.m */,
 				759FBB34193290F600AB4465 /* BRSendViewController.h */,
@@ -1374,12 +1389,14 @@
 				758DBD0E1980634900389E2A /* BRTxDetailViewController.m in Sources */,
 				7548CF3719556FD700EF827F /* BRCopyLabel.m in Sources */,
 				229279A11C695D7900C98E78 /* BRBSPatch.swift in Sources */,
+				8F929BB91D40DECE00FE0B1B /* BRMenuViewController.m in Sources */,
 				752E28D119234C3600DB5A3C /* BRKey.m in Sources */,
 				84F68C8A1975E9E2002FC300 /* BRScanViewController.m in Sources */,
 				2204604E1B9F61E600D07B61 /* BREventManager.m in Sources */,
 				752E28D219234C3600DB5A3C /* BRKey+BIP38.m in Sources */,
 				220128D71C76E4F30001CAC1 /* BRWalletPlugin.swift in Sources */,
 				220460551BA0BEEE00D07B61 /* BREventConfirmView.m in Sources */,
+				8F1B600B1D41182E00B54989 /* UIViewController+BRDrawerViewController.m in Sources */,
 				752E28D919234C3600DB5A3C /* BRTransaction.m in Sources */,
 				752E28CE19234C3600DB5A3C /* BRBIP32Sequence.m in Sources */,
 				BAC7B6BE1BD9C29900165B84 /* BRPhoneWCSessionManager.m in Sources */,
@@ -1413,6 +1430,7 @@
 				757BE7E6192C1FF70061CB20 /* BRWelcomeViewController.m in Sources */,
 				757BE7E9192D4E880061CB20 /* BRSeedViewController.m in Sources */,
 				752E28E719234DA200DB5A3C /* NSData+Bitcoin.m in Sources */,
+				8F929BBC1D40DEE300FE0B1B /* BRDrawerViewController.m in Sources */,
 				220128D31C753C670001CAC1 /* BRSocketHelpers.c in Sources */,
 				752E28E919234DA200DB5A3C /* NSManagedObject+Sugar.m in Sources */,
 				BA7B53541BDAA0A800355E8D /* BRAppleWatchTransactionData.m in Sources */,
