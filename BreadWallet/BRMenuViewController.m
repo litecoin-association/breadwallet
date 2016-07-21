@@ -8,32 +8,76 @@
 
 #import "BRMenuViewController.h"
 
-@interface BRMenuViewController ()
+@interface BRMenuViewController () <UITableViewDelegate, UITableViewDataSource>
+
+@property (readonly, nonatomic) NSArray *menuTitles;
 
 @end
 
 @implementation BRMenuViewController
 
-- (void)viewDidLoad
-{
+- (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
+    
+    self.tableView.delegate = self;
+    self.tableView.dataSource = self;
+    
+    self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
 }
 
-- (void)didReceiveMemoryWarning
+#pragma mark - Table View Delegate & DataSources
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
+    return 1;
 }
 
-/*
-#pragma mark - Navigation
-
-// In a storyboard-based application, you will often want to do a little preparation before navigation
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
-    // Get the new view controller using [segue destinationViewController].
-    // Pass the selected object to the new view controller.
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
+    return 8;
 }
-*/
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    return 35.0f;
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    static NSString *menuIdent = @"MenuCell";
+    UITableViewCell *cell = nil;
+    UILabel *textLabel;
+    cell = [tableView dequeueReusableCellWithIdentifier:menuIdent];
+    if (!cell) {
+        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:menuIdent];
+    }
+    
+    textLabel = (id)[cell viewWithTag:1];
+    textLabel.text = self.menuTitles[indexPath.row];
+    
+    return cell;
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+}
+
+#pragma mark -
+
+- (NSArray *)menuTitles
+{
+    return @[
+             @"Import Private Key",
+             @"Export Private Key",
+             @"Recovery Phrase",
+             @"Local Currency",
+             @"Change Passcode",
+             @"Start / Recover another wallet",
+             @"Re-scan Blockchain",
+             @"About"
+             ];
+}
 
 @end

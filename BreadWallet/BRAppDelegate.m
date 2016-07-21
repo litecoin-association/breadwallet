@@ -108,7 +108,7 @@
     UINavigationController *navigationController = [[UIStoryboard storyboardWithName:@"Main" bundle:nil] instantiateViewControllerWithIdentifier:@"Initial"];
     
     BRDrawerViewController *drawerViewController = [BRDrawerViewController new];
-    drawerViewController.drawerWidth = 200.0f;
+    drawerViewController.drawerWidth = 250.0f;
     
     drawerViewController.mainViewController = navigationController;
     drawerViewController.leftDrawerViewController = menuViewController;
