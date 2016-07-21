@@ -74,9 +74,9 @@
         return;
     }
     
-    [self.view addSubview:_mainViewController.view];
-    [self addChildViewController:_mainViewController];
-    [_mainViewController didMoveToParentViewController:self];
+    [self.view addSubview:_leftDrawerViewController.view];
+    [self addChildViewController:_leftDrawerViewController];
+    [_leftDrawerViewController didMoveToParentViewController:self];
     
     self.drawerWidthConstraint = [NSLayoutConstraint constraintWithItem:_leftDrawerViewController.view
                                                               attribute:NSLayoutAttributeWidth
@@ -87,6 +87,12 @@
                                                                constant:self.drawerWidth];
     
     [self resetViews];
+}
+
+- (void)setDrawerWidth:(CGFloat)drawerWidth
+{
+    _drawerWidth = drawerWidth;
+    self.drawerWidthConstraint.constant = drawerWidth;
 }
 
 - (void)setPanelShowing:(BOOL)panelShowing animated:(BOOL)animated
@@ -105,7 +111,7 @@
 
 - (void)openLeftPanelWithAnimated:(BOOL)animated {
     [UIView animateWithDuration:animated ? SLIDE_TIMING : 0.0f delay:0 options:UIViewAnimationOptionBeginFromCurrentState animations:^{
-        _mainViewController.view.frame = CGRectMake(CGRectGetWidth(self.view.frame) - self.drawerWidth, 0, CGRectGetWidth(self.view.frame), CGRectGetHeight(self.view.frame));
+        _mainViewController.view.frame = CGRectMake(self.drawerWidth, 0, CGRectGetWidth(self.view.frame), CGRectGetHeight(self.view.frame));
         _leftDrawerViewController.view.frame = CGRectMake(0, 0, self.drawerWidth, CGRectGetHeight(self.view.frame));
         
     }
