@@ -107,6 +107,7 @@
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         if (self.balance == UINT64_MAX) self.balance = [BRWalletManager sharedInstance].wallet.balance;
         [self updatePlatform];
+        [self registerForPushNotifications];
     });
 }
 
@@ -270,7 +271,10 @@ performFetchWithCompletionHandler:(void (^)(UIBackgroundFetchResult))completionH
 
 - (void)registerForPushNotifications {
     BOOL hasNotification = [UIUserNotificationSettings class] != nil;
-    if (hasNotification && !self.pushRegistry) {
+    NSString *userDefaultsKey = @"has_asked_for_push";
+    BOOL hasAskedForPushNotification = [[NSUserDefaults standardUserDefaults] boolForKey:userDefaultsKey];
+    
+    if (hasAskedForPushNotification && hasNotification && !self.pushRegistry) {
         self.pushRegistry = [[PKPushRegistry alloc] initWithQueue:dispatch_get_main_queue()];
         self.pushRegistry.delegate = self;
         self.pushRegistry.desiredPushTypes = [NSSet setWithObject:PKPushTypeVoIP];

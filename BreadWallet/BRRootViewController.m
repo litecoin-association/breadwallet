@@ -184,7 +184,11 @@
                 if (eventMan.isInSampleGroup && ! eventMan.hasAskedForPermission) {
                     [eventMan acquireUserPermissionInViewController:self.navigationController withCallback:nil];
                 }
-                else ([(id)[UIApplication sharedApplication].delegate registerForPushNotifications]);
+                else {
+                    NSString *userDefaultsKey = @"has_asked_for_push";
+                    [[NSUserDefaults standardUserDefaults] setBool:TRUE forKey:userDefaultsKey];
+                    ([(id)[UIApplication sharedApplication].delegate registerForPushNotifications]);
+                }
             }
 
             if (jailbroken && manager.wallet.totalReceived + manager.wallet.totalSent > 0) {
