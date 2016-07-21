@@ -45,6 +45,8 @@
     self.genButton.layer.borderColor = (__bridge CGColorRef _Nullable)([UIColor colorWithRed:40.0 green:40.0 blue:40.0 alpha:0.90]);
     self.genButton.clipsToBounds = YES;
     
+    [self.genButton setTitle:NSLocalizedString(@"continue", nil) forState:UIControlStateNormal];
+    
     }
 
 @end

@@ -1008,47 +1008,44 @@ memo:(NSString *)memo isSecure:(BOOL)isSecure
     // Clear up stuff that's not needed.
     
     BRWalletManager *manager = [BRWalletManager sharedInstance];
-                                
-    if ([self nextTip]) return;
-    self.amount = [manager amountForString:self.amountField.text];
     
-    if (self.amount == 0){
-        [BREventManager saveEvent:@"amount:pay_zero"];
-        return;
-    }
-    
-    [BREventManager saveEvent:@"amount:pay"];
-    [BREventManager saveEvent:@"send:pay_clipboard"];
-    
-    
-    NSString *str = [[UIPasteboard generalPasteboard].string
-                     stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-    UIImage *img = [UIPasteboard generalPasteboard].image;
-    NSMutableOrderedSet *set = [NSMutableOrderedSet orderedSet];
-    NSCharacterSet *separators = [NSCharacterSet alphanumericCharacterSet].invertedSet;
-    
-    if (str) {
-        [set addObject:str];
-        [set addObjectsFromArray:[str componentsSeparatedByCharactersInSet:separators]];
-    }
-    
-    if (img && &CIDetectorTypeQRCode) {
-        for (CIQRCodeFeature *qr in [[CIDetector detectorOfType:CIDetectorTypeQRCode
-                                                        context:[CIContext contextWithOptions:@{kCIContextUseSoftwareRenderer:@(YES)}]
-                     
-                                      
-                                      
-                                      
-                                                        options:nil] featuresInImage:[CIImage imageWithCGImage:img.CGImage]]) {
-            [set addObject:[qr.messageString
-                            stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]]];
+    if (manager.didAuthenticate) {
+        
+        if ([self nextTip]) return;
+        self.amount = [manager amountForString:self.amountField.text];
+        
+        if (self.amount == 0){
+            [BREventManager saveEvent:@"amount:pay_zero"];
+            return;
         }
+        
+        [BREventManager saveEvent:@"amount:pay"];
+        [BREventManager saveEvent:@"send:pay_clipboard"];
+        
+        NSString *str = [[UIPasteboard generalPasteboard].string
+                         stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+        UIImage *img = [UIPasteboard generalPasteboard].image;
+        NSMutableOrderedSet *set = [NSMutableOrderedSet orderedSet];
+        NSCharacterSet *separators = [NSCharacterSet alphanumericCharacterSet].invertedSet;
+        
+        if (str) {
+            [set addObject:str];
+            [set addObjectsFromArray:[str componentsSeparatedByCharactersInSet:separators]];
+        }
+        
+        if (img && &CIDetectorTypeQRCode) {
+            for (CIQRCodeFeature *qr in [[CIDetector detectorOfType:CIDetectorTypeQRCode context:[CIContext contextWithOptions:@{kCIContextUseSoftwareRenderer:@(YES)}] options:nil] featuresInImage:[CIImage imageWithCGImage:img.CGImage]]) {
+                [set addObject:[qr.messageString stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]]];
+            }
+        }
+
+        self.clearClipboard = YES;
+        [self payFirstFromArray:set.array];
+        
+    } else if (! manager.didAuthenticate){
+        UIAlertView *authRequired = [[UIAlertView alloc] initWithTitle:@"Unlock Wallet" message:@"You must unlock your wallet first. Tap the padlock on the top-right of the screen to unlock." delegate:self cancelButtonTitle:NSLocalizedString(@"ok", nil) otherButtonTitles:nil];
+        [authRequired show];
     }
-    
-    [sender setEnabled:NO];
-    self.clearClipboard = YES;
-    [self payFirstFromArray:set.array];
-    
 }
 
 - (IBAction)reset:(id)sender
@@ -1104,7 +1101,7 @@ fromConnection:(AVCaptureConnection *)connection
                 [self resetQRGuide];
             }];
         } else if (request.isValid || [addr isValidBitcoinPrivateKey] || [addr isValidBitcoinBIP38Key] ||
-            (request.r.length > 0 && [request.scheme isEqual:@"bitcoin"])) {
+            (request.r.length > 0 && [request.scheme isEqual:@"litecoin"])) {
             self.scanController.cameraGuide.image = [UIImage imageNamed:@"cameraguide-green"];
             [self.scanController stop];
             [BREventManager saveEvent:@"send:valid_qr_scan"];

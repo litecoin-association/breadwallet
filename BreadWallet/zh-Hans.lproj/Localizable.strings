@@ -515,7 +515,10 @@
 "Receive Litecoins with your receive address. Share you Litecoin Address with others, and request a payment. Your Litecoin address can be copied to your clipboard, sent via email and shared via other forms of social media." = "您可以通过邮件和各种社交网络共享您的收款地址，并随时随地不受任何限制的收款。";
 
 /* No comment provided by engineer. */
-"Browse through your transaction history, secured with your passcode. This is  not visible to others, unless they possess your LoafWallet passcode. Find indepth details about every transaction." = "同时，您可以使用安全密码口令在任何设备上查看每一条支付历史纪录的详细信息。";
+"Browse through your transaction history, secured with your passcode. This is not visible to others, unless they possess your LoafWallet passcode. Find indepth details about every transaction." = "同时，您可以使用安全密码口令在任何设备上查看每一条支付历史纪录的详细信息。";
 
 /* No comment provided by engineer. */
 "History" = "历史记录";
+
+/* No comment provided by engineer. */
+"continue" = "Continue";

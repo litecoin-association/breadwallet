@@ -527,13 +527,16 @@
 "Receive" = "Receive";
 
 /* No comment provided by engineer. */
-"Easily send Litecoin anywhere in the world with LoafWallet's live currency conversion rates, and QR scanner for quick on-the-go payments." = "Easily send Litecoin anywhere in the world with LoafWallet's live currency conversion rates, and QR scanner for quick on-the-go payments.";
+"Easily send Litecoin anywhere in the world with LoafWallet's live currency conversion rates, and QR scanner for quick on-the-go payments." = "Возможность легких переводов Litecoin в любую точку мира с использованием системы конвертации текущих курсов валют LoafWallet, наличие сканнера QR штрих-кода для платежей предоплаты.";
 
 /* No comment provided by engineer. */
-"Receive Litecoins with your receive address. Share you Litecoin Address with others, and request a payment. Your Litecoin address can be copied to your clipboard, sent via email and shared via other forms of social media." = "Receive Litecoins with your receive address. Share you Litecoin Address with others, and request a payment. Your Litecoin address can be copied to your clipboard, sent via email and shared via other forms of social media.";
+"Receive Litecoins with your receive address. Share you Litecoin Address with others, and request a payment. Your Litecoin address can be copied to your clipboard, sent via email and shared via other forms of social media." = "Возможность получения Litecoins на ваш входящий адрес; возможность рассылки вашего Litecoin-адреса вашим контрагентам с запросом платежа. Возможность копирования Litecoin-адреса в ваш буфер памяти, пересылки его по электронной почте и предоставления доступа через другие соцсети.";
 
 /* No comment provided by engineer. */
-"Browse through your transaction history, secured with your passcode. This is  not visible to others, unless they possess your LoafWallet passcode. Find indepth details about every transaction." = "Browse through your transaction history, secured with your passcode. This is  not visible to others, unless they possess your LoafWallet passcode. Find indepth details about every transaction.";
+"Browse through your transaction history, secured with your passcode. This is not visible to others, unless they possess your LoafWallet passcode. Find indepth details about every transaction." = "Возможность скрытого от посторонних лиц просмотра вашей истории транзакций/операций, защищенного кодом доступа, код доступа обеспечивает невидимость ваших просмотров при условии, что посторонние лица не обладают этим кодом. Возможность поиска мельчайших деталей по каждой транзакции.";
 
 /* No comment provided by engineer. */
-"History" = "History";
+"History" = "История";
+
+/* No comment provided by engineer. */
+"continue" = "Continue";

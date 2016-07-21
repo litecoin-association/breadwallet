@@ -515,7 +515,7 @@
 "WRITE DOWN YOUR RECOVERY PHRASE" = "ÉCRIVEZ SUR PAPIER VOTRE PHRASE DE RÉCUPÉRATION";
 
 /* No comment provided by engineer. */
-"you received bitcoin!" = "vous avez reçu des Litecoins !";
+"you received bitcoin!" = "Vous avez reçu des Litecoins!";
 
 /* No comment provided by engineer. */
 "Your wallet may be out of sync.\nThis can often be fixed by rescanning the blockchain." = "Votre portefeuille peut être désynchronisé.\nCeci peut souvent être résolu en réanalysant la chaîne de blocs.";
@@ -527,13 +527,16 @@
 "Receive" = "Recevoir";
 
 /* No comment provided by engineer. */
-"Easily send Litecoin anywhere in the world with LoafWallet's live currency conversion rates, and QR scanner for quick on-the-go payments." = "Easily send Litecoin anywhere in the world with LoafWallet's live currency conversion rates, and QR scanner for quick on-the-go payments.";
+"Easily send Litecoin anywhere in the world with LoafWallet's live currency conversion rates, and QR scanner for quick on-the-go payments." = "Envoyez facilement des Litecoins n'importe où dans le monde avec les taux de convertions de monnaies en direct de LoafWallet, et un scanner de QR Code pour des paiements rapides sans contacts.";
 
 /* No comment provided by engineer. */
-"Receive Litecoins with your receive address. Share you Litecoin Address with others, and request a payment. Your Litecoin address can be copied to your clipboard, sent via email and shared via other forms of social media." = "Receive Litecoins with your receive address. Share you Litecoin Address with others, and request a payment. Your Litecoin address can be copied to your clipboard, sent via email and shared via other forms of social media.";
+"Receive Litecoins with your receive address. Share you Litecoin Address with others, and request a payment. Your Litecoin address can be copied to your clipboard, sent via email and shared via other forms of social media." = "Recevez des Litecoins avec votre adresse de paiement. Partager votre adresse de paiement Litecoin avec d'autre personnes, et demander votre paiement. Votre adresse Litecoin peut être copié dans le presse-papier, être envoyé par e-mail et partagé dans tous vos  réseaux-sociaux.";
 
 /* No comment provided by engineer. */
-"Browse through your transaction history, secured with your passcode. This is  not visible to others, unless they possess your LoafWallet passcode. Find indepth details about every transaction." = "Browse through your transaction history, secured with your passcode. This is  not visible to others, unless they possess your LoafWallet passcode. Find indepth details about every transaction.";
+"Browse through your transaction history, secured with your passcode. This is not visible to others, unless they possess your LoafWallet passcode. Find indepth details about every transaction." = "Parcourez votre historique de transaction, sécurisé avec votre mot de passe. Ceci n'est pas visible aux autres personnes excepté si il possède votre mot de passe LoafWallet. Découvrez en profondeur les détails de chaque transaction.";
 
 /* No comment provided by engineer. */
-"History" = "History";
+"History" = "Historique";
+
+/* No comment provided by engineer. */
+"continue" = "Suivant";

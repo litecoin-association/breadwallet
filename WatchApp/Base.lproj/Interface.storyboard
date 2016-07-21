@@ -11,7 +11,7 @@
                 <controller title="LoafWallet" id="AgC-eL-Hgc" customClass="BRAWRootInterfaceController" customModule="WatchApp_Extension">
                     <items>
                         <group width="30" height="30" alignment="center" verticalAlignment="center" backgroundImage="LoadingIndicator" id="wKY-qb-B8a" userLabel="Loading indicator"/>
-                        <label alignment="center" verticalAlignment="center" text="Open breadwallet iPhone app to setup your wallet" textAlignment="left" numberOfLines="0" id="VXj-KF-nqM"/>
+                        <label alignment="center" verticalAlignment="center" text="Open LoafWallet iPhone app to setup your wallet" textAlignment="left" numberOfLines="0" id="VXj-KF-nqM"/>
                     </items>
                     <connections>
                         <outlet property="loadingIndicator" destination="wKY-qb-B8a" id="38C-SN-66a"/>
@@ -141,7 +141,7 @@
                                                     <group width="1" height="20" alignment="left" spacing="0.0" id="MaL-Zz-53G" userLabel="Top Container">
                                                         <items>
                                                             <imageView width="14" height="14" alignment="left" verticalAlignment="center" image="SentMoneyIcon" contentMode="scaleAspectFill" id="aCP-8g-nh2" userLabel="Status icon"/>
-                                                            <label alignment="right" verticalAlignment="center" text="ƀ14,659" minimumScaleFactor="0.5" id="PXD-22-aMP" userLabel="Amount label">
+                                                            <label alignment="right" verticalAlignment="center" text="Ł14,659" minimumScaleFactor="0.5" id="PXD-22-aMP" userLabel="Amount label">
                                                                 <fontDescription key="font" type="system" pointSize="14"/>
                                                             </label>
                                                         </items>
@@ -227,7 +227,7 @@
                     <items>
                         <group width="1" height="0.20000000000000001" alignment="left" id="7tF-UO-81W">
                             <items>
-                                <label width="1" widthAdjustment="-30" height="1" alignment="left" text="ƀ0.00" textAlignment="right" baselineAdjustment="alignCenters" minimumScaleFactor="0.5" id="dp3-9o-r55">
+                                <label width="1" widthAdjustment="-30" height="1" alignment="left" text="Ł0.00" textAlignment="right" baselineAdjustment="alignCenters" minimumScaleFactor="0.5" id="dp3-9o-r55">
                                     <color key="textColor" red="0.99088680744171143" green="0.53554928302764893" blue="0.28542831540107727" alpha="1" colorSpace="calibratedRGB"/>
                                     <fontDescription key="font" type="system" weight="semibold" pointSize="20"/>
                                 </label>
