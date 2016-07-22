@@ -18,6 +18,10 @@
 
 @property (strong, nonatomic) NSLayoutConstraint *drawerWidthConstraint;
 
+@property (strong, nonatomic) UIView *containerView;
+
+@property (strong, nonatomic) UITapGestureRecognizer *tapRecognizer;
+
 @end
 
 @implementation BRDrawerViewController
@@ -31,7 +35,58 @@
     [self setupInterfaces];
 }
 
-- (void)setupInterfaces {}
+- (void)setupInterfaces
+{
+    NSDictionary *viewDictionary = @{ @"_containerView": self.containerView };
+
+    [self.view addGestureRecognizer:self.tapRecognizer];
+
+    [self.view addSubview:self.containerView];
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-0-[_containerView]-0-|"
+                                                                      options:kNilOptions
+                                                                      metrics:nil
+                                                                        views:viewDictionary]];
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-0-[_containerView]-0-|"
+                                                                      options:kNilOptions
+                                                                      metrics:nil
+                                                                        views:viewDictionary]];
+
+    self.containerView.hidden = YES;
+}
+
+- (UIView *)containerView
+{
+    if (!_containerView) {
+        UIView *containerView = [[UIView alloc] initWithFrame:self.view.frame];
+        containerView.backgroundColor = [UIColor clearColor];
+        _containerView = containerView;
+    }
+    return _containerView;
+}
+
+- (UITapGestureRecognizer *)tapRecognizer
+{
+    if (!_tapRecognizer) {
+        UITapGestureRecognizer *tapRecognizer =
+            [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(userDidTappedContainerView:)];
+        _tapRecognizer = tapRecognizer;
+    }
+    return _tapRecognizer;
+}
+
+- (IBAction)userDidTappedContainerView:(id)sender
+{
+    if (![sender isKindOfClass:[UITapGestureRecognizer class]]) return;
+
+    if (!self.isPanelShowing) return;
+
+    UITapGestureRecognizer *tapRecognizer = (UITapGestureRecognizer *)sender;
+    CGPoint loc = [tapRecognizer locationInView:self.view];
+    if (CGRectContainsPoint(self.mainViewController.view.frame, loc)) {
+        [self setPanelShowing:NO animated:YES];
+    }
+}
+
 - (void)setMainViewController:(UIViewController *)mainViewController
 {
     UIViewController *oldController = _mainViewController;
@@ -48,7 +103,7 @@
         return;
     }
 
-    [self.view addSubview:_mainViewController.view];
+    [self.view insertSubview:_mainViewController.view atIndex:0];
     [self addChildViewController:_mainViewController];
     [_mainViewController didMoveToParentViewController:self];
 
@@ -72,7 +127,7 @@
         return;
     }
 
-    [self.view addSubview:_leftDrawerViewController.view];
+    [self.view insertSubview:_leftDrawerViewController.view atIndex:0];
     [self addChildViewController:_leftDrawerViewController];
     [_leftDrawerViewController didMoveToParentViewController:self];
 
@@ -122,6 +177,7 @@
             if (finished && [self.delegate respondsToSelector:@selector(drawerViewController:panelDidShowing:)]) {
                 [self.delegate drawerViewController:self panelDidShowing:YES];
             }
+            self.containerView.hidden = NO;
         }];
 }
 
@@ -135,6 +191,7 @@
             if (finished && [self.delegate respondsToSelector:@selector(drawerViewController:panelDidShowing:)]) {
                 [self.delegate drawerViewController:self panelDidShowing:NO];
             }
+            self.containerView.hidden = YES;
         }];
 }
 
