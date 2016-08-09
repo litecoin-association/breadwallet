@@ -42,6 +42,8 @@
 
 @interface BreadWalletTests : XCTestCase
 
+@property (nonatomic, strong) NSMutableSet *allAddresses; // fixes unknown selector warning
+
 @end
 
 @implementation BreadWalletTests
@@ -1162,7 +1164,8 @@
     w = [[BRWallet alloc] initWithContext:nil sequence:[BRBIP32Sequence new] masterPublicKey:nil
          seed:^NSData *(NSString *authprompt, uint64_t amount) { return [NSData data]; }];
     
-    NSMutableSet *allAddresses = (id)w.addresses;
+    // hack to make the following transactions belong to the wallet
+    NSMutableSet *allAddresses = [(id)w performSelector:@selector(allAddresses)];
 
     [allAddresses addObject:@"1DjJGdMuW6UKunUS3jAuaEcqZ2mkH1QNHc"];
     [allAddresses addObject:@"1P5hsxGtGYEftqcP7gY63pKX7JXCfLCNiR"];
