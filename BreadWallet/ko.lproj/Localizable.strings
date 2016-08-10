@@ -44,9 +44,6 @@
 "\nallow camera access in\nSettings->Privacy->Camera->%@" = "\n설정->개인 정보 보호->카메라->%@\n에서 이 애플리케이션의 카메라 접근을 허용해 주십시요.";
 
 /* No comment provided by engineer. */
-"\nDO NOT let anyone see your recovery phrase or they can spend your bitcoins.\n\nNEVER type your recovery phrase into password managers or elsewhere. Other devices may be infected.\n" = "\n절대로 다른 사람에게 복원 문구를 보여주면 안됩니다. 그 사람이 당신의 비트코인을 써버릴 수 있습니다.\n\n절대로 패스워드 매니저 등의 다른 곳에 복원 문구를 저장하지 마십시오. 다른 기기는 바이러스나 멀웨어에 감여돼 있을 우려가 있습니다.\n";
-
-/* No comment provided by engineer. */
 "\nDO NOT let anyone see your recovery\nphrase or they can spend your bitcoins.\n" = "\n절대로 다른 사람에게 복원 문구를 보여주면 안됩니다. \n그 사람이 당신의 빗코인을 써버릴 수 있습니다.\n";
 
 /* No comment provided by engineer. */

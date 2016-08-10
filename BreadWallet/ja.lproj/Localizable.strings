@@ -44,9 +44,6 @@
 "\nallow camera access in\nSettings->Privacy->Camera->%@" = "\nカメラへのアクセスを有効化するには\n設定⇒プライバシー⇒カメラ⇒%@";
 
 /* No comment provided by engineer. */
-"\nDO NOT let anyone see your recovery phrase or they can spend your bitcoins.\n\nNEVER type your recovery phrase into password managers or elsewhere. Other devices may be infected.\n" = "\n復元フレーズは絶対に\n誰にも見せないで下さい！\n復元フレーズを知っている人はあなたの\nビットコインを簡単に\n盗むことができます。\n\nパスワード管理アプリや、信用できない\n端末に復元フレーズは絶対に\n打ち込んだり写真撮ったりしないで\n下さい。ウィルスやマルウェアによって\n盗まれ兼ねません。\n";
-
-/* No comment provided by engineer. */
 "\nDO NOT let anyone see your recovery\nphrase or they can spend your bitcoins.\n" = "復元フレーズは絶対に\n誰にも見せないで下さい！\n復元フレーズを知っている人は\nあなたのビットコインを\n簡単に盗むことができます。";
 
 /* No comment provided by engineer. */

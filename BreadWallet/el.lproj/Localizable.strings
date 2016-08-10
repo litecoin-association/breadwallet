@@ -44,9 +44,6 @@
 "\nallow camera access in\nSettings->Privacy->Camera->%@" = "\nεπιτρέψτε στην κάμερα πρόσβαση στις\nρυθμίσεις-> απορρήτο-> κάμερα->%@";
 
 /* No comment provided by engineer. */
-"\nDO NOT let anyone see your recovery phrase or they can spend your bitcoins.\n\nNEVER type your recovery phrase into password managers or elsewhere. Other devices may be infected.\n" = "\nΜΗΝ αφήνετε κανέναν να δεί τη φράση ανάκτησης σας αλλιώς μπορούν να ξοδεψουν τα Litecoins σας.\n\nΜΗΝ πληκτρολογείτε ποτέ τη φράση αποκατάστασης σας σε εφαρμογές διαχείρησης κωδικών πρόσβασης ή αλλού. Άλλες συσκευές ενδέχεται να έχουν μολυνθεί.\n";
-
-/* No comment provided by engineer. */
 "\nDO NOT let anyone see your recovery\nphrase or they can spend your bitcoins.\n" = "\nΜΗΝ αφήσετε κανέναν να δεί την φράση\nανάκτησης σας αλλιώς μπορούν να ξοδεψουν τα Litecoins σας.\n";
 
 /* No comment provided by engineer. */

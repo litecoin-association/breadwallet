@@ -38,9 +38,6 @@
 "\nallow camera access in\nSettings->Privacy->Camera->%@" = "\nbevilja kameraåtkomst i Inställningar->Personligt->Kamera->%@";
 
 /* No comment provided by engineer. */
-"\nDO NOT let anyone see your recovery phrase or they can spend your bitcoins.\n\nNEVER type your recovery phrase into password managers or elsewhere. Other devices may be infected.\n" = "\nVISA ALDRIG din återställningsfras för någon – denne kan i så fall spendera dina Litecoin.\n\nSKRIV ALDRIG ned din återställningsfras i lösenordshanterare eller annorstädes. Andra enheter kan vara föremål för skadlig programkod.\n";
-
-/* No comment provided by engineer. */
 "\nDO NOT let anyone see your recovery\nphrase or they can spend your bitcoins.\n" = "\nLÅT INTE NÅGON se din återställningsfras – annars kan hen spendera dina Litecoin.\n";
 
 /* No comment provided by engineer. */

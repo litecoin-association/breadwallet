@@ -44,9 +44,6 @@
 "\nallow camera access in\nSettings->Privacy->Camera->%@" = "\nlejo çasjen e kamerës në\nSettings->Privacy->Camera->%@";
 
 /* No comment provided by engineer. */
-"\nDO NOT let anyone see your recovery phrase or they can spend your bitcoins.\n\nNEVER type your recovery phrase into password managers or elsewhere. Other devices may be infected.\n" = "\nMOS LEJONI që askush të sheh frazën rikthyese të juaj sepse mund të ju shpenzojn Litecoins-at e juaj.\n\nKURRË mos e shkruani frazën rikthyese në ndonjë menagjer të fjalëkalimeve apo diku tjetër. Pajisjet tjera mund të infektohen.";
-
-/* No comment provided by engineer. */
 "\nDO NOT let anyone see your recovery\nphrase or they can spend your bitcoins.\n" = "\nMOS lejoni që askush të shoh frazën\nrikthyese ose ata mund të shpenzojnë\nLitecoin-at e juaj.";
 
 /* No comment provided by engineer. */

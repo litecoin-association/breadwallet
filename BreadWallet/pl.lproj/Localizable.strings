@@ -44,9 +44,6 @@
 "\nallow camera access in\nSettings->Privacy->Camera->%@" = "\nzezwalaj na dostęp do kamery w\nUstawienia->Prywatność->Kamera->%@";
 
 /* No comment provided by engineer. */
-"\nDO NOT let anyone see your recovery phrase or they can spend your bitcoins.\n\nNEVER type your recovery phrase into password managers or elsewhere. Other devices may be infected.\n" = "\nNIE pozwól nikomu zobaczyć twoją frazę odzyskiwania danych albo ta osoba będzie mogła wydać twoje Litecoiny.\n\nNIGDY nie wpisuj twoją frazę odzyskiwania danych do menedżerów haseł lub gdzie indziej. Inne urządzenia mogą być zainfekowane.\n";
-
-/* No comment provided by engineer. */
 "\nDO NOT let anyone see your recovery\nphrase or they can spend your bitcoins.\n" = "\nNIE pozwól nikomu zobaczyć twoją frazę odzyskiwania danych\nalbo ta osoba będzie mogła wydać twoje Litecoiny.\n";
 
 /* No comment provided by engineer. */

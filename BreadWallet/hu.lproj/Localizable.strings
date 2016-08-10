@@ -44,9 +44,6 @@
 "\nallow camera access in\nSettings->Privacy->Camera->%@" = "\nengedélyezd a kamera használatát a\nBeállítások->Adatvédelem->Kamera->%@ menüpontban";
 
 /* No comment provided by engineer. */
-"\nDO NOT let anyone see your recovery phrase or they can spend your bitcoins.\n\nNEVER type your recovery phrase into password managers or elsewhere. Other devices may be infected.\n" = "\nNE engedd, hogy más lássa a helyreállítási kódmondatodat, különben elköltheti a Litecoinjaidat.\n\nSOHA ne gépeld be a helyreállítási kódmondatodat jelszókezelő alkalmazásokba vagy máshová, hiszen fertőzöttek lehetnek.\n";
-
-/* No comment provided by engineer. */
 "\nDO NOT let anyone see your recovery\nphrase or they can spend your bitcoins.\n" = "\nNE engedd, hogy más lássa a helyreállítási\nkódmondatodat, különben elköltheti a\nLitecoinjaidat.";
 
 /* No comment provided by engineer. */

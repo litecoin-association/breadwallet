@@ -44,9 +44,6 @@
 "\nallow camera access in\nSettings->Privacy->Camera->%@" = "\nAyarlar->Gizlilik->Kamera->%@ \nkısmından kamera erişimine izin verin";
 
 /* No comment provided by engineer. */
-"\nDO NOT let anyone see your recovery phrase or they can spend your bitcoins.\n\nNEVER type your recovery phrase into password managers or elsewhere. Other devices may be infected.\n" = "\nKimsenin kurtarma cümlenizi görmesine veya Litecoinlerinizi harcamasına İZİN VERMEYİN.\n\nASLA kurtarma cümlenizi şifre yöneticilerine veya başka yerlere yazmayın. Başka cihazlar güvenli olmayabilir.\n";
-
-/* No comment provided by engineer. */
 "\nDO NOT let anyone see your recovery\nphrase or they can spend your bitcoins.\n" = "\nkimsenin kurtarma cümlenizi görmesine İZİN VERMEYİN\n      çünkü Litecoinlerinizi harcayabilirler.\n";
 
 /* No comment provided by engineer. */

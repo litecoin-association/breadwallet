@@ -44,9 +44,6 @@
 "\nallow camera access in\nSettings->Privacy->Camera->%@" = "\ngiv adgang for kamera i\nIndstillinger->Anonymitet->Kamera->%@";
 
 /* No comment provided by engineer. */
-"\nDO NOT let anyone see your recovery phrase or they can spend your bitcoins.\n\nNEVER type your recovery phrase into password managers or elsewhere. Other devices may be infected.\n" = "\nLAD IKKE nogen se din genskabelsessætning, eller de kan bruge dine Litecoin.\n\nindtast ALDRIG din genskabelsessætning ind i adgangskodehuskere eller andre steder. Andre enheder kan være inficerede.\n";
-
-/* No comment provided by engineer. */
 "\nDO NOT let anyone see your recovery\nphrase or they can spend your bitcoins.\n" = "\nLAD IKKE nogen se din\ngendannelsessætning, eller\nde kan bruge dine Litecoin.";
 
 /* No comment provided by engineer. */
