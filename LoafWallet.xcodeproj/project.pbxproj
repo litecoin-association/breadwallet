@@ -31,6 +31,8 @@
 		229279A11C695D7900C98E78 /* BRBSPatch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 229279A01C695D7900C98E78 /* BRBSPatch.swift */; };
 		229279A51C695DE700C98E78 /* BRAPIProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 229279A41C695DE700C98E78 /* BRAPIProxy.swift */; };
 		229279A81C6960FC00C98E78 /* BRGeoLocationPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 229279A71C6960FC00C98E78 /* BRGeoLocationPlugin.swift */; };
+		2299CF371D5C0D0B0055EA28 /* BRReplicatedKVStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2299CF361D5C0D0B0055EA28 /* BRReplicatedKVStore.swift */; };
+		2299CF391D5C32B70055EA28 /* BRReplicatedKVStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2299CF381D5C32B70055EA28 /* BRReplicatedKVStoreTests.swift */; };
 		22B6A4481C0E963900673913 /* libbz2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 22B6A4471C0E963900673913 /* libbz2.tbd */; };
 		22B6A44A1C0ECB7800673913 /* BRBSPatchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22B6A4491C0ECB7800673913 /* BRBSPatchTests.swift */; };
 		22BF17471CDF831800AA41C6 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22BF17461CDF831800AA41C6 /* Extensions.swift */; };
@@ -244,6 +246,8 @@
 		229279A01C695D7900C98E78 /* BRBSPatch.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BRBSPatch.swift; sourceTree = "<group>"; };
 		229279A41C695DE700C98E78 /* BRAPIProxy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BRAPIProxy.swift; sourceTree = "<group>"; };
 		229279A71C6960FC00C98E78 /* BRGeoLocationPlugin.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BRGeoLocationPlugin.swift; sourceTree = "<group>"; };
+		2299CF361D5C0D0B0055EA28 /* BRReplicatedKVStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BRReplicatedKVStore.swift; sourceTree = "<group>"; };
+		2299CF381D5C32B70055EA28 /* BRReplicatedKVStoreTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BRReplicatedKVStoreTests.swift; sourceTree = "<group>"; };
 		22B6A4471C0E963900673913 /* libbz2.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libbz2.tbd; path = usr/lib/libbz2.tbd; sourceTree = SDKROOT; };
 		22B6A4491C0ECB7800673913 /* BRBSPatchTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BRBSPatchTests.swift; sourceTree = "<group>"; };
 		22BF17461CDF831800AA41C6 /* Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
@@ -579,6 +583,7 @@
 				220128D41C76E1550001CAC1 /* BRWebSocket.swift */,
 				229279A61C6960B200C98E78 /* HTTP Plugins */,
 				222040C31C1A0903005CE1C3 /* BRWebViewController.swift */,
+				2299CF361D5C0D0B0055EA28 /* BRReplicatedKVStore.swift */,
 			);
 			name = AppRuntime;
 			sourceTree = "<group>";
@@ -925,6 +930,7 @@
 				22FCD22B1C0E68C80066D798 /* BRTarTests.swift */,
 				22B6A4491C0ECB7800673913 /* BRBSPatchTests.swift */,
 				222040C71C1A3803005CE1C3 /* BRHTTPServerTests.swift */,
+				2299CF381D5C32B70055EA28 /* BRReplicatedKVStoreTests.swift */,
 				75CE50B51B5216F100DBC18C /* Info.plist */,
 				75EDC0E71CD92EA90090B838 /* BreadWalletTests-Bridging-Header.h */,
 			);
@@ -1396,6 +1402,7 @@
 				220128D31C753C670001CAC1 /* BRSocketHelpers.c in Sources */,
 				752E28E919234DA200DB5A3C /* NSManagedObject+Sugar.m in Sources */,
 				BA7B53541BDAA0A800355E8D /* BRAppleWatchTransactionData.m in Sources */,
+				2299CF371D5C0D0B0055EA28 /* BRReplicatedKVStore.swift in Sources */,
 				751B2B5C1B68911700EA87FB /* BRTxHistoryViewController.m in Sources */,
 				752E28EA19234DA200DB5A3C /* NSMutableData+Bitcoin.m in Sources */,
 				752E28EB19234DA200DB5A3C /* NSString+Bitcoin.m in Sources */,
@@ -1416,6 +1423,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				22DE8CF31D02407F007F07F3 /* BRWalletConstants.m in Sources */,
+				2299CF391D5C32B70055EA28 /* BRReplicatedKVStoreTests.swift in Sources */,
 				222040C81C1A3803005CE1C3 /* BRHTTPServerTests.swift in Sources */,
 				75D5F3F3191EC270004AB296 /* BreadWalletTests.m in Sources */,
 				22FCD22C1C0E68C80066D798 /* BRTarTests.swift in Sources */,
