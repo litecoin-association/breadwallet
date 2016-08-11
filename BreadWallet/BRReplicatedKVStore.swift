@@ -199,22 +199,20 @@ public class BRReplicatedKVStore {
     }
     
     func encrypt(data: [UInt8]) throws -> [UInt8] {
-        var sec = key.secretKey
         let inData = UnsafePointer<UInt8>(data)
         let nonce = genNonce()
-        let outSize = chacha20Poly1305AEADEncrypt(nil, 0, &sec, nonce, inData, data.count, nil, 0)
+        let outSize = chacha20Poly1305AEADEncrypt(nil, 0, key.secretKey, nonce, inData, data.count, nil, 0)
         var outData = [UInt8](count: outSize, repeatedValue: 0)
-        chacha20Poly1305AEADEncrypt(&outData, outSize, &sec, nonce, inData, data.count, nil, 0)
+        chacha20Poly1305AEADEncrypt(&outData, outSize, key.secretKey, nonce, inData, data.count, nil, 0)
         return nonce + outData
     }
     
     func decrypt(data: [UInt8]) throws -> [UInt8] {
-        var sec = key.secretKey
         let nonce = Array(data[data.startIndex...data.startIndex.advancedBy(12)])
         let inData = Array(data[data.startIndex.advancedBy(12)...(data.endIndex-1)])
-        let outSize = chacha20Poly1305AEADDecrypt(nil, 0, &sec, nonce, inData, inData.count, nil, 0)
+        let outSize = chacha20Poly1305AEADDecrypt(nil, 0, key.secretKey, nonce, inData, inData.count, nil, 0)
         var outData = [UInt8](count: outSize, repeatedValue: 0)
-        chacha20Poly1305AEADDecrypt(&outData, outSize, &sec, nonce, inData, inData.count, nil, 0)
+        chacha20Poly1305AEADDecrypt(&outData, outSize, key.secretKey, nonce, inData, inData.count, nil, 0)
         return outData
     }
     

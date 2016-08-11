@@ -256,9 +256,9 @@ int BRSecp256k1PointMul(BRECPoint *p, const UInt256 *i)
     return self.publicKey.hash160;
 }
 
-- (UInt256)secretKey
+- (UInt256 const * _Nullable)secretKey
 {
-    return _seckey;
+    return &_seckey;
 }
 
 - (NSString *)address
