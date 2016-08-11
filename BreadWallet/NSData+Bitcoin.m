@@ -391,6 +391,212 @@ void PBKDF2(void *dk, size_t dklen, void (*hash)(void *, const void *, size_t), 
     memset(T, 0, sizeof(T));
 }
 
+#define le32(x) CFSwapInt32HostToLittle(x)
+#define le64(x) CFSwapInt64HostToLittle(x)
+
+static void _poly1305Compress(uint32_t h[5], const void *key32, const void *data, size_t len, int final)
+{
+    uint32_t x[4], b, t0, t1, t2, t3, t4, r0, r1, r2, r3, r4;
+    uint64_t d0, d1, d2, d3, d4;
+    
+    // r &= 0xffffffc0ffffffc0ffffffc0fffffff
+    memcpy(x, key32, 16);
+    t0 = CFSwapInt32HostToLittle(x[0]), t1 = CFSwapInt32HostToLittle(x[1]), t2 = CFSwapInt32HostToLittle(x[2]),
+    t3 = CFSwapInt32HostToLittle(x[3]);
+    r0 = t0 & 0x03ffffff, r1 = ((t0 >> 26) | (t1 << 6)) & 0x03ffff03, r2 = ((t1 >> 20) | (t2 << 12)) & 0x03ffc0ff;
+    r3 = ((t2 >> 14) | (t3 << 18)) & 0x03f03fff, r4 = (t3 >> 8) & 0x000fffff;
+    
+    for (size_t i = 0; i < len; i += 16) { // process data in 16 byte blocks
+        if (i + 16 > len) {
+            memcpy(x, (const uint8_t *)data + i, len - i);
+            memset((uint8_t *)x + (len - i), 0, 16 - (len - i)); // clear remainder of x
+            ((uint8_t *)x)[len - i] = 1; // append padding
+        }
+        else memcpy(x, (const uint8_t *)data + i, 16);
+        
+        // h += x
+        t0 = le32(x[0]), t1 = le32(x[1]), t2 = le32(x[2]), t3 = le32(x[3]);
+        h[0] += t0 & 0x03ffffff, h[1] += ((t0 >> 26) | (t1 << 6)) & 0x03ffffff;
+        h[2] += ((t1 >> 20) | (t2 << 12)) & 0x03ffffff, h[3] += ((t2 >> 14) | (t3 << 18)) & 0x03ffffff;
+        h[4] += (t3 >> 8) | ((i + 16 <= len) ? (1 << 24) : 0);
+        
+        // h *= r
+        d0 = (uint64_t)h[0]*r0 + (uint64_t)h[1]*r4*5 + (uint64_t)h[2]*r3*5 + (uint64_t)h[3]*r2*5 + (uint64_t)h[4]*r1*5;
+        d1 = (uint64_t)h[0]*r1 + (uint64_t)h[1]*r0 + (uint64_t)h[2]*r4*5 + (uint64_t)h[3]*r3*5 + (uint64_t)h[4]*r2*5;
+        d2 = (uint64_t)h[0]*r2 + (uint64_t)h[1]*r1 + (uint64_t)h[2]*r0 + (uint64_t)h[3]*r4*5 + (uint64_t)h[4]*r3*5;
+        d3 = (uint64_t)h[0]*r3 + (uint64_t)h[1]*r2 + (uint64_t)h[2]*r1 + (uint64_t)h[3]*r0 + (uint64_t)h[4]*r4*5;
+        d4 = (uint64_t)h[0]*r4 + (uint64_t)h[1]*r3 + (uint64_t)h[2]*r2 + (uint64_t)h[3]*r1 + (uint64_t)h[4]*r0;
+        
+        // (partial) h %= p
+        d1 += (uint32_t)(d0 >> 26), h[1] = d1 & 0x03ffffff, d2 += (uint32_t)(d1 >> 26), h[2] = d2 & 0x03ffffff;
+        d3 += (uint32_t)(d2 >> 26), h[3] = d3 & 0x03ffffff, d4 += (uint32_t)(d3 >> 26), h[4] = d4 & 0x03ffffff;
+        h[0] = (d0 & 0x03ffffff) + (uint32_t)(d4 >> 26)*5, h[1] += h[0] >> 26, h[0] &= 0x03ffffff;
+    }
+    
+    if (final) {
+        // fully carry h
+        h[2] += h[1] >> 26, h[1] &= 0x03ffffff, h[3] += h[2] >> 26, h[2] &= 0x03ffffff, h[4] += h[3] >> 26;
+        h[3] &= 0x03ffffff, h[0] += (h[4] >> 26)*5, h[4] &= 0x03ffffff, h[1] += h[0] >> 26, h[0] &= 0x03ffffff;
+        
+        // compute h + -p
+        t0 = h[0] + 5, t1 = h[1] + (t0 >> 26), t0 &= 0x03ffffff, t2 = h[2] + (t1 >> 26), t1 &= 0x03ffffff;
+        t3 = h[3] + (t2 >> 26), t2 &= 0x03ffffff, t4 = h[4] + (t3 >> 26) - (1 << 26), t3 &= 0x03ffffff;
+        
+        // select h if h < p, or h + -p if h >= p
+        b = (t4 >> 31) - 1, h[0] = (h[0] & ~b) | (t0 & b), h[1] = (h[1] & ~b) | (t1 & b);
+        h[2] = (h[2] & ~b) | (t2 & b), h[3] = (h[3] & ~b) | (t3 & b), h[4] = (h[4] & ~b) | (t4 & b);
+        
+        // h = h % (2^128)
+        h[0] = (h[0] | (h[1] << 26)) & 0x0ffffffff, h[1] = ((h[1] >> 6) | (h[2] << 20)) & 0x0ffffffff;
+        h[2] = ((h[2] >> 12) | (h[3] << 14)) & 0x0ffffffff, h[3] = ((h[3] >> 18) | (h[4] << 8)) & 0x0ffffffff;
+        
+        // mac = (h + pad) % (2^128)
+        memcpy(x, (const uint8_t *)key32 + 16, 16);
+        d0 = (uint64_t)h[0] + le32(x[0]), d1 = (uint64_t)h[1] + le32(x[1]) + (d0 >> 32);
+        d2 = (uint64_t)h[2] + le32(x[2]) + (d1 >> 32), d3 = (uint64_t)h[3] + le32(x[3]) + (d2 >> 32);
+        h[0] = le32((uint32_t)d0), h[1] = le32((uint32_t)d1), h[2] = le32((uint32_t)d2), h[3] = le32((uint32_t)d3);
+    }
+    
+    d0 = d1 = d2 = d3 = d4 = 0;
+    x[0] = x[1] = x[2] = x[3] = b = t0 = t1 = t2 = t3 = t4 = r0 = r1 = r2 = r3 = r4 = 0;
+}
+
+// poly1305 authenticator: https://tools.ietf.org/html/rfc7539
+// must use constant time mem comparison when verifying mac to defend against timing attacks
+void poly1305(void *mac16, const void *key32, const void *data, size_t len)
+{
+    uint32_t h[5] = { 0, 0, 0, 0, 0 };
+    
+    assert(mac16 != NULL);
+    assert(data != NULL || len == 0);
+    assert(key32 != NULL);
+    
+    _poly1305Compress(h, key32, data, len, 1);
+    memcpy(mac16, h, 16);
+    h[0] = h[1] = h[2] = h[3] = h[4] = 0;
+}
+
+// basic chacha quarter round operation
+#define qr(a, b, c, d) ((a) += (b), (d) = rol32((d) ^ (a), 16), (c) += (d), (b) = rol32((b) ^ (c), 12),\
+(a) += (b), (d) = rol32((d) ^ (a), 8), (c) += (d), (b) = rol32((b) ^ (c), 7))
+
+// chacha20 stream cypher: https://cr.yp.to/chacha.html
+void chacha20(void *out, const void *key32, const void *iv8, const void *data, size_t len, uint64_t counter)
+{
+    static const char sigma[16] = "expand 32-byte k";
+    uint32_t b[16], s[16], x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15;
+    size_t i, j;
+    
+    assert(out != NULL || len == 0);
+    assert(data != NULL || len == 0);
+    assert(key32 != NULL);
+    assert(iv8 != NULL);
+    
+    memcpy(s, sigma, 16);
+    memcpy(&s[4], key32, 32);
+    s[12] = le32((uint32_t)counter);
+    s[13] = le32(counter >> 32);
+    memcpy(&s[14], iv8, 8);
+    for (i = 0; i < 16; i++) s[i] = le32(s[i]);
+    
+    for (i = 0; i < len; i++) {
+        if (i % 64 == 0) {
+            x0 = s[0], x1 = s[1], x2 = s[2], x3 = s[3], x4 = s[4], x5 = s[5], x6 = s[6], x7 = s[7];
+            x8 = s[8], x9 = s[9], x10 = s[10], x11 = s[11], x12 = s[12], x13 = s[13], x14 = s[14], x15 = s[15];
+            
+            for (j = 0; j < 10; j++) {
+                qr(x0, x4, x8, x12), qr(x1, x5, x9, x13), qr(x2, x6, x10, x14), qr(x3, x7, x11, x15);
+                qr(x0, x5, x10, x15), qr(x1, x6, x11, x12), qr(x2, x7, x8, x13), qr(x3, x4, x9, x14);
+            }
+            
+            b[0] = le32(s[0] + x0), b[1] = le32(s[1] + x1), b[2] = le32(s[2] + x2), b[3] = le32(s[3] + x3);
+            b[4] = le32(s[4] + x4), b[5] = le32(s[5] + x5), b[6] = le32(s[6] + x6), b[7] = le32(s[7] + x7);
+            b[8] = le32(s[8] + x8), b[9] = le32(s[9] + x9), b[10] = le32(s[10] + x10), b[11] = le32(s[11] + x11);
+            b[12] = le32(s[12] + x12), b[13] = le32(s[13] + x13), b[14] = le32(s[14] + x14), b[15] = le32(s[15] + x15);
+            
+            s[12]++;
+            if (s[12] == 0) s[13]++;
+        }
+        
+        ((uint8_t *)out)[i] = ((const uint8_t *)data)[i] ^ ((uint8_t *)b)[i % 64];
+    }
+    
+    x0 = x1 = x2 = x3 = x4 = x5 = x6 = x7 = x8 = x9 = x10 = x11 = x12 = x13 = x14 = x15 = 0;
+    memset(s, 0, sizeof(s));
+    memset(b, 0, sizeof(b));
+}
+
+// chacha20-poly1305 authenticated encryption with associated data (AEAD): https://tools.ietf.org/html/rfc7539
+size_t chacha20Poly1305AEADEncrypt(void *out, size_t outLen, const void *key32, const void *nonce12,
+                                   const void *data, size_t dataLen, const void *ad, size_t adLen)
+{
+    const void *iv = (const uint8_t *)nonce12 + 4;
+    uint64_t counter = 0, macKey[4] = { 0, 0, 0, 0 }, pad[2] = { 0, 0 };
+    uint32_t h[5] = { 0, 0, 0, 0, 0 };
+    
+    if (! out) return dataLen + 16;
+    if (outLen < dataLen + 16 || dataLen/64 >= UINT32_MAX) return 0;
+    
+    assert(key32 != NULL);
+    assert(nonce12 != NULL);
+    assert(data != NULL || dataLen == 0);
+    assert(ad != NULL || adLen == 0);
+    
+    memcpy(&((uint32_t *)&counter)[1], nonce12, sizeof(uint32_t));
+    chacha20(macKey, key32, iv, macKey, sizeof(macKey), le64(counter));
+    _poly1305Compress(h, macKey, ad, (adLen/16)*16, 0);
+    memcpy(pad, (const uint8_t *)ad + (adLen/16)*16, adLen % 16);
+    if (adLen % 16) _poly1305Compress(h, macKey, pad, 16, 0);
+    chacha20(out, key32, iv, data, dataLen, le64(counter) + 1);
+    _poly1305Compress(h, macKey, out, (dataLen/16)*16, 0);
+    pad[0] = pad[1] = 0;
+    memcpy(pad, (const uint8_t *)out + (dataLen/16)*16, dataLen % 16);
+    if (dataLen % 16) _poly1305Compress(h, macKey, pad, 16, 0);
+    pad[0] = le64(adLen);
+    pad[1] = le64(dataLen);
+    _poly1305Compress(h, macKey, pad, 16, 1);
+    memcpy((uint8_t *)out + dataLen, h, 16);
+    counter = macKey[0] = macKey[1] = macKey[2] = macKey[3] = pad[0] = pad[1] = 0;
+    h[0] = h[1] = h[2] = h[3] = h[4] = 0;
+    return dataLen + 16;
+}
+
+size_t chacha20Poly1305AEADDecrypt(void *out, size_t outLen, const void *key32, const void *nonce12,
+                                     const void *data, size_t dataLen, const void *ad, size_t adLen)
+{
+    const void *iv = (const uint8_t *)nonce12 + 4;
+    uint64_t counter = 0, macKey[4] = { 0, 0, 0, 0 }, pad[2] = { 0, 0 };
+    uint32_t h[5] = { 0, 0, 0, 0, 0 }, mac[4];
+    
+    if (! out) return (dataLen < 16) ? 0 : dataLen - 16;
+    if (dataLen < 16 || (dataLen - 16)/64 >= UINT32_MAX || outLen < dataLen - 16) return 0;
+    
+    assert(key32 != NULL);
+    assert(nonce12 != NULL);
+    assert(data != NULL || dataLen == 0);
+    assert(ad != NULL || adLen == 0);
+    
+    outLen = dataLen - 16;
+    memcpy(&((uint32_t *)&counter)[1], nonce12, sizeof(uint32_t));
+    chacha20(macKey, key32, iv, macKey, sizeof(macKey), le64(counter));
+    _poly1305Compress(h, macKey, ad, (adLen/16)*16, 0);
+    memcpy(pad, (const uint8_t *)ad + (adLen/16)*16, adLen % 16);
+    if (adLen % 16) _poly1305Compress(h, macKey, pad, 16, 0);
+    _poly1305Compress(h, macKey, data, (outLen/16)*16, 0);
+    pad[0] = pad[1] = 0;
+    memcpy(pad, (const uint8_t *)data + (outLen/16)*16, outLen % 16);
+    if (outLen % 16) _poly1305Compress(h, macKey, pad, 16, 0);
+    pad[0] = le64(adLen);
+    pad[1] = le64(outLen);
+    _poly1305Compress(h, macKey, pad, 16, 1);
+    memcpy(mac, (const uint8_t *)data + outLen, 16);
+    if ((mac[0] ^ h[0]) | (mac[1] ^ h[1]) | (mac[2] ^ h[2]) | (mac[3] ^ h[3]) != 0) outLen = 0; // constant time compare
+    chacha20(out, key32, iv, data, outLen, le64(counter) + 1);
+    counter = macKey[0] = macKey[1] = macKey[2] = macKey[3] = pad[0] = pad[1] = 0;
+    mac[0] = mac[1] = mac[2] = mac[3] = h[0] = h[1] = h[2] = h[3] = h[4] = 0;
+    return outLen;
+}
+
 @implementation NSData (Bitcoin)
 
 + (instancetype)dataWithUInt256:(UInt256)n
