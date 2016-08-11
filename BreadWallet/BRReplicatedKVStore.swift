@@ -15,6 +15,7 @@ enum BRReplicatedKVStoreError: ErrorType {
 
 public class BRReplicatedKVStore {
     var db: COpaquePointer = nil
+    var key: BRKey
     
     var path: NSURL {
         let fm = NSFileManager.defaultManager()
@@ -23,7 +24,8 @@ public class BRReplicatedKVStore {
         return bundleDirUrl
     }
     
-    init() throws {
+    init(encryptionKey: BRKey) throws {
+        key = encryptionKey
         db = try openDatabase()
         try migrateDatabase()
     }
@@ -87,16 +89,17 @@ public class BRReplicatedKVStore {
             deleted = sqlite3_column_int(stmt, 3) > 0
             ret = Array(UnsafeBufferPointer<UInt8>(start: UnsafePointer(blob), count: Int(blobLength)))
         })
-        return (curVer, time, deleted, ret)
+        return (curVer, time, deleted, try decrypt(ret))
     }
     
-    func set(key: String, value: [UInt8], encrypted: Bool = false) throws -> (UInt64, NSDate) {
+    func set(key: String, value: [UInt8]) throws -> (UInt64, NSDate) {
         var newVer: UInt64 = 0
         var time = NSDate(timeIntervalSince1970: Double(Int64(NSDate().timeIntervalSince1970*1000)))
         try txn({ 
             let curVer = try self.localVersion(key)
             self.log("SET key: \(key) ver: \(curVer)")
             newVer = curVer + 1
+            let encryptedData = try self.encrypt(value)
             var stmt: COpaquePointer = nil
             defer {
                 sqlite3_finalize(stmt)
@@ -107,7 +110,7 @@ public class BRReplicatedKVStore {
             ), s: "set - prepare stmt")
             sqlite3_bind_int64(stmt, 1, Int64(newVer))
             sqlite3_bind_text(stmt, 2, NSString(string: key).UTF8String, -1, nil)
-            sqlite3_bind_blob(stmt, 3, value, Int32(value.count), nil)
+            sqlite3_bind_blob(stmt, 3, encryptedData, Int32(encryptedData.count), nil)
             sqlite3_bind_int64(stmt, 4, Int64(time.timeIntervalSince1970*1000))
             sqlite3_bind_int(stmt, 5, 0)
             try self.checkErr(sqlite3_step(stmt), s: "set - step stmt")
@@ -195,7 +198,37 @@ public class BRReplicatedKVStore {
         }
     }
     
+    func encrypt(data: [UInt8]) throws -> [UInt8] {
+        var sec = key.secretKey
+        let inData = UnsafePointer<UInt8>(data)
+        let nonce = genNonce()
+        let outSize = chacha20Poly1305AEADEncrypt(nil, 0, &sec, nonce, inData, data.count, nil, 0)
+        var outData = [UInt8](count: outSize, repeatedValue: 0)
+        chacha20Poly1305AEADEncrypt(&outData, outSize, &sec, nonce, inData, data.count, nil, 0)
+        return nonce + outData
+    }
+    
+    func decrypt(data: [UInt8]) throws -> [UInt8] {
+        var sec = key.secretKey
+        let nonce = Array(data[data.startIndex...data.startIndex.advancedBy(12)])
+        let inData = Array(data[data.startIndex.advancedBy(12)...(data.endIndex-1)])
+        let outSize = chacha20Poly1305AEADDecrypt(nil, 0, &sec, nonce, inData, inData.count, nil, 0)
+        var outData = [UInt8](count: outSize, repeatedValue: 0)
+        chacha20Poly1305AEADDecrypt(&outData, outSize, &sec, nonce, inData, inData.count, nil, 0)
+        return outData
+    }
+    
+    func genNonce() -> [UInt8] {
+        var tv = timeval()
+        gettimeofday(&tv, nil)
+        var t = UInt64(tv.tv_usec) * 1_000_000 + UInt64(tv.tv_usec)
+        let p = [UInt8](count: 4, repeatedValue: 0)
+        let dat = UnsafePointer<UInt8>(NSData(bytes: &t, length: sizeof(UInt64)).bytes)
+        let buf = UnsafeBufferPointer(start: dat, count: sizeof(UInt64))
+        return p + Array(buf)
+    }
+    
     func log(s: String) {
-        print("[KVStore]: \(s)")
+        print("[KVStore] \(s)")
     }
 }

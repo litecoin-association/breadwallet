@@ -256,6 +256,11 @@ int BRSecp256k1PointMul(BRECPoint *p, const UInt256 *i)
     return self.publicKey.hash160;
 }
 
+- (UInt256)secretKey
+{
+    return _seckey;
+}
+
 - (NSString *)address
 {
     NSMutableData *d = [NSMutableData secureDataWithCapacity:160/8 + 1];

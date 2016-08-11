@@ -11,10 +11,11 @@ import XCTest
 
 class BRReplicatedKVStoreTest: XCTestCase {
     var store: BRReplicatedKVStore!
+    var key = BRKey(privateKey: "S6c56bnXQiBjk9mqSYE7ykVQ7NzrRy")!
     
     override func setUp() {
         super.setUp()
-        store = try! BRReplicatedKVStore()
+        store = try! BRReplicatedKVStore(encryptionKey: key)
     }
     
     override func tearDown() {
