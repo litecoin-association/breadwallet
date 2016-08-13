@@ -46,6 +46,15 @@ let BRAPIClientErrorDomain = "BRApiClientErrorDomain"
 public typealias URLSessionTaskHandler = (NSData?, NSHTTPURLResponse?, NSError?) -> Void
 public typealias URLSessionChallengeHandler = (NSURLSessionAuthChallengeDisposition, NSURLCredential?) -> Void
 
+// an object which implements BRAPIAdaptor can execute API Requests on the current wallet's behalf
+public protocol BRAPIAdaptor {
+    // execute an API request against the current wallet
+    func dataTaskWithRequest(
+        request: NSURLRequest, authenticated: Bool, retryCount: Int,
+        handler: URLSessionTaskHandler
+    ) -> NSURLSessionDataTask
+}
+
 extension String {
     static var urlQuoteCharacterSet: NSCharacterSet {
         let cset = NSMutableCharacterSet.URLQueryAllowedCharacterSet().mutableCopy() as! NSMutableCharacterSet
@@ -149,7 +158,7 @@ func httpDateNow() -> String {
     return rfc1123DateFormatter.stringFromDate(NSDate())
 }
 
-@objc public class BRAPIClient: NSObject, NSURLSessionDelegate, NSURLSessionTaskDelegate {
+@objc public class BRAPIClient: NSObject, NSURLSessionDelegate, NSURLSessionTaskDelegate, BRAPIAdaptor {
     var logEnabled = true
     var proto = "https"
     var host = "api.breadwallet.com"
@@ -211,7 +220,7 @@ func httpDateNow() -> String {
         return mutableRequest.copy() as! NSURLRequest
     }
     
-    func dataTaskWithRequest(request: NSURLRequest, authenticated: Bool = false,
+    public func dataTaskWithRequest(request: NSURLRequest, authenticated: Bool = false,
                              retryCount: Int = 0, handler: URLSessionTaskHandler) -> NSURLSessionDataTask {
         let start = NSDate()
         var logLine = ""
