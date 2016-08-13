@@ -23,6 +23,7 @@ class BRReplicatedKVStoreTestAdapter: BRRemoteKVStoreAdaptor {
     }
     
     func keys(completionFunc: ([(String, UInt64, NSDate, BRRemoteKVStoreError?)], BRRemoteKVStoreError?) -> ()) {
+        print("[TestRemoteKVStore] KEYS")
         dispatch_async(dispatch_get_main_queue()) { 
             let res = self.db.map { (t) -> (String, UInt64, NSDate, BRRemoteKVStoreError?) in
                 return (t.0, t.1.0, t.1.1, t.1.3 ? BRRemoteKVStoreError.Tombstone : nil)
@@ -32,6 +33,7 @@ class BRReplicatedKVStoreTestAdapter: BRRemoteKVStoreAdaptor {
     }
     
     func ver(key: String, completionFunc: (UInt64, NSDate, BRRemoteKVStoreError?) -> ()) {
+        print("[TestRemoteKVStore] VER \(key)")
         dispatch_async(dispatch_get_main_queue()) { 
             guard let obj = self.db[key] else {
                 return completionFunc(0, NSDate(), .NotFound)
@@ -41,6 +43,7 @@ class BRReplicatedKVStoreTestAdapter: BRRemoteKVStoreAdaptor {
     }
     
     func get(key: String, version: UInt64, completionFunc: (UInt64, NSDate, [UInt8], BRRemoteKVStoreError?) -> ()) {
+        print("[TestRemoteKVStore] GET \(key) \(version)")
         dispatch_async(dispatch_get_main_queue()) { 
             guard let obj = self.db[key] else {
                 return completionFunc(0, NSDate(), [], .NotFound)
@@ -53,6 +56,7 @@ class BRReplicatedKVStoreTestAdapter: BRRemoteKVStoreAdaptor {
     }
     
     func put(key: String, value: [UInt8], version: UInt64, completionFunc: (UInt64, NSDate, BRRemoteKVStoreError?) -> ()) {
+        print("[TestRemoteKVStore] PUT \(key) \(version)")
         dispatch_async(dispatch_get_main_queue()) { 
             guard let obj = self.db[key] else {
                 return completionFunc(0, NSDate(), .NotFound)
@@ -67,6 +71,7 @@ class BRReplicatedKVStoreTestAdapter: BRRemoteKVStoreAdaptor {
     }
     
     func del(key: String, version: UInt64, completionFunc: (UInt64, NSDate, BRRemoteKVStoreError?) -> ()) {
+        print("[TestRemoteKVStore] DEL \(key) \(version)")
         dispatch_async(dispatch_get_main_queue()) { 
             guard let obj = self.db[key] else {
                 return completionFunc(0, NSDate(), .NotFound)
@@ -179,5 +184,45 @@ class BRReplicatedKVStoreTest: XCTestCase {
         waitForExpectationsWithTimeout(1, handler: nil)
         let allKeys = try! store.localKeys()
         XCTAssertEqual(adapter.db.count - 1, allKeys.count) // minus 1: there is a deleted key that needent be synced
+    }
+    
+    func testSyncAddsLocalKeysToRemote() {
+        store.syncImmediately = false
+        try! store.set("derp", value: [0, 1], localVer: 0)
+        let exp = expectationWithDescription("sync")
+        store.syncAllKeys { (err) in
+            XCTAssertNil(err)
+            exp.fulfill()
+        }
+        waitForExpectationsWithTimeout(1, handler: nil)
+        XCTAssertEqual(adapter.db["derp"]!.2, [0, 1])
+    }
+    
+    func testSyncSavesRemoteVersion() {
+        let exp = expectationWithDescription("sync")
+        store.syncAllKeys { err in
+            XCTAssertNil(err)
+            exp.fulfill()
+        }
+        waitForExpectationsWithTimeout(1, handler: nil)
+        let rv = try! store.remoteVersion("hello")
+        XCTAssertEqual(adapter.db["hello"]!.0, 1) // it should not have done any mutations
+        XCTAssertEqual(adapter.db["hello"]!.0, rv) // only saved the remote version
+    }
+    
+    func testLocalDeleteReplicates() {
+        
+    }
+    
+    func testLocalUpdateReplicates() {
+        
+    }
+    
+    func testRemoteDeleteReplicates() {
+        
+    }
+    
+    func testRemoteUpdateReplicates() {
+        
     }
 }
