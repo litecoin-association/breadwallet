@@ -53,7 +53,6 @@ public class BRReplicatedKVStore {
     private(set) var remote: BRRemoteKVStoreAdaptor
     private(set) var syncRunning = false
     private var dbQueue: dispatch_queue_t
-    private var inTxn = false
     
     /// Whether or not we immediately sync a key when set() or del() is called
     public var syncImmediately = true
@@ -86,11 +85,20 @@ public class BRReplicatedKVStore {
     /// Creates the internal database connection. Called automatically in init()
     func openDatabase() throws {
         try dispatch_sync_throws(dbQueue) {
-            var dd: COpaquePointer = nil
-            try self.checkErr(sqlite3_open(self.path.absoluteString, &dd), s: "opening db")
+            if self.db != nil {
+                print("Database already open")
+                throw BRReplicatedKVStoreError.SQLiteError
+            }
+            try self.checkErr(sqlite3_open_v2(
+                self.path.absoluteString, &self.db,
+                SQLITE_OPEN_FULLMUTEX | SQLITE_OPEN_CREATE | SQLITE_OPEN_READWRITE, nil
+            ), s: "opening db")
             self.log("opened DB at \(self.path.absoluteString)")
-            self.db = dd
         }
+    }
+    
+    deinit {
+        sqlite3_close(db)
     }
     
     /// Creates the local database structure. Called automatically in init()
@@ -110,12 +118,12 @@ public class BRReplicatedKVStore {
                 ");"
             ];
             for cmd in commands {
-                var cts: COpaquePointer = nil
+                var stmt: COpaquePointer = nil
                 defer {
-                    sqlite3_finalize(cts)
+                    sqlite3_finalize(stmt)
                 }
-                try self.checkErr(sqlite3_prepare_v2(self.db, cmd, -1, &cts, nil), s: "migrate prepare")
-                try self.checkErr(sqlite3_step(cts), s: "migrate stmt exec")
+                try self.checkErr(sqlite3_prepare_v2(self.db, cmd, -1, &stmt, nil), s: "migrate prepare")
+                try self.checkErr(sqlite3_step(stmt), s: "migrate stmt exec")
             }
         }
     }
@@ -126,9 +134,9 @@ public class BRReplicatedKVStore {
         var curVer: UInt64 = 0
         var deleted = false
         var time = NSDate(timeIntervalSince1970: Double())
-        try txn({
+        try txn {
             if version == 0 {
-                (curVer, _) = try self.localVersion(key)
+                (curVer, _) = try self._localVersion(key)
             } else {
                 // check for the existence of such a version
                 var vStmt: COpaquePointer = nil
@@ -163,10 +171,10 @@ public class BRReplicatedKVStore {
             try self.checkErr(sqlite3_step(stmt), s: "get - step stmt", r: SQLITE_ROW)
             let blob = sqlite3_column_blob(stmt, 0)
             let blobLength = sqlite3_column_int(stmt, 1)
-            time = NSDate(timeIntervalSince1970: sqlite3_column_double(stmt, 2)/1000.0)
+            time = NSDate.withMsTimestamp(UInt64(sqlite3_column_int64(stmt, 2)))
             deleted = sqlite3_column_int(stmt, 3) > 0
             ret = Array(UnsafeBufferPointer<UInt8>(start: UnsafePointer(blob), count: Int(blobLength)))
-        })
+        }
         return (curVer, time, deleted, try decrypt(ret))
     }
     
@@ -185,10 +193,11 @@ public class BRReplicatedKVStore {
     
     private func _set(key: String, value: [UInt8], localVer: UInt64) throws -> (UInt64, NSDate) {
         var newVer: UInt64 = 0
-        var time = newDate()
-        try txn({
-            let (curVer, _) = try self.localVersion(key)
+        var time = NSDate()
+        try txn {
+            let (curVer, _) = try self._localVersion(key)
             if curVer != localVer {
+                self.log("set key \(key) conflict: version \(localVer) != current version \(curVer)")
                 throw BRReplicatedKVStoreError.Conflict
             }
             self.log("SET key: \(key) ver: \(curVer)")
@@ -205,10 +214,10 @@ public class BRReplicatedKVStore {
             sqlite3_bind_int64(stmt, 1, Int64(newVer))
             sqlite3_bind_text(stmt, 2, NSString(string: key).UTF8String, -1, nil)
             sqlite3_bind_blob(stmt, 3, encryptedData, Int32(encryptedData.count), nil)
-            sqlite3_bind_int64(stmt, 4, Int64(time.timeIntervalSince1970*1000))
+            sqlite3_bind_int64(stmt, 4, Int64(time.msTimestamp))
             sqlite3_bind_int(stmt, 5, 0)
             try self.checkErr(sqlite3_step(stmt), s: "set - step stmt")
-        })
+        }
         return (newVer, time)
     }
     
@@ -229,10 +238,11 @@ public class BRReplicatedKVStore {
             throw BRReplicatedKVStoreError.NotFound
         }
         var newVer: UInt64 = 0
-        var time = newDate()
-        try txn({
-            let (curVer, _) = try self.localVersion(key)
+        var time = NSDate()
+        try txn {
+            let (curVer, _) = try self._localVersion(key)
             if curVer != localVer {
+                self.log("del key \(key) conflict: version \(localVer) != current version \(curVer)")
                 throw BRReplicatedKVStoreError.Conflict
             }
             self.log("DEL key: \(key) ver: \(curVer)")
@@ -243,17 +253,17 @@ public class BRReplicatedKVStore {
             }
             try self.checkErr(sqlite3_prepare_v2(
                 self.db, "INSERT INTO kvstore (version, key, value, thetime, deleted) " +
-                    "SELECT ?, key, value, ?, ? " +
-                "FROM kvstore WHERE key=? AND version=? ORDER BY version DESC LIMIT 1",
+                         "SELECT ?, key, value, ?, ? " +
+                         "FROM kvstore WHERE key=? AND version=?",
                 -1, &stmt, nil
-                ), s: "del - prepare stmt")
+            ), s: "del - prepare stmt")
             sqlite3_bind_int64(stmt, 1, Int64(newVer))
-            sqlite3_bind_int64(stmt, 2, Int64(time.timeIntervalSince1970*1000))
+            sqlite3_bind_int64(stmt, 2, Int64(time.msTimestamp))
             sqlite3_bind_int(stmt, 3, 1)
             sqlite3_bind_text(stmt, 4, NSString(string: key).UTF8String, -1, nil)
             sqlite3_bind_int64(stmt, 5, Int64(curVer))
             try self.checkErr(sqlite3_step(stmt), s: "del - exec stmt")
-        })
+        }
         return (newVer, time)
     }
     
@@ -262,23 +272,29 @@ public class BRReplicatedKVStore {
         var retVer: UInt64 = 0
         var retTime = NSDate(timeIntervalSince1970: Double())
         try txn {
-            var stmt: COpaquePointer = nil
-            defer {
-                sqlite3_finalize(stmt)
-            }
-            try self.checkErr(sqlite3_prepare_v2(
-                self.db, "SELECT version, thetime FROM kvstore WHERE key = ? ORDER BY version DESC LIMIT 1", -1,
-                &stmt, nil
-            ), s: "get version - prepare")
-            sqlite3_bind_text(stmt, 1, NSString(string: key).UTF8String, -1, nil)
-            try self.checkErr(sqlite3_step(stmt), s: "get version - exec", r: SQLITE_ROW)
-            retVer = UInt64(sqlite3_column_int64(stmt, 0))
-            retTime = NSDate(timeIntervalSince1970: sqlite3_column_double(stmt, 1) / 1000.0)
+            (retVer, retTime) = try self._localVersion(key)
         }
         return (retVer, retTime)
     }
     
-    /// Get the remote version for the key for the most recent local version of the key, if stored. 
+    func _localVersion(key: String) throws -> (UInt64, NSDate) {
+        var stmt: COpaquePointer = nil
+        defer {
+            sqlite3_finalize(stmt)
+        }
+        try self.checkErr(sqlite3_prepare_v2(
+            self.db, "SELECT version, thetime FROM kvstore WHERE key = ? ORDER BY version DESC LIMIT 1", -1,
+            &stmt, nil
+        ), s: "get version - prepare")
+        sqlite3_bind_text(stmt, 1, NSString(string: key).UTF8String, -1, nil)
+        try self.checkErr(sqlite3_step(stmt), s: "get version - exec", r: SQLITE_ROW)
+        return (
+            UInt64(sqlite3_column_int64(stmt, 0)),
+            NSDate.withMsTimestamp(UInt64(sqlite3_column_int64(stmt, 1)))
+        )
+    }
+    
+    /// Get the remote version for the key for the most recent local version of the key, if stored.
     // If local key doesn't exist, return 0
     func remoteVersion(key: String) throws -> UInt64 {
         var ret: UInt64 = 0
@@ -299,15 +315,19 @@ public class BRReplicatedKVStore {
     
     /// Record the remote version for the object in a new version of the local key
     func setRemoteVersion(key: String, localVer: UInt64, remoteVer: UInt64) throws -> (UInt64, NSDate) {
+        if localVer < 1 {
+            throw BRReplicatedKVStoreError.Conflict // setRemoteVersion can't be used for creates
+        }
         var newVer: UInt64 = 0
-        var time = newDate()
+        var time = NSDate()
         try txn {
-            let (locV, _) = try self.localVersion(key)
-            if locV != localVer {
+            let (curVer, _) = try self._localVersion(key)
+            if curVer != localVer {
+                self.log("set remote version key \(key) conflict: version \(localVer) != current version \(curVer)")
                 throw BRReplicatedKVStoreError.Conflict
             }
             self.log("SET REMOTE VERSION: \(key) ver: \(localVer) remoteVer=\(remoteVer)")
-            newVer = locV + 1
+            newVer = curVer + 1
             var stmt: COpaquePointer = nil
             defer {
                 sqlite3_finalize(stmt)
@@ -315,17 +335,14 @@ public class BRReplicatedKVStore {
             try self.checkErr(sqlite3_prepare_v2(
                 self.db, "INSERT INTO kvstore (version, key, value, thetime, deleted, remote_version) " +
                          "SELECT               ?,       key, value, ?,       deleted, ? " +
-                         "FROM kvstore WHERE key=? AND version=? ORDER BY version DESC LIMIT 1",
+                         "FROM kvstore WHERE key=? AND version=?",
                 -1, &stmt, nil
             ), s: "update remote version - prepare stmt")
             sqlite3_bind_int64(stmt, 1, Int64(newVer))
-            sqlite3_bind_int64(stmt, 2, Int64(time.timeIntervalSince1970*1000))
+            sqlite3_bind_int64(stmt, 2, Int64(time.msTimestamp))
             sqlite3_bind_int64(stmt, 3, Int64(remoteVer))
             sqlite3_bind_text(stmt, 4, NSString(string: key).UTF8String, -1, nil)
-            sqlite3_bind_int64(stmt, 4, Int64(locV))
-            if key == "hello" {
-                self.log("shit")
-            }
+            sqlite3_bind_int64(stmt, 5, Int64(curVer))
             try self.checkErr(sqlite3_step(stmt), s: "update remote - exec stmt")
         }
         return (newVer, time)
@@ -359,7 +376,7 @@ public class BRReplicatedKVStore {
                 ret.append((
                     String.fromCString(key) ?? "",
                     UInt64(ver),
-                    NSDate(timeIntervalSince1970: Double(date) / 1000.0),
+                    NSDate.withMsTimestamp(UInt64(date)),
                     UInt64(rver),
                     del > 0
                 ))
@@ -392,7 +409,7 @@ public class BRReplicatedKVStore {
             do {
                 localKeyData = try self.localKeys()
             } catch let e {
-                self.log("Error getting local keyd data: \(e)")
+                self.log("Error getting local key data: \(e)")
                 return completionHandler(.ReplicationError)
             }
             let allRemoteKeys = Set(keyData.map { e in return e.0 })
@@ -417,17 +434,14 @@ public class BRReplicatedKVStore {
                         dispatch_semaphore_wait(seph, DISPATCH_TIME_FOREVER)
                         dispatch_group_async(grp, q) {
                             do {
-                                print("sycing key \(k.0)")
                                 try self.syncKey(k.0, remoteVersion: k.1, remoteTime: k.2, remoteErr: k.3,
                                     completionHandler: { (err) in
-                                        print("key \(k.0) got done syncing err=\(err)")
                                         if err != nil {
                                             failures += 1
                                         }
                                         dispatch_semaphore_signal(seph)
                                 })
-                            } catch let e {
-                                self.log("Sync key: \(k.0) error: \(e)")
+                            } catch {
                                 failures += 1
                                 dispatch_semaphore_signal(seph)
                             }
@@ -446,15 +460,15 @@ public class BRReplicatedKVStore {
     }
     
     /// Sync an individual key. Normally this is only called internally and you should call syncAllKeys
-    func syncKey(key: String,
-                 remoteVersion: UInt64? = nil, remoteTime: NSDate? = nil, remoteErr: BRRemoteKVStoreError? = nil,
-                 completionHandler: (BRReplicatedKVStoreError?) -> ()) throws {
-        if let RV = remoteVersion, RT = remoteTime {
-            try _syncKey(key, remoteVer: RV, remoteTime: RT, remoteErr: remoteErr, completionHandler: completionHandler)
+    func syncKey(key: String, remoteVersion: UInt64? = nil, remoteTime: NSDate? = nil,
+                 remoteErr: BRRemoteKVStoreError? = nil, completionHandler: (BRReplicatedKVStoreError?) -> ()) throws {
+        if let remoteVersion = remoteVersion, remoteTime = remoteTime {
+            try _syncKey(key, remoteVer: remoteVersion, remoteTime: remoteTime,
+                         remoteErr: remoteErr, completionHandler: completionHandler)
         } else {
             remote.ver(key) { (remoteVer, remoteTime, err) in
-                _ = try? self._syncKey(key, remoteVer: remoteVer, remoteTime: remoteTime, remoteErr: remoteErr,
-                                       completionHandler: completionHandler)
+                _ = try? self._syncKey(key, remoteVer: remoteVer, remoteTime: remoteTime,
+                                       remoteErr: remoteErr, completionHandler: completionHandler)
             }
         }
     }
@@ -486,14 +500,26 @@ public class BRReplicatedKVStore {
         do {
             (localVer, localTime, localDeleted, localValue) = try get(key)
         } catch BRReplicatedKVStoreError.NotFound {
+            // missing key locally
             (localVer, localTime, localDeleted, localValue) = (0, NSDate(timeIntervalSince1970: Double()), false, [])
         }
         switch remoteErr {
         case nil, .Some(.Tombstone):
-            let (lt, rt) = (localTime.timeIntervalSince1970, remoteTime.timeIntervalSince1970)
-            log("times key=\(key) local=\(lt) remote=\(rt)")
-            if lt > rt || lt == rt {
-                // local is newer (or a tiebreaker)
+            let (lt, rt) = (localTime.msTimestamp, remoteTime.msTimestamp)
+            
+            if localDeleted && remoteErr == .Some(.Tombstone) { // was removed on both server and locally
+                log("Local key \(key) was deleted, and so was the remote key")
+                do {
+                    try self.setRemoteVersion(key, localVer: localVer, remoteVer: remoteVer)
+                } catch let e where e is BRReplicatedKVStoreError {
+                    return completionHandler((e as! BRReplicatedKVStoreError))
+                } catch {
+                    return completionHandler(.ReplicationError)
+                }
+                return completionHandler(nil)
+            }
+            
+            if lt > rt || lt == rt { // local is newer (or a tiebreaker)
                 if localDeleted {
                     log("Local key \(key) was deleted, removing remotely...")
                     self.remote.del(key, version: remoteVer, completionFunc: { (newRemoteVer, _, delErr) in
@@ -579,15 +605,8 @@ public class BRReplicatedKVStore {
     }
     
     // execute a function inside a transaction, if that function throws then rollback, otherwise commit
+    // calling txn() from within a txn function will deadlock
     private func txn(fn: () throws -> ()) throws {
-        if inTxn {
-            try fn()
-            return
-        }
-        inTxn = true
-        defer {
-            inTxn = false
-        }
         try dispatch_sync_throws(dbQueue) {
             var beginStmt: COpaquePointer = nil
             var finishStmt: COpaquePointer = nil
@@ -613,7 +632,8 @@ public class BRReplicatedKVStore {
     // ensure the sqlite3 error code is an acceptable one (or that its the one you provide as `r`
     // this MUST be called from within the dbQueue
     private func checkErr(e: Int32, s: String, r: Int32 = SQLITE_NULL) throws {
-        if (r == SQLITE_NULL && (e != SQLITE_OK && e != SQLITE_DONE && e != SQLITE_ROW)) && (e != SQLITE_NULL && e != r) {
+        if (r == SQLITE_NULL && (e != SQLITE_OK && e != SQLITE_DONE && e != SQLITE_ROW))
+            && (e != SQLITE_NULL && e != r) {
             let es = NSString(CString: sqlite3_errstr(e), encoding: NSUTF8StringEncoding)
             let em = NSString(CString: sqlite3_errmsg(db), encoding: NSUTF8StringEncoding)
             log("\(s): errcode=\(e) errstr=\(es) errmsg=\(em)")
@@ -641,11 +661,6 @@ public class BRReplicatedKVStore {
         return outData
     }
     
-    // generate a slightly imprecise date (precise only to the millisecond)
-    private func newDate() -> NSDate {
-        return NSDate(timeIntervalSince1970: Double(Int64(NSDate().timeIntervalSince1970*1000)/1000))
-    }
-    
     // generate a nonce using microseconds-since-epoch
     private func genNonce() -> [UInt8] {
         var tv = timeval()
@@ -659,5 +674,17 @@ public class BRReplicatedKVStore {
     
     func log(s: String) {
         print("[KVStore] \(s)")
+    }
+}
+
+extension NSDate {
+    static func withMsTimestamp(ms: UInt64) -> NSDate {
+        return NSDate(timeIntervalSince1970: Double(ms) / 1000.0)
+    }
+    
+    var msTimestamp: UInt64 {
+        get {
+            return UInt64(timeIntervalSince1970 * 1000.0)
+        }
     }
 }
