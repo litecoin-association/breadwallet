@@ -94,7 +94,7 @@ class BRReplicatedKVStoreTest: XCTestCase {
     
     override func tearDown() {
         super.tearDown()
-        try! store.rmdb()
+        //try! store.rmdb()
         store = nil
     }
     
@@ -178,6 +178,6 @@ class BRReplicatedKVStoreTest: XCTestCase {
         }
         waitForExpectationsWithTimeout(1, handler: nil)
         let allKeys = try! store.localKeys()
-        XCTAssertEqual(adapter.db.count, allKeys.count)
+        XCTAssertEqual(adapter.db.count - 1, allKeys.count) // minus 1: there is a deleted key that needent be synced
     }
 }

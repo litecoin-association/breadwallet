@@ -93,7 +93,7 @@ public class BRReplicatedKVStore {
         var ret = [UInt8]()
         var curVer: UInt64 = 0
         var deleted = false
-        var time = NSDate()
+        var time = NSDate(timeIntervalSince1970: Double())
         try txn({
             if version == 0 {
                 (curVer, _) = try self.localVersion(key)
@@ -220,6 +220,7 @@ public class BRReplicatedKVStore {
         return (UInt64(sqlite3_column_int64(stmt, 0)), NSDate(timeIntervalSince1970: sqlite3_column_double(stmt, 1)))
     }
     
+    /// Get the remote version for the key, if stored. If not local key doesn't exist, return 0
     func remoteVersion(key: String) throws -> UInt64 {
         var stmt: COpaquePointer = nil
         defer {
@@ -233,6 +234,7 @@ public class BRReplicatedKVStore {
         return UInt64(sqlite3_column_int64(stmt, 0))
     }
     
+    /// Record the remote version for the object in a new version of the local key
     func setRemoteVersion(key: String, localVer: UInt64, remoteVer: UInt64) throws -> (UInt64, NSDate) {
         var newVer: UInt64 = 0
         var time = NSDate(timeIntervalSince1970: Double(Int64(NSDate().timeIntervalSince1970*1000)))
@@ -311,6 +313,7 @@ public class BRReplicatedKVStore {
             })
             return
         }
+        // TODO: get local keys that don't exist on the server and sync them!
         syncRunning = true
         let startTime = NSDate()
         remote.keys { (keyData, err) in
@@ -326,35 +329,42 @@ public class BRReplicatedKVStore {
                 let grp = dispatch_group_create()
                 var runner: () -> () = { }
                 runner = {
+                    print("runner jobs=\(jobs.count) concurrency=\(concurrency) failures=\(failures)")
                     if concurrency < 10 && jobs.count > 0 { // run 10 concurrent jobs
+                        if let k = jobs.popLast() {
+                            dispatch_group_enter(grp)
+                            concurrency += 1
+                            print("incrementing concurrency")
+                            dispatch_async(dispatch_get_main_queue()) {
+                                do {
+                                    print("sycing key \(k.0)")
+                                    try self.syncKey(k.0, remoteVersion: k.1, remoteTime: k.2, remoteErr: k.3,
+                                        completionHandler: { (err) in
+                                            print("key \(k.0) got done syncing err=\(err)")
+                                            if err != nil {
+                                                failures += 1
+                                            }
+                                            concurrency -= 1
+                                            dispatch_group_leave(grp)
+                                            runner()
+                                    })
+                                } catch let e {
+                                    self.log("Sync key: \(k.0) error: \(e)")
+                                    failures += 1
+                                    concurrency -= 1
+                                    dispatch_group_leave(grp)
+                                }
+                                runner()
+                            }
+                        }
                         runner()
                     }
-                    if let k = jobs.popLast() {
-                        dispatch_group_enter(grp)
-                        concurrency += 1
-                        dispatch_async(dispatch_get_main_queue()) {
-                            do {
-                                try self.syncKey(k.0, remoteVersion: k.1, remoteTime: k.2, remoteErr: k.3,
-                                    completionHandler: { (err) in
-                                        if err != nil {
-                                            failures += 1
-                                        }
-                                        concurrency -= 1
-                                        dispatch_group_leave(grp)
-                                        runner()
-                                })
-                            } catch {
-                                failures += 1
-                            }
-                            concurrency -= 1
-                            dispatch_group_leave(grp)
-                            runner()
-                        }
-                    }
                 }
+                runner()
                 dispatch_group_wait(grp, DISPATCH_TIME_FOREVER)
                 self.syncRunning = false
                 self.log("Finished syncing in \(NSDate().timeIntervalSinceDate(startTime))")
+                completionHandler(failures > 0 ? .ReplicationError : nil)
             }
         }
     }
@@ -391,8 +401,15 @@ public class BRReplicatedKVStore {
         if try remoteVersion(key) == remoteVer {
             completionHandler(nil) // this key is already up to date
         }
-        
-        let (localVer, localTime, localDeleted, localValue) = try get(key)
+        var localVer: UInt64
+        var localTime: NSDate
+        var localDeleted: Bool
+        var localValue: [UInt8]
+        do {
+            (localVer, localTime, localDeleted, localValue) = try get(key)
+        } catch BRReplicatedKVStoreError.NotFound {
+            (localVer, localTime, localDeleted, localValue) = (0, NSDate(timeIntervalSince1970: Double()), false, [])
+        }
         switch remoteErr {
         case nil, .Some(.Tombstone):
             let (lt, rt) = (localTime.timeIntervalSince1970, remoteTime.timeIntervalSince1970)
@@ -441,11 +458,15 @@ public class BRReplicatedKVStore {
                     do {
                         let (newLocalVer, _) = try self.del(key, localVer: localVer)
                         try self.setRemoteVersion(key, localVer: newLocalVer, remoteVer: remoteVer)
+                    } catch BRReplicatedKVStoreError.NotFound {
+                        // well a deleted key isn't found, so why do we care
                     } catch let e where e is BRReplicatedKVStoreError {
                         return completionHandler((e as! BRReplicatedKVStoreError))
                     } catch {
                         return completionHandler(.ReplicationError)
                     }
+                    log("Remote key \(key) was removed locally")
+                    completionHandler(nil)
                 } else {
                     log("Remote key \(key) is newer, fetching...")
                     // get the remote version
