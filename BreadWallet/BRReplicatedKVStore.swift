@@ -780,7 +780,6 @@ extension NSDate {
     init(key: String, version: UInt64, lastModified: NSDate, deleted: Bool, data: NSData) {
         self.version = version
         self.key = key
-        self.version = version
         self.lastModified = lastModified
         self.deleted = deleted
         self.data = data

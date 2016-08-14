@@ -84,6 +84,27 @@ extension String {
     }
 }
 
+extension NSData {
+    var hexString : String {
+        let buf = UnsafePointer<UInt8>(bytes)
+        let charA = UInt8(UnicodeScalar("a").value)
+        let char0 = UInt8(UnicodeScalar("0").value)
+        
+        func itoh(i: UInt8) -> UInt8 {
+            return (i > 9) ? (charA + i - 10) : (char0 + i)
+        }
+        
+        let p = UnsafeMutablePointer<UInt8>.alloc(length * 2)
+        
+        for i in 0..<length {
+            p[i*2] = itoh((buf[i] >> 4) & 0xF)
+            p[i*2+1] = itoh(buf[i] & 0xF)
+        }
+        
+        return NSString(bytesNoCopy: p, length: length*2, encoding: NSUTF8StringEncoding, freeWhenDone: true) as! String
+    }
+}
+
 // this is lifted from: https://github.com/Fykec/NSDate-RFC1123/blob/master/NSDate%2BRFC1123.swift
 // Copyright © 2015 Foster Yin. All rights reserved.
 extension NSDate {
