@@ -96,36 +96,40 @@ typedef union _UInt128 {
 #define OP_HASH160     0xa9
 #define OP_CHECKSIG    0xac
 
-void SHA1(void *md, const void *data, size_t len);
-void SHA256(void *md, const void *data, size_t len);
-void SHA512(void *md, const void *data, size_t len);
-void RMD160(void *md, const void *data, size_t len);
-void MD5(void *md, const void *data, size_t len);
-void HMAC(void *md, void (*hash)(void *, const void *, size_t), size_t hlen, const void *key, size_t klen,
-          const void *data, size_t dlen);
-void PBKDF2(void *dk, size_t dklen, void (*hash)(void *, const void *, size_t), size_t hlen,
-            const void *pw, size_t pwlen, const void *salt, size_t slen, unsigned rounds);
+void SHA1(void *_Nonnull md, const void *_Nonnull data, size_t len);
+void SHA256(void *_Nonnull md, const void *_Nonnull data, size_t len);
+void SHA512(void *_Nonnull md, const void *_Nonnull data, size_t len);
+void RMD160(void *_Nonnull md, const void *_Nonnull data, size_t len);
+void MD5(void *_Nonnull md, const void *_Nonnull data, size_t len);
+void HMAC(void *_Nonnull md, void (*_Nonnull hash)(void *_Nonnull , const void *_Nonnull , size_t), size_t hlen,
+          const void *_Nonnull key, size_t klen, const void *_Nonnull data, size_t dlen);
+void PBKDF2(void *_Nonnull dk, size_t dklen, void (*_Nonnull hash)(void *_Nonnull , const void *_Nonnull , size_t),
+            size_t hlen, const void *_Nonnull pw, size_t pwlen, const void *_Nonnull salt, size_t slen,
+            unsigned rounds);
 
 // poly1305 authenticator: https://tools.ietf.org/html/rfc7539
 // must use constant time mem comparison when verifying mac to defend against timing attacks
-void poly1305(void *mac16, const void *key32, const void *data, size_t len);
+void poly1305(void *_Nonnull mac16, const void *_Nonnull key32, const void *_Nonnull data, size_t len);
 
 // chacha20 stream cypher: https://cr.yp.to/chacha.html
-void chacha20(void *out, const void *key32, const void *iv8, const void *data, size_t len, uint64_t counter);
+void chacha20(void *_Nonnull out, const void *_Nonnull key32, const void *_Nonnull iv8, const void *_Nonnull data,
+              size_t len, uint64_t counter);
 
 // chacha20-poly1305 authenticated encryption with associated data (AEAD): https://tools.ietf.org/html/rfc7539
-size_t chacha20Poly1305AEADEncrypt(void *out, size_t outLen, const void *key32, const void *nonce12,
-                                   const void *data, size_t dataLen, const void *ad, size_t adLen);
+size_t chacha20Poly1305AEADEncrypt(void *_Nullable out, size_t outLen, const void *_Nonnull key32,
+                                   const void *_Nonnull nonce12, const void *_Nonnull data, size_t dataLen,
+                                   const void *_Nonnull ad, size_t adLen);
 
-size_t chacha20Poly1305AEADDecrypt(void *out, size_t outLen, const void *key32, const void *nonce12,
-                                   const void *data, size_t dataLen, const void *ad, size_t adLen);
+size_t chacha20Poly1305AEADDecrypt(void *_Nullable out, size_t outLen, const void *_Nonnull key32,
+                                   const void *_Nonnull nonce12, const void *_Nonnull data, size_t dataLen,
+                                   const void *_Nonnull ad, size_t adLen);
 
 @interface NSData (Bitcoin)
 
-+ (instancetype)dataWithUInt256:(UInt256)n;
-+ (instancetype)dataWithUInt160:(UInt160)n;
-+ (instancetype)dataWithUInt128:(UInt128)n;
-+ (instancetype)dataWithBase58String:(NSString *)b58str;
++ (nonnull instancetype)dataWithUInt256:(UInt256)n;
++ (nonnull instancetype)dataWithUInt160:(UInt160)n;
++ (nonnull instancetype)dataWithUInt128:(UInt128)n;
++ (nonnull instancetype)dataWithBase58String:(NSString *_Nonnull)b58str;
 
 - (UInt160)SHA1;
 - (UInt256)SHA256;
@@ -135,20 +139,20 @@ size_t chacha20Poly1305AEADDecrypt(void *out, size_t outLen, const void *key32, 
 - (UInt160)RMD160;
 - (UInt160)hash160;
 - (UInt128)MD5;
-- (NSData *)reverse;
+- (NSData * _Nonnull)reverse;
 
 - (uint8_t)UInt8AtOffset:(NSUInteger)offset;
 - (uint16_t)UInt16AtOffset:(NSUInteger)offset;
 - (uint32_t)UInt32AtOffset:(NSUInteger)offset;
 - (uint64_t)UInt64AtOffset:(NSUInteger)offset;
-- (uint64_t)varIntAtOffset:(NSUInteger)offset length:(NSUInteger *)length;
+- (uint64_t)varIntAtOffset:(NSUInteger)offset length:(NSUInteger * _Nonnull)length;
 - (UInt256)hashAtOffset:(NSUInteger)offset;
-- (NSString *)stringAtOffset:(NSUInteger)offset length:(NSUInteger *)length;
-- (NSData *)dataAtOffset:(NSUInteger)offset length:(NSUInteger *)length;
+- (NSString *_Nullable)stringAtOffset:(NSUInteger)offset length:(NSUInteger *_Nonnull)length;
+- (NSData *_Nonnull)dataAtOffset:(NSUInteger)offset length:(NSUInteger *_Nonnull)length;
 
-- (NSArray *)scriptElements; // an array of NSNumber and NSData objects representing each script element
+- (NSArray *_Nonnull)scriptElements; // an array of NSNumber and NSData objects representing each script element
 - (int)intValue; // returns the opcode used to store the receiver in a script (i.e. OP_PUSHDATA1)
 
-- (NSString *)base58String;
+- (NSString *_Nonnull)base58String;
 
 @end
