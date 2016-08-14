@@ -100,6 +100,7 @@ class BRReplicatedKVStoreTest: XCTestCase {
         super.setUp()
         adapter = BRReplicatedKVStoreTestAdapter(testCase: self)
         store = try! BRReplicatedKVStore(encryptionKey: key, remoteAdaptor: adapter)
+        store.encryptedReplication = false
     }
     
     override func tearDown() {
@@ -376,5 +377,19 @@ class BRReplicatedKVStoreTest: XCTestCase {
         }
         waitForExpectationsWithTimeout(1, handler: nil)
         XCTAssertDatabasesAreSynced()
+    }
+    
+    func testEnableEncryptedReplication() {
+        adapter.db.removeAll()
+        store.encryptedReplication = true
+        
+        try! store.set("derp", value: [0, 1], localVer: 0)
+        let exp = expectationWithDescription("sync")
+        store.syncAllKeys { (err) in
+            XCTAssertNil(err)
+            exp.fulfill()
+        }
+        waitForExpectationsWithTimeout(1, handler: nil)
+        XCTAssertNotEqual(adapter.db["derp"]!.2, [0, 1])
     }
 }

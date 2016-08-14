@@ -99,6 +99,10 @@ public class BRReplicatedKVStore: NSObject {
     /// most operations will err out
     public var syncImmediately = false
     
+    /// Whether or not the data replicated to the serve is encrypted. Default value should always be yes,
+    /// this property should only be used for testing with non-sensitive data
+    public var encryptedReplication = true
+    
     private var path: NSURL {
         let fm = NSFileManager.defaultManager()
         let docsUrl = fm.URLsForDirectory(.DocumentDirectory, inDomains: .UserDomainMask).first!
@@ -566,6 +570,7 @@ public class BRReplicatedKVStore: NSObject {
         var localValue: [UInt8]
         do {
             (localVer, localTime, localDeleted, localValue) = try get(key)
+            localValue = self.encryptedReplication ? try encrypt(localValue) : localValue
         } catch BRReplicatedKVStoreError.NotFound {
             // missing key locally
             (localVer, localTime, localDeleted, localValue) = (0, NSDate(timeIntervalSince1970: Double()), false, [])
@@ -653,7 +658,8 @@ public class BRReplicatedKVStore: NSObject {
                             return completionHandler(.ReplicationError)
                         }
                         do {
-                            let (newLocalVer, _) = try self._set(key, value: remoteData, localVer: localVer)
+                            let decryptedValue = self.encryptedReplication ? try self.decrypt(remoteData) : remoteData
+                            let (newLocalVer, _) = try self._set(key, value: decryptedValue, localVer: localVer)
                             try self.setRemoteVersion(key, localVer: newLocalVer, remoteVer: newRemoteVer)
                         } catch let e where e is BRReplicatedKVStoreError {
                             return completionHandler((e as! BRReplicatedKVStoreError))
