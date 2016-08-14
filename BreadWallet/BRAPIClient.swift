@@ -537,7 +537,7 @@ func httpDateNow() -> String {
             guard let curBundleContents = NSData(contentsOfFile: bundlePath) else {
                 return handler(error: NSLocalizedString("error reading current bundle", comment: "")) }
             
-            let curBundleSha = NSData(UInt256: curBundleContents.SHA256())!.hexString
+            let curBundleSha = NSData(UInt256: curBundleContents.SHA256()).hexString
             
             dataTaskWithRequest(NSURLRequest(URL: url("/assets/bundles/\(bundleName)/versions")))
                 { (data, resp, err) -> Void in
@@ -600,7 +600,7 @@ func httpDateNow() -> String {
             log("bundle \(bundleName) doesn't exist, downloading new copy")
             let req = NSURLRequest(URL: url("/assets/bundles/\(bundleName)/download"))
             dataTaskWithRequest(req) { (data, response, err) -> Void in
-                if err != nil {
+                if err != nil || response?.statusCode != 200 {
                     return handler(error: NSLocalizedString("error fetching bundle: ", comment: "") + "\(err)")
                 }
                 if let data = data {

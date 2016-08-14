@@ -41,6 +41,11 @@ enum BRTarType {
     case Invalid
     
     init(fromData: NSData) {
+        if fromData.length <= 1 {
+            BRTar.log("invalid data")
+            self = Invalid
+            return
+        }
         let byte = UnsafePointer<CChar>(fromData.bytes)[0]
         switch byte {
         case CChar(48): // "0"
