@@ -250,6 +250,8 @@ performFetchWithCompletionHandler:(void (^)(UIBackgroundFetchResult))completionH
 - (void)updatePlatform {
     if ([WKWebView class]) { // platform features are only available on iOS 8.0+
         BRAPIClient *client = [BRAPIClient sharedClient];
+        
+        // set up bundles
 #if DEBUG
         NSArray *bundles = @[@"bread-buy-staging"];
 #else
@@ -265,7 +267,27 @@ performFetchWithCompletionHandler:(void (^)(UIBackgroundFetchResult))completionH
             }];
         }];
         
+        // set up feature flags
         [client updateFeatureFlags];
+        
+        // set up the kv store
+        BRKVStoreObject *obj;
+        NSError *kvErr = nil;
+        // store a sentinel so we can be sure the kv store replication is functioning properly
+        obj = [client.kv get:@"sentinel" error:&kvErr];
+        if (kvErr != nil) {
+            NSLog(@"Error getting sentinel, trying again. err=%@", kvErr);
+            obj = [[BRKVStoreObject alloc] initWithKey:@"sentinel" version:0 lastModified:[NSDate date]
+                                               deleted:false data:[NSData data]];
+        }
+        [client.kv set:obj error:&kvErr];
+        if (kvErr != nil) {
+            NSLog(@"Error setting kv object err=%@", kvErr);
+        }
+        
+        [client.kv sync:^(NSError * _Nullable err) {
+            NSLog(@"Finished syncing: error=%@", err);
+        }];
     }
 }
 
