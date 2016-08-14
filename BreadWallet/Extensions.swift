@@ -84,6 +84,10 @@ extension String {
     }
 }
 
+var BZCompressionBufferSize: UInt32 = 1024
+var BZDefaultBlockSize: Int32 = 7
+var BZDefaultWorkFactor: Int32 = 100
+
 extension NSData {
     var hexString : String {
         let buf = UnsafePointer<UInt8>(bytes)
@@ -102,6 +106,71 @@ extension NSData {
         }
         
         return NSString(bytesNoCopy: p, length: length*2, encoding: NSUTF8StringEncoding, freeWhenDone: true) as! String
+    }
+    
+    var bzCompressedData: NSData? {
+        get {
+            if self.length == 0 {
+                return self
+            }
+            var stream = bz_stream()
+            stream.next_in = UnsafeMutablePointer<Int8>(self.bytes)
+            stream.avail_in = UInt32(self.length)
+            let buffer = NSMutableData(length: Int(BZCompressionBufferSize))!
+            stream.next_out = UnsafeMutablePointer<Int8>(buffer.bytes)
+            stream.avail_out = BZCompressionBufferSize
+            var bzret = BZ2_bzCompressInit(&stream, BZDefaultBlockSize, 0, BZDefaultWorkFactor)
+            if bzret != BZ_OK {
+                print("failed compression init")
+                return nil
+            }
+            let compressed = NSMutableData()
+            repeat {
+                bzret = BZ2_bzCompress(&stream, stream.avail_in > 0 ? BZ_RUN : BZ_FINISH)
+                if bzret < BZ_OK {
+                    print("failed compress")
+                    return nil
+                }
+                compressed.appendBytes(buffer.bytes, length: (Int(BZCompressionBufferSize) - Int(stream.avail_out)))
+                stream.next_out = UnsafeMutablePointer<Int8>(buffer.bytes)
+                stream.avail_out = BZCompressionBufferSize
+            } while bzret != BZ_STREAM_END
+            BZ2_bzCompressEnd(&stream)
+            return compressed
+        }
+    }
+    
+    convenience init?(bzCompressedData data: NSData) {
+        if data.length == 0 {
+            self.init()
+            return
+        }
+        var stream = bz_stream()
+        stream.next_in = UnsafeMutablePointer<CChar>(data.bytes)
+        stream.avail_in = UInt32(data.length)
+        let buffer = [UInt8](count: Int(BZCompressionBufferSize), repeatedValue: 0)
+        stream.next_out = UnsafeMutablePointer<CChar>(buffer)
+        stream.avail_out = BZCompressionBufferSize
+        var bzret = BZ2_bzDecompressInit(&stream, 0, 0)
+        if bzret != BZ_OK {
+            print("failed decompress init")
+            self.init()
+            return
+        }
+        let decompressed = NSMutableData()
+        repeat {
+            bzret = BZ2_bzDecompress(&stream)
+            if bzret < BZ_OK {
+                print("failed decompress")
+                self.init()
+                return
+            }
+            decompressed.appendBytes(buffer, length: (Int(BZCompressionBufferSize) - Int(stream.avail_out)))
+            stream.next_out = UnsafeMutablePointer<CChar>(buffer)
+            stream.avail_out = BZCompressionBufferSize
+        } while bzret != BZ_STREAM_END
+        BZ2_bzDecompressEnd(&stream)
+        self.init(data: decompressed)
     }
 }
 
