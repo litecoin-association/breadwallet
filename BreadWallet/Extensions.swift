@@ -27,7 +27,7 @@
 import Foundation
 
 
-extension String {
+public extension String {
     func md5() -> String {
         let data = (self as NSString).dataUsingEncoding(NSUTF8StringEncoding)!
         let result = NSMutableData(length: Int(128/8))!
@@ -88,7 +88,7 @@ var BZCompressionBufferSize: UInt32 = 1024
 var BZDefaultBlockSize: Int32 = 7
 var BZDefaultWorkFactor: Int32 = 100
 
-extension NSData {
+public extension NSData {
     var hexString : String {
         let buf = UnsafePointer<UInt8>(bytes)
         let charA = UInt8(UnicodeScalar("a").value)
@@ -174,9 +174,17 @@ extension NSData {
     }
 }
 
-// this is lifted from: https://github.com/Fykec/NSDate-RFC1123/blob/master/NSDate%2BRFC1123.swift
-// Copyright © 2015 Foster Yin. All rights reserved.
-extension NSDate {
+public extension NSDate {
+    static func withMsTimestamp(ms: UInt64) -> NSDate {
+        return NSDate(timeIntervalSince1970: Double(ms) / 1000.0)
+    }
+    
+    func msTimestamp() -> UInt64 {
+        return UInt64((self.timeIntervalSince1970 < 0 ? 0 : self.timeIntervalSince1970) * 1000.0)
+    }
+
+    // this is lifted from: https://github.com/Fykec/NSDate-RFC1123/blob/master/NSDate%2BRFC1123.swift
+    // Copyright © 2015 Foster Yin. All rights reserved.
     private static func cachedThreadLocalObjectWithKey<T: AnyObject>(key: String, create: () -> T) -> T {
         let threadDictionary = NSThread.currentThread().threadDictionary
         if let cachedObject = threadDictionary[key] as! T? {

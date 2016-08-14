@@ -29,7 +29,7 @@ import Foundation
 
 // Txn metadata stores additional information about a given transaction
 
-@objc class _TXMetadata: NSObject, NSCoding {
+@objc class _TXMetadata: NSObject, BRCoding {
     var classVersion: Int = 1
     
     var blockHeight: Int = 0
@@ -37,44 +37,37 @@ import Foundation
     var exchangeRateCurrency: String = ""
     var confirmations: Int = 0
     var size: Int = 0
-    var firstConfirmation: NSDate = NSDate(timeIntervalSince1970: 0)
+    var created: NSDate = NSDate.zeroValue()
+    var firstConfirmation: NSDate = NSDate.zeroValue()
     
     override init() {
         super.init()
     }
     
-    required init?(coder decoder: NSCoder) {
-        guard let cv = decoder.decodeObjectForKey("classVersion") as? Int else {
+    required init?(coder decoder: BRCoder) {
+        classVersion = decoder.decode("classVersion")
+        if classVersion == Int.zeroValue() {
             print("Unable to unarchive _TXMetadata: no version")
             return nil
         }
-        classVersion = cv
-        if cv >= 1 {
-            guard let bh = decoder.decodeObjectForKey("blockHeight") as? Int,
-                er = decoder.decodeObjectForKey("exchangeRate") as? Int,
-                erc = decoder.decodeObjectForKey("exchangeRateCurrency") as? String,
-                conf = decoder.decodeObjectForKey("confirmations") as? Int,
-                s = decoder.decodeObjectForKey("size") as? Int,
-                fc = decoder.decodeObjectForKey("firstConfirmation") as? NSDate else {
-                    return nil
-            }
-            blockHeight = bh
-            exchangeRate = er
-            exchangeRateCurrency = erc
-            confirmations = conf
-            size = s
-            firstConfirmation = fc
-        }
+        blockHeight = decoder.decode("bh")
+        exchangeRate = decoder.decode("er")
+        exchangeRateCurrency = decoder.decode("erc")
+        confirmations = decoder.decode("conf")
+        size = decoder.decode("s")
+        firstConfirmation = decoder.decode("fconf")
+        created = decoder.decode("c")
     }
     
-    func encodeWithCoder(coder: NSCoder) {
-        coder.encodeObject(classVersion, forKey:  "classVersion")
-        coder.encodeObject(blockHeight, forKey: "blockHeight")
-        coder.encodeObject(exchangeRate, forKey: "exchangeRate")
-        coder.encodeObject(exchangeRateCurrency, forKey: "exchangeRateCurrency")
-        coder.encodeObject(confirmations, forKey: "confirmations")
-        coder.encodeObject(size, forKey: "size")
-        coder.encodeObject(firstConfirmation, forKey: "firstConfirmation")
+    func encode(coder: BRCoder) {
+        coder.encode(classVersion, key: "classVersion")
+        coder.encode(blockHeight, key: "blockHeight")
+        coder.encode(exchangeRate, key: "exchangeRate")
+        coder.encode(exchangeRateCurrency, key: "exchangeRateCurrency")
+        coder.encode(confirmations, key: "confirmations")
+        coder.encode(size, key: "size")
+        coder.encode(firstConfirmation, key: "firstConfirmation")
+        coder.encode(created, key: "created")
     }
 }
 
@@ -103,8 +96,13 @@ import Foundation
         get { return _meta.firstConfirmation }
         set(v) { _meta.firstConfirmation = v }
     }
+    var created: NSDate {
+        get { return _meta.created }
+        set(v) { _meta.created = v }
+    }
     
     // this is get and set by the `data` accessor
+    // if the data is invalid for some reason it create a fresh instance
     private var _meta: _TXMetadata!
     
     public override var data: NSData {

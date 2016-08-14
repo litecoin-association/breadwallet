@@ -758,16 +758,6 @@ public class BRReplicatedKVStore: NSObject {
     }
 }
 
-extension NSDate {
-    static func withMsTimestamp(ms: UInt64) -> NSDate {
-        return NSDate(timeIntervalSince1970: Double(ms) / 1000.0)
-    }
-    
-    func msTimestamp() -> UInt64 {
-        return UInt64((self.timeIntervalSince1970 < 0 ? 0 : self.timeIntervalSince1970) * 1000.0)
-    }
-}
-
 // MARK: - Objective-C compatability layer
 
 @objc public class BRKVStoreObject: NSObject {
