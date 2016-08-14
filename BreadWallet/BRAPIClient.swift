@@ -137,7 +137,7 @@ func buildRequestSigningString(r: NSMutableURLRequest) -> String {
     ]
     switch r.HTTPMethod {
     case "POST", "PUT", "PATCH":
-        if let d = r.HTTPBody {
+        if let d = r.HTTPBody where d.length > 0 {
             let sha = d.SHA256()
             parts[1] = NSData(UInt256: sha).base58String()
         }
