@@ -338,8 +338,8 @@ class BRReplicatedKVStoreTest: XCTestCase {
         }
         waitForExpectationsWithTimeout(1, handler: nil)
         XCTAssertDatabasesAreSynced()
-        let h = try! store.get("hello")
-        XCTAssertEqual(h.2, true)
+        let (_, _, h, _) = try! store.get("hello")
+        XCTAssertEqual(h, true)
         let exp3 = expectationWithDescription("sync3")
         store.syncAllKeys { (e) in
             XCTAssertNil(e)
@@ -367,8 +367,8 @@ class BRReplicatedKVStoreTest: XCTestCase {
         }
         waitForExpectationsWithTimeout(1, handler: nil)
         XCTAssertDatabasesAreSynced()
-        let h = try! store.get("hello")
-        XCTAssertEqual(h.3, [0, 1, 1, 1, 1, 1, 11 , 1, 1, 1, 1, 1, 0x8c])
+        let (_, _, _, b) = try! store.get("hello")
+        XCTAssertEqual(b, [0, 1, 1, 1, 1, 1, 11 , 1, 1, 1, 1, 1, 0x8c])
         let exp3 = expectationWithDescription("sync3")
         store.syncAllKeys { (e) in
             XCTAssertNil(e)

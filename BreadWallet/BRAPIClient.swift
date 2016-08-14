@@ -146,17 +146,6 @@ func buildRequestSigningString(r: NSMutableURLRequest) -> String {
     return parts.joinWithSeparator("\n")
 }
 
-var rfc1123DateFormatter: NSDateFormatter {
-    let fmt = NSDateFormatter()
-    fmt.timeZone = NSTimeZone(abbreviation: "GMT")
-    fmt.dateFormat = "EEE',' dd MMM yyyy HH':'mm':'ss 'GMT'";
-    fmt.locale = NSLocale(localeIdentifier: "en_US")
-    return fmt
-}
-
-func httpDateNow() -> String {
-    return rfc1123DateFormatter.stringFromDate(NSDate())
-}
 
 @objc public class BRAPIClient: NSObject, NSURLSessionDelegate, NSURLSessionTaskDelegate, BRAPIAdaptor {
     var logEnabled = true
@@ -209,7 +198,7 @@ func httpDateNow() -> String {
         let dateHeader = getHeaderValue("date", d: mutableRequest.allHTTPHeaderFields ?? Dictionary<String, String>())
         if dateHeader == nil {
             // add Date header if necessary
-            mutableRequest.setValue(httpDateNow(), forHTTPHeaderField: "Date")
+            mutableRequest.setValue(NSDate().RFC1123String(), forHTTPHeaderField: "Date")
         }
         if let manager = BRWalletManager.sharedInstance(), tokenData = manager.userAccount,
             token = tokenData["token"], authKey = getAuthKey() {
@@ -394,6 +383,7 @@ func httpDateNow() -> String {
     }
     
     // MARK: push notifications
+    
     public func savePushNotificationToken(token: NSData, pushNotificationType: String = "d") {
         let req = NSMutableURLRequest(URL: url("/me/push-devices"))
         req.HTTPMethod = "POST"
@@ -461,6 +451,168 @@ func httpDateNow() -> String {
     public func featureEnabled(flag: BRFeatureFlags) -> Bool {
         let defaults = NSUserDefaults.standardUserDefaults()
         return defaults.boolForKey(defaultsKeyForFeatureFlag(flag.description))
+    }
+    
+    // MARK: key value access
+    
+    private class KVStoreAdaptor: BRRemoteKVStoreAdaptor {
+        let client: BRAPIClient
+        
+        init(client: BRAPIClient) {
+            self.client = client
+        }
+        
+        func ver(key: String, completionFunc: (UInt64, NSDate, BRRemoteKVStoreError?) -> ()) {
+            let req = NSMutableURLRequest(URL: client.url("/kv/1/\(key)"))
+            req.HTTPMethod = "HEAD"
+            client.dataTaskWithRequest(req, authenticated: true, retryCount: 0) { (dat, resp, err) in
+                if let err = err {
+                    self.client.log("[KV] HEAD key=\(key) err=\(err)")
+                    return completionFunc(0, NSDate(timeIntervalSince1970: 0), .Unknown)
+                }
+                guard let resp = resp, v = self._extractVersion(resp), d = self._extractDate(resp) else {
+                    return completionFunc(0, NSDate(timeIntervalSince1970: 0), .Unknown)
+                }
+                completionFunc(v, d, self._extractErr(resp))
+            }.resume()
+        }
+        
+        func put(key: String, value: [UInt8], version: UInt64,
+                 completionFunc: (UInt64, NSDate, BRRemoteKVStoreError?) -> ()) {
+            let req = NSMutableURLRequest(URL: client.url("/kv/1/\(key)"))
+            req.HTTPMethod = "PUT"
+            req.addValue("\(version)", forHTTPHeaderField: "If-None-Match")
+            req.addValue("application/octet-stream", forHTTPHeaderField: "Content-Type")
+            req.addValue("\(value.count)", forHTTPHeaderField: "Content-Length")
+            var val = value
+            req.HTTPBody = NSData(bytes: &val, length: value.count)
+            client.dataTaskWithRequest(req, authenticated: true, retryCount: 0) { (dat, resp, err) in
+                if let err = err {
+                    self.client.log("[KV] PUT key=\(key) err=\(err)")
+                    return completionFunc(0, NSDate(timeIntervalSince1970: 0), .Unknown)
+                }
+                guard let resp = resp, v = self._extractVersion(resp), d = self._extractDate(resp) else {
+                    return completionFunc(0, NSDate(timeIntervalSince1970: 0), .Unknown)
+                }
+                completionFunc(v, d, self._extractErr(resp))
+            }.resume()
+        }
+        
+        func del(key: String, version: UInt64, completionFunc: (UInt64, NSDate, BRRemoteKVStoreError?) -> ()) {
+            let req = NSMutableURLRequest(URL: client.url("/kv/1/\(key)"))
+            req.HTTPMethod = "DELETE"
+            req.addValue("\(version)", forHTTPHeaderField: "If-None-Match")
+            client.dataTaskWithRequest(req, authenticated: true, retryCount: 0) { (dat, resp, err) in
+                if let err = err {
+                    self.client.log("[KV] DELETE key=\(key) err=\(err)")
+                    return completionFunc(0, NSDate(timeIntervalSince1970: 0), .Unknown)
+                }
+                guard let resp = resp, v = self._extractVersion(resp), d = self._extractDate(resp) else {
+                    return completionFunc(0, NSDate(timeIntervalSince1970: 0), .Unknown)
+                }
+                completionFunc(v, d, self._extractErr(resp))
+            }.resume()
+        }
+        
+        func get(key: String, version: UInt64, completionFunc: (UInt64, NSDate, [UInt8], BRRemoteKVStoreError?) -> ()) {
+            let req = NSMutableURLRequest(URL: client.url("/kv/1/\(key)"))
+            req.HTTPMethod = "GET"
+            req.addValue("\(version)", forHTTPHeaderField: "If-None-Match")
+            client.dataTaskWithRequest(req, authenticated: true, retryCount: 0) { (dat, resp, err) in
+                if let err = err {
+                    self.client.log("[KV] PUT key=\(key) err=\(err)")
+                    return completionFunc(0, NSDate(timeIntervalSince1970: 0), [], .Unknown)
+                }
+                guard let resp = resp, v = self._extractVersion(resp), d = self._extractDate(resp), dat = dat else {
+                    return completionFunc(0, NSDate(timeIntervalSince1970: 0), [], .Unknown)
+                }
+                let ud = UnsafePointer<UInt8>(dat.bytes)
+                let dp = UnsafeBufferPointer<UInt8>(start: ud, count: dat.length)
+                completionFunc(v, d, Array(dp), self._extractErr(resp))
+            }
+        }
+        
+        func keys(completionFunc: ([(String, UInt64, NSDate, BRRemoteKVStoreError?)], BRRemoteKVStoreError?) -> ()) {
+            let req = NSMutableURLRequest(URL: client.url("/kv/_all_keys"))
+            req.HTTPMethod = "GET"
+            client.dataTaskWithRequest(req, authenticated: true, retryCount: 0) { (dat, resp, err) in
+                if let err = err {
+                    self.client.log("[KV] KEYS err=\(err)")
+                    return completionFunc([], .Unknown)
+                }
+                guard let _ = resp, dat = dat else {
+                    return completionFunc([], .Unknown)
+                }
+                // data is encoded as:
+                // LE32(num) + (num * (LEU8(keyLeng) + (keyLen * LEU32(char)) + LEU64(ver) + LEU64(msTs) + LEU8(del)))
+                var i = UInt(sizeof(UInt32))
+                let c = dat.UInt32AtOffset(0)
+                var items = [(String, UInt64, NSDate, BRRemoteKVStoreError?)]()
+                for _ in 0..<c {
+                    let keyLen = UInt(dat.UInt32AtOffset(i))
+                    i += UInt(sizeof(UInt32))
+                    guard let key = NSString(data: dat.subdataWithRange(NSMakeRange(Int(i), Int(keyLen))),
+                                             encoding: NSUTF8StringEncoding) as? String else {
+                        self.client.log("Well crap. Failed to decode a string.")
+                        return completionFunc([], .Unknown)
+                    }
+                    i += keyLen
+                    let ver = dat.UInt64AtOffset(i)
+                    i += UInt(sizeof(UInt64))
+                    let date = NSDate.withMsTimestamp(dat.UInt64AtOffset(i))
+                    i += UInt(sizeof(UInt64))
+                    let deleted = dat.UInt8AtOffset(i) > 0
+                    i += UInt(sizeof(UInt8))
+                    items.append((key, ver, date, deleted ? .Tombstone : nil))
+                    self.client.log("keys: \(key) \(ver) \(date) \(deleted)")
+                }
+                completionFunc(items, nil)
+            }.resume()
+        }
+        
+        func _extractDate(r: NSHTTPURLResponse) -> NSDate? {
+            if let remDate = r.allHeaderFields["Last-Modified"] as? String, dateDate = NSDate.fromRFC1123(remDate) {
+                return dateDate
+            }
+            return nil
+        }
+        
+        func _extractVersion(r: NSHTTPURLResponse) -> UInt64? {
+            if let remVer = r.allHeaderFields["ETag"] as? String, verInt = UInt64(remVer) {
+                return verInt
+            }
+            return nil
+        }
+        
+        func _extractErr(r: NSHTTPURLResponse) -> BRRemoteKVStoreError? {
+            switch r.statusCode {
+            case 404:
+                return .NotFound
+            case 409:
+                return .Conflict
+            case 410:
+                return .Tombstone
+            case 200...399:
+                return nil
+            default:
+                return .Unknown
+            }
+        }
+    }
+    
+    private var _kvStore: BRReplicatedKVStore? = nil
+    
+    public var kv: BRReplicatedKVStore? {
+        get {
+            if let k = _kvStore {
+                return k
+            }
+            if let key = getAuthKey() {
+                _kvStore = try? BRReplicatedKVStore(encryptionKey: key, remoteAdaptor: KVStoreAdaptor(client: self))
+                return _kvStore
+            }
+            return nil
+        }
     }
     
     // MARK: Assets API

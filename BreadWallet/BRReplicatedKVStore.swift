@@ -32,6 +32,7 @@ public enum BRReplicatedKVStoreError: ErrorType {
     case AlreadyReplicating
     case Conflict
     case NotFound
+    case InvalidKey
     case Unknown
 }
 
@@ -42,16 +43,34 @@ public enum BRRemoteKVStoreError: ErrorType {
     case Unknown
 }
 
+/// An interface to a remote key value store which utilizes optimistic-locking for concurrency control
 public protocol BRRemoteKVStoreAdaptor {
+    /// Fetch the version of the key from the remote store
+    /// returns a tuple of (remoteVersion, remoteDate, remoteErr?)
     func ver(key: String, completionFunc: (UInt64, NSDate, BRRemoteKVStoreError?) -> ())
+    
+    /// Save a new version of the key to the remote server
+    /// takes the value and current remote version (zero if creating)
+    /// returns a tuple of (remoteVersion, remoteDate, remoteErr?)
     func put(key: String, value: [UInt8], version: UInt64,
              completionFunc: (UInt64, NSDate, BRRemoteKVStoreError?) -> ())
+    
+    /// Marks a key as deleted on the remote server
+    /// takes the current remote version (which same as put() must match the current servers time)
+    /// returns a tuple of (remoteVersion, remoteDate, remoteErr?)
     func del(key: String, version: UInt64, completionFunc: (UInt64, NSDate, BRRemoteKVStoreError?) -> ())
+    
+    /// Get a key from the server
+    /// takes the current remote version (which may optionally be zero to fetch the newest version)
+    /// returns a tuple of (remoteVersion, remoteDate, remoteBytes, remoteErr?)
     func get(key: String, version: UInt64, completionFunc: (UInt64, NSDate, [UInt8], BRRemoteKVStoreError?) -> ())
+    
+    /// Get a list of all keys on the remote server
+    /// returns a list of tuples of (remoteKey, remoteVersion, remoteDate, remoteErr?)
     func keys(completionFunc: ([(String, UInt64, NSDate, BRRemoteKVStoreError?)], BRRemoteKVStoreError?) -> ())
 }
 
-func dispatch_sync_throws(queue: dispatch_queue_t, f: () throws -> ()) throws {
+private func dispatch_sync_throws(queue: dispatch_queue_t, f: () throws -> ()) throws {
     var e: ErrorType? = nil
     dispatch_sync(queue) {
         do {
@@ -65,15 +84,20 @@ func dispatch_sync_throws(queue: dispatch_queue_t, f: () throws -> ()) throws {
     }
 }
 
-public class BRReplicatedKVStore {
+/// A key value store which can replicate its data to remote servers that utilizes optimistic locking for local
+/// concurrency control
+public class BRReplicatedKVStore: NSObject {
     private var db: COpaquePointer = nil // sqlite3*
     private(set) var key: BRKey
     private(set) var remote: BRRemoteKVStoreAdaptor
     private(set) var syncRunning = false
     private var dbQueue: dispatch_queue_t
+    private let keyRegex = try! NSRegularExpression(pattern: "^[^_][\\w-]{1,255}$", options: [])
     
     /// Whether or not we immediately sync a key when set() or del() is called
-    public var syncImmediately = true
+    /// by default it is off because only one sync can run at a time, and if you set or del a lot of keys
+    /// most operations will err out
+    public var syncImmediately = false
     
     private var path: NSURL {
         let fm = NSFileManager.defaultManager()
@@ -86,6 +110,7 @@ public class BRReplicatedKVStore {
         key = encryptionKey
         remote = remoteAdaptor
         dbQueue = dispatch_queue_create("com.voisine.breadwallet.kvDBQueue", DISPATCH_QUEUE_SERIAL)
+        super.init()
         try self.openDatabase()
         try self.migrateDatabase()
     }
@@ -148,6 +173,7 @@ public class BRReplicatedKVStore {
     
     // get a key from the local database, optionally specifying a version
     func get(key: String, version: UInt64 = 0) throws -> (UInt64, NSDate, Bool, [UInt8]) {
+        try checkKey(key)
         var ret = [UInt8]()
         var curVer: UInt64 = 0
         var deleted = false
@@ -200,6 +226,7 @@ public class BRReplicatedKVStore {
     /// after successfully saving locally, replicate to server. The `localVer` key must be the same as is currently
     /// stored in the database. To create a new key, pass `0` as `localVer`
     func set(key: String, value: [UInt8], localVer: UInt64) throws -> (UInt64, NSDate) {
+        try checkKey(key)
         let (newVer, time) = try _set(key, value: value, localVer: localVer)
         if syncImmediately {
             try syncKey(key) { _ in
@@ -232,7 +259,7 @@ public class BRReplicatedKVStore {
             sqlite3_bind_int64(stmt, 1, Int64(newVer))
             sqlite3_bind_text(stmt, 2, NSString(string: key).UTF8String, -1, nil)
             sqlite3_bind_blob(stmt, 3, encryptedData, Int32(encryptedData.count), nil)
-            sqlite3_bind_int64(stmt, 4, Int64(time.msTimestamp))
+            sqlite3_bind_int64(stmt, 4, Int64(time.msTimestamp()))
             sqlite3_bind_int(stmt, 5, 0)
             try self.checkErr(sqlite3_step(stmt), s: "set - step stmt")
         }
@@ -242,6 +269,7 @@ public class BRReplicatedKVStore {
     /// Mark a key as removed locally. If syncImmediately is true (the defualt) then immediately mark the key
     /// as removed on the server as well. `localVer` must match the most recent version in the local database.
     func del(key: String, localVer: UInt64) throws -> (UInt64, NSDate) {
+        try checkKey(key)
         let (newVer, time) = try _del(key, localVer: localVer)
         if syncImmediately {
             try syncKey(key) { _ in
@@ -276,7 +304,7 @@ public class BRReplicatedKVStore {
                 -1, &stmt, nil
             ), s: "del - prepare stmt")
             sqlite3_bind_int64(stmt, 1, Int64(newVer))
-            sqlite3_bind_int64(stmt, 2, Int64(time.msTimestamp))
+            sqlite3_bind_int64(stmt, 2, Int64(time.msTimestamp()))
             sqlite3_bind_int(stmt, 3, 1)
             sqlite3_bind_text(stmt, 4, NSString(string: key).UTF8String, -1, nil)
             sqlite3_bind_int64(stmt, 5, Int64(curVer))
@@ -287,6 +315,7 @@ public class BRReplicatedKVStore {
     
     /// Gets the local version of the provided key, or 0 if it doesn't exist
     func localVersion(key: String) throws -> (UInt64, NSDate) {
+        try checkKey(key)
         var retVer: UInt64 = 0
         var retTime = NSDate(timeIntervalSince1970: Double())
         try txn {
@@ -315,6 +344,7 @@ public class BRReplicatedKVStore {
     /// Get the remote version for the key for the most recent local version of the key, if stored.
     // If local key doesn't exist, return 0
     func remoteVersion(key: String) throws -> UInt64 {
+        try checkKey(key)
         var ret: UInt64 = 0
         try txn {
             var stmt: COpaquePointer = nil
@@ -333,6 +363,7 @@ public class BRReplicatedKVStore {
     
     /// Record the remote version for the object in a new version of the local key
     func setRemoteVersion(key: String, localVer: UInt64, remoteVer: UInt64) throws -> (UInt64, NSDate) {
+        try checkKey(key)
         if localVer < 1 {
             throw BRReplicatedKVStoreError.Conflict // setRemoteVersion can't be used for creates
         }
@@ -357,7 +388,7 @@ public class BRReplicatedKVStore {
                 -1, &stmt, nil
             ), s: "update remote version - prepare stmt")
             sqlite3_bind_int64(stmt, 1, Int64(newVer))
-            sqlite3_bind_int64(stmt, 2, Int64(time.msTimestamp))
+            sqlite3_bind_int64(stmt, 2, Int64(time.msTimestamp()))
             sqlite3_bind_int64(stmt, 3, Int64(remoteVer))
             sqlite3_bind_text(stmt, 4, NSString(string: key).UTF8String, -1, nil)
             sqlite3_bind_int64(stmt, 5, Int64(curVer))
@@ -403,6 +434,7 @@ public class BRReplicatedKVStore {
         return ret
     }
     
+    /// Sync all keys to and from the remote kv store adaptor
     func syncAllKeys(completionHandler: (BRReplicatedKVStoreError?) -> ()) {
         // update all keys locally and on the remote server, replacing missing keys
         //
@@ -421,12 +453,14 @@ public class BRReplicatedKVStore {
         remote.keys { (keyData, err) in
             if let err = err {
                 self.log("Error fetching remote key data: \(err)")
+                self.syncRunning = false
                 return completionHandler(.ReplicationError)
             }
             var localKeyData: [(String, UInt64, NSDate, UInt64, Bool)]
             do {
                 localKeyData = try self.localKeys()
             } catch let e {
+                self.syncRunning = false
                 self.log("Error getting local key data: \(e)")
                 return completionHandler(.ReplicationError)
             }
@@ -452,7 +486,7 @@ public class BRReplicatedKVStore {
                         dispatch_semaphore_wait(seph, DISPATCH_TIME_FOREVER)
                         dispatch_group_async(grp, q) {
                             do {
-                                try self.syncKey(k.0, remoteVersion: k.1, remoteTime: k.2, remoteErr: k.3,
+                                try self._syncKey(k.0, remoteVer: k.1, remoteTime: k.2, remoteErr: k.3,
                                     completionHandler: { (err) in
                                         if err != nil {
                                             failures += 1
@@ -480,13 +514,22 @@ public class BRReplicatedKVStore {
     /// Sync an individual key. Normally this is only called internally and you should call syncAllKeys
     func syncKey(key: String, remoteVersion: UInt64? = nil, remoteTime: NSDate? = nil,
                  remoteErr: BRRemoteKVStoreError? = nil, completionHandler: (BRReplicatedKVStoreError?) -> ()) throws {
+        try checkKey(key)
+        if syncRunning {
+            throw BRReplicatedKVStoreError.AlreadyReplicating
+        }
+        syncRunning = true
+        let myCompletionHandler: (e: BRReplicatedKVStoreError?) -> () = { e in
+            completionHandler(e)
+            self.syncRunning = false
+        }
         if let remoteVersion = remoteVersion, remoteTime = remoteTime {
             try _syncKey(key, remoteVer: remoteVersion, remoteTime: remoteTime,
-                         remoteErr: remoteErr, completionHandler: completionHandler)
+                         remoteErr: remoteErr, completionHandler: myCompletionHandler)
         } else {
             remote.ver(key) { (remoteVer, remoteTime, err) in
                 _ = try? self._syncKey(key, remoteVer: remoteVer, remoteTime: remoteTime,
-                                       remoteErr: remoteErr, completionHandler: completionHandler)
+                                       remoteErr: err, completionHandler: myCompletionHandler)
             }
         }
     }
@@ -505,12 +548,18 @@ public class BRReplicatedKVStore {
         // 3. if their last-modified date is newer than ours, overwrite ours
         // 4. if their last-modified date is older than ours, overwrite theirs
         
+        if !syncRunning {
+            throw BRReplicatedKVStoreError.Unknown // how did we get here
+        }
+        
         // one optimization is we keep the remote version on the most recent local version, if they match,
         // there is nothing to do
-        if try remoteVersion(key) == remoteVer {
+        let recordedRemoteVersion = try remoteVersion(key)
+        if remoteErr != .Some(.NotFound) && remoteVer > 0 && recordedRemoteVersion == remoteVer {
             log("Remote version of key \(key) is the same as the one we have")
-            completionHandler(nil) // this key is already up to date
+            return completionHandler(nil) // this key is already up to date
         }
+        
         var localVer: UInt64
         var localTime: NSDate
         var localDeleted: Bool
@@ -521,10 +570,10 @@ public class BRReplicatedKVStore {
             // missing key locally
             (localVer, localTime, localDeleted, localValue) = (0, NSDate(timeIntervalSince1970: Double()), false, [])
         }
+        let (lt, rt) = (localTime.msTimestamp(), remoteTime.msTimestamp())
+        
         switch remoteErr {
-        case nil, .Some(.Tombstone):
-            let (lt, rt) = (localTime.msTimestamp, remoteTime.msTimestamp)
-            
+        case nil, .Some(.Tombstone), .Some(.NotFound):
             if localDeleted && remoteErr == .Some(.Tombstone) { // was removed on both server and locally
                 log("Local key \(key) was deleted, and so was the remote key")
                 do {
@@ -659,6 +708,14 @@ public class BRReplicatedKVStore {
         }
     }
     
+    // validates the key. keys can not start with a _
+    private func checkKey(key: String) throws {
+        let m = keyRegex.matchesInString(key, options: [], range: NSMakeRange(0, key.characters.count))
+        if m.count != 1 {
+            throw BRReplicatedKVStoreError.InvalidKey
+        }
+    }
+    
     // encrypt some data using self.key
     private func encrypt(data: [UInt8]) throws -> [UInt8] {
         let inData = UnsafePointer<UInt8>(data)
@@ -690,7 +747,7 @@ public class BRReplicatedKVStore {
         return p + Array(buf)
     }
     
-    func log(s: String) {
+    private func log(s: String) {
         print("[KVStore] \(s)")
     }
 }
@@ -700,9 +757,56 @@ extension NSDate {
         return NSDate(timeIntervalSince1970: Double(ms) / 1000.0)
     }
     
-    var msTimestamp: UInt64 {
-        get {
-            return UInt64(timeIntervalSince1970 * 1000.0)
+    func msTimestamp() -> UInt64 {
+        return UInt64((self.timeIntervalSince1970 < 0 ? 0 : self.timeIntervalSince1970) * 1000.0)
+    }
+}
+
+// MARK: - Objective-C compatability layer
+
+@objc public class BRKVStoreObject: NSObject {
+    public var version: UInt64
+    public var lastModified: NSDate
+    public var deleted: Bool
+    public var key: String
+    public var data: NSData
+    
+    init(key: String, version: UInt64, lastModified: NSDate, deleted: Bool, data: NSData) {
+        self.version = version
+        self.key = key
+        self.version = version
+        self.lastModified = lastModified
+        self.deleted = deleted
+        self.data = data
+        super.init()
+    }
+}
+
+extension BRReplicatedKVStore {
+    @objc public func get(key: String) throws -> BRKVStoreObject {
+        let (v, d, r, b) = try get(key)
+        return BRKVStoreObject(key: key, version: v, lastModified: d, deleted: r,
+                               data: NSData(bytes: b, length: b.count))
+    }
+    
+    @objc public func set(object: BRKVStoreObject) throws -> BRKVStoreObject {
+        var bytes = [UInt8](count: object.data.length, repeatedValue: 0)
+        object.data.getBytes(&bytes, length: object.data.length)
+        (object.version, object.lastModified) = try set(object.key, value: bytes, localVer: object.version)
+        return object
+    }
+    
+    @objc public func del(object: BRKVStoreObject) throws -> BRKVStoreObject {
+        (object.version, object.lastModified) = try del(object.key, localVer: object.version)
+        object.deleted = true
+        return object
+    }
+    
+    @objc public func sync(completionFunc: (NSError?) -> ()) {
+        syncAllKeys { (e) in
+            completionFunc(
+                NSError(domain: "KV_STORE", code: -1001, userInfo: [NSLocalizedDescriptionKey: e.debugDescription])
+            )
         }
     }
 }
