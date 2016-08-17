@@ -50,9 +50,6 @@
 #define TICKER_URL           @"https://www.loshan.co.uk/api/v1/info"
 #define TICKER_FAILOVER_URL  @"https://litecoin.com/api/v1/ticker"
 
-#define USER_AGENT [NSString stringWithFormat:@"/loaf:%@/",\
-                    NSBundle.mainBundle.infoDictionary[@"CFBundleShortVersionString"]]
-
 #define SEED_ENTROPY_LENGTH   (128/8)
 #define SEC_ATTR_SERVICE      @"com.litecoin.loafwallet"
 #define DEFAULT_CURRENCY_CODE @"USD"
@@ -183,7 +180,7 @@ static BOOL setKeychainDict(NSDictionary *dict, NSString *key, BOOL authenticate
 {
     @autoreleasepool {
         NSData *d = (dict) ? [NSKeyedArchiver archivedDataWithRootObject:dict] : nil;
-        
+
         return setKeychainData(d, key, authenticated);
     }
 }
@@ -192,7 +189,7 @@ static NSDictionary *getKeychainDict(NSString *key, NSError **error)
 {
     @autoreleasepool {
         NSData *d = getKeychainData(key, error);
-        
+
         return (d) ? [NSKeyedUnarchiver unarchiveObjectWithData:d] : nil;
     }
 }
@@ -584,7 +581,7 @@ static NSDictionary *getKeychainDict(NSString *key, NSError **error)
 - (BOOL)authenticatePinWithTitle:(NSString *)title message:(NSString *)message
 {
     [BREventManager saveEvent:@"wallet_manager:pin_auth"];
-    
+
     NSError *error = nil;
     NSString *pin = getKeychainString(PIN_KEY, &error);
 
@@ -599,7 +596,7 @@ static NSDictionary *getKeychainDict(NSString *key, NSError **error)
         uint64_t failHeight = getKeychainInt(PIN_FAIL_HEIGHT_KEY, &error);
 
         if (error) return NO; // error reading failHeight from keychain
-        
+
         if (self.secureTime + NSTimeIntervalSince1970 < failHeight + pow(6, failCount - 3)*60.0) { // locked out
             NSTimeInterval wait = (failHeight + pow(6, failCount - 3)*60.0 -
                                    (self.secureTime + NSTimeIntervalSince1970))/60.0;
@@ -889,13 +886,12 @@ static NSDictionary *getKeychainDict(NSString *key, NSError **error)
 - (void)loadTicker:(NSString *)tickerURL withJSONKey:(NSString *)jsonKey failoverHandler:(void (^)())failover
 {
     if (self.reachability.currentReachabilityStatus == NotReachable) return;
-    
+
     NSMutableURLRequest *req = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:tickerURL]
                                 cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:10.0];
 
-    [req setValue:USER_AGENT forHTTPHeaderField:@"User-Agent"];
     NSLog(@"%@", req.URL.absoluteString);
-    
+
     [[[NSURLSession sharedSession] dataTaskWithRequest:req
     completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
         if (error) {
@@ -903,27 +899,27 @@ static NSDictionary *getKeychainDict(NSString *key, NSError **error)
             if (failover) failover();
             return;
         }
-        
+
         NSUserDefaults *defs = [NSUserDefaults standardUserDefaults];
         NSDictionary *json = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
         NSMutableArray *codes = [NSMutableArray array], *names = [NSMutableArray array], *rates =[NSMutableArray array];
-        
+
         if ([response isKindOfClass:[NSHTTPURLResponse class]]) { // store server timestamp
             NSString *date = ((NSHTTPURLResponse *)response).allHeaderFields[@"Date"];
             NSTimeInterval now = ([[NSDataDetector dataDetectorWithTypes:NSTextCheckingTypeDate error:nil]
                                    matchesInString:(date ? date : @"") options:0
                                    range:NSMakeRange(0, date.length)].lastObject).date.timeIntervalSinceReferenceDate;
-            
+
             if (now > self.secureTime) [defs setDouble:now forKey:SECURE_TIME_KEY];
         }
-        
+
         if (error || ! [json isKindOfClass:[NSDictionary class]] || ! [json[jsonKey] isKindOfClass:[NSArray class]]) {
             NSLog(@"unexpected response from %@:\n%@", req.URL.host,
                   [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
             if (failover) failover();
             return;
         }
-        
+
         for (NSDictionary *d in json[jsonKey]) {
             if (! [d isKindOfClass:[NSDictionary class]] || ! [d[@"code"] isKindOfClass:[NSString class]] ||
                 ! [d[@"code"] isKindOfClass:[NSString class]] || ! [d[@"n"] isKindOfClass:[NSNumber class]]) {
@@ -932,12 +928,12 @@ static NSDictionary *getKeychainDict(NSString *key, NSError **error)
                 if (failover) failover();
                 return;
             }
-            
+
             [codes addObject:d[@"code"]];
             [names addObject:d[@"code"]];
             [rates addObject:d[@"n"]];
         }
-        
+
         _currencyCodes = codes;
         _currencyNames = names;
         _currencyPrices = rates;
@@ -948,14 +944,14 @@ static NSDictionary *getKeychainDict(NSString *key, NSError **error)
         [defs synchronize];
         NSLog(@"exchange rate updated to %@/%@", [self localCurrencyStringForAmount:SATOSHIS],
               [self stringForAmount:SATOSHIS]);
-        
+
         dispatch_async(dispatch_get_main_queue(), ^{
             if (_wallet) {
                 [[NSNotificationCenter defaultCenter] postNotificationName:BRWalletBalanceChangedNotification
                  object:nil];
             }
         });
-        
+
         [self updateFeePerKb];
     }] resume];
 }
@@ -978,8 +974,7 @@ static NSDictionary *getKeychainDict(NSString *key, NSError **error)
 
     NSMutableURLRequest *req = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:FEE_PER_KB_URL]
                                 cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:10.0];
-    
-    [req setValue:USER_AGENT forHTTPHeaderField:@"User-Agent"];
+
     NSLog(@"%@", req.URL.absoluteString);
 
     [[[NSURLSession sharedSession] dataTaskWithRequest:req
@@ -988,7 +983,7 @@ static NSDictionary *getKeychainDict(NSString *key, NSError **error)
             NSLog(@"unable to fetch fee-per-kb: %@", error);
             return;
         }
-        
+
         NSDictionary *json = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
 
         if (error || ! [json isKindOfClass:[NSDictionary class]] ||
@@ -1000,7 +995,7 @@ static NSDictionary *getKeychainDict(NSString *key, NSError **error)
 
         uint64_t newFee = [json[@"fee_per_kb"] unsignedLongLongValue];
         NSUserDefaults *defs = [NSUserDefaults standardUserDefaults];
-        
+
         if (newFee >= MIN_FEE_PER_KB && newFee <= MAX_FEE_PER_KB && newFee != [defs doubleForKey:FEE_PER_KB_KEY]) {
             NSLog(@"setting new fee-per-kb %lld", newFee);
             [defs setDouble:newFee forKey:FEE_PER_KB_KEY]; // use setDouble since setInteger won't hold a uint64_t
@@ -1035,16 +1030,15 @@ completion:(void (^)(NSArray *utxos, NSArray *amounts, NSArray *scripts, NSError
                                 cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:20.0];
     NSMutableArray *args = [NSMutableArray array];
     NSMutableCharacterSet *charset = [[NSCharacterSet URLQueryAllowedCharacterSet] mutableCopy];
-    
+
     [charset removeCharactersInString:@"&="];
     [args addObject:[@"addrs=" stringByAppendingString:[[addresses componentsJoinedByString:@","]
                                                         stringByAddingPercentEncodingWithAllowedCharacters:charset]]];
-    [req setValue:USER_AGENT forHTTPHeaderField:@"User-Agent"];
     req.HTTPMethod = @"POST";
     req.HTTPBody = [[args componentsJoinedByString:@"&"] dataUsingEncoding:NSUTF8StringEncoding];
     NSLog(@"%@ POST: %@", req.URL.absoluteString,
           [[NSString alloc] initWithData:req.HTTPBody encoding:NSUTF8StringEncoding]);
-    
+
     [[[NSURLSession sharedSession] dataTaskWithRequest:req
     completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
         if (error) {

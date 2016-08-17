@@ -29,9 +29,6 @@
 #import "NSString+Bitcoin.h"
 #import "NSMutableData+Bitcoin.h"
 
-#define USER_AGENT [NSString stringWithFormat:@"/loaf:%@/",\
-                    NSBundle.mainBundle.infoDictionary[@"CFBundleShortVersionString"]]
-
 // BIP21 bitcoin URI object https://github.com/bitcoin/bips/blob/master/bip-0021.mediawiki
 @implementation BRPaymentRequest
 
@@ -53,7 +50,7 @@
 - (instancetype)initWithString:(NSString *)string
 {
     if (! (self = [super init])) return nil;
-    
+
     self.string = string;
     return self;
 }
@@ -82,25 +79,25 @@
     NSString *s = [[string stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]]
                    stringByReplacingOccurrencesOfString:@" " withString:@"%20"];
     NSURL *url = [NSURL URLWithString:s];
-    
+
     if (! url || ! url.scheme) {
         url = [NSURL URLWithString:[NSString stringWithFormat:@"litecoin://%@", s]];
     }
     else if (! url.host && url.resourceSpecifier) {
         url = [NSURL URLWithString:[NSString stringWithFormat:@"%@://%@", url.scheme, url.resourceSpecifier]];
     }
-    
+
     self.scheme = url.scheme;
-    
+
     if ([url.scheme isEqual:@"litecoin"]) {
         self.paymentAddress = url.host;
-    
+
         //TODO: correctly handle unknown but required url arguments (by reporting the request invalid)
         for (NSString *arg in [url.query componentsSeparatedByString:@"&"]) {
             NSArray *pair = [arg componentsSeparatedByString:@"="]; // if more than one '=', then pair[1] != value
 
             if (pair.count < 2) continue;
-        
+
             NSString *value = [[[arg substringFromIndex:[pair[0] length] + 1]
                                 stringByReplacingOccurrencesOfString:@"+" withString:@" "]
                                stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
@@ -132,10 +129,10 @@
     NSMutableString *s = [NSMutableString stringWithString:@"litecoin:"];
     NSMutableArray *q = [NSMutableArray array];
     NSMutableCharacterSet *charset = [[NSCharacterSet URLQueryAllowedCharacterSet] mutableCopy];
-    
+
     [charset removeCharactersInString:@"&="];
     if (self.paymentAddress) [s appendString:self.paymentAddress];
-    
+
     if (self.amount > 0) {
         [q addObject:[@"amount=" stringByAppendingString:[(id)[NSDecimalNumber numberWithUnsignedLongLong:self.amount]
                                                           decimalNumberByMultiplyingByPowerOf10:-8].stringValue]];
@@ -145,7 +142,7 @@
         [q addObject:[@"label=" stringByAppendingString:[self.label
          stringByAddingPercentEncodingWithAllowedCharacters:charset]]];
     }
-    
+
     if (self.message.length > 0) {
         [q addObject:[@"message=" stringByAppendingString:[self.message
          stringByAddingPercentEncodingWithAllowedCharacters:charset]]];
@@ -155,12 +152,12 @@
         [q addObject:[@"r=" stringByAppendingString:[self.r
          stringByAddingPercentEncodingWithAllowedCharacters:charset]]];
     }
-    
+
     if (q.count > 0) {
         [s appendString:@"?"];
         [s appendString:[q componentsJoinedByString:@"&"]];
     }
-    
+
     return s;
 }
 
@@ -198,17 +195,17 @@
 #endif
     NSData *name = [self.label dataUsingEncoding:NSUTF8StringEncoding];
     NSMutableData *script = [NSMutableData data];
-    
+
     [script appendScriptPubKeyForAddress:self.paymentAddress];
     if (script.length == 0) return nil;
-    
+
     BRPaymentProtocolDetails *details =
         [[BRPaymentProtocolDetails alloc] initWithNetwork:network outputAmounts:@[@(self.amount)]
          outputScripts:@[script] time:0 expires:0 memo:self.message paymentURL:nil merchantData:nil];
     BRPaymentProtocolRequest *request =
         [[BRPaymentProtocolRequest alloc] initWithVersion:1 pkiType:@"none" certs:(name ? @[name] : nil) details:details
          signature:nil];
-    
+
     return request;
 }
 
@@ -222,7 +219,6 @@ completion:(void (^)(BRPaymentProtocolRequest *req, NSError *error))completion
     NSMutableURLRequest *req = (u) ? [NSMutableURLRequest requestWithURL:u
                                       cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:timeout] : nil;
 
-    [req setValue:USER_AGENT forHTTPHeaderField:@"User-Agent"]; // BIP74 user-agent (bitpay, unpublished)
     [req setValue:@"application/litecoin-paymentrequest" forHTTPHeaderField:@"Accept"];
 //  [req addValue:@"text/uri-list" forHTTPHeaderField:@"Accept"]; // breaks some BIP72 implementations, notably bitpay's
 
@@ -238,14 +234,14 @@ completion:(void (^)(BRPaymentProtocolRequest *req, NSError *error))completion
             completion(nil, error);
             return;
         }
-    
+
         BRPaymentProtocolRequest *request = nil;
         NSString *network = @"main";
-        
+
 #if BITCOIN_TESTNET
         network = @"test";
 #endif
-        
+
         if ([response.MIMEType.lowercaseString isEqual:@"application/litecoin-paymentrequest"] && data.length <= 50000) {
             request = [BRPaymentProtocolRequest requestWithData:data];
         }
@@ -257,7 +253,7 @@ completion:(void (^)(BRPaymentProtocolRequest *req, NSError *error))completion
                 break;
             }
         }
-        
+
         if (! request) {
             NSLog(@"unexpected response from %@:\n%@", req.URL.host,
                   [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
@@ -280,17 +276,16 @@ completion:(void (^)(BRPaymentProtocolACK *ack, NSError *error))completion
     NSURL *u = [NSURL URLWithString:paymentURL];
     NSMutableURLRequest *req = (u) ? [NSMutableURLRequest requestWithURL:u
                                       cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:timeout] : nil;
-    
+
     if (! req) {
         if (completion) {
             completion(nil, [NSError errorWithDomain:@"LoafWallet" code:417
                              userInfo:@{NSLocalizedDescriptionKey:NSLocalizedString(@"bad payment URL", nil)}]);
         }
-        
+
         return;
     }
 
-    [req setValue:USER_AGENT forHTTPHeaderField:@"User-Agent"];
     [req setValue:@"application/litecoin-payment" forHTTPHeaderField:@"Content-Type"];
     [req addValue:@"application/litecoin-paymentack" forHTTPHeaderField:@"Accept"];
     req.HTTPMethod = @"POST";
@@ -302,9 +297,9 @@ completion:(void (^)(BRPaymentProtocolACK *ack, NSError *error))completion
             if (completion) completion(nil, error);
             return;
         }
-        
+
         BRPaymentProtocolACK *ack = nil;
-        
+
         if ([response.MIMEType.lowercaseString isEqual:@"application/litecoin-paymentack"] && data.length <= 50000) {
             ack = [BRPaymentProtocolACK ackWithData:data];
         }
