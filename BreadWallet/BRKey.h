@@ -59,7 +59,7 @@ int BRSecp256k1PointMul(BRECPoint * _Nonnull p, const UInt256 * _Nonnull i);
 @property (nullable, nonatomic, readonly) NSData *publicKey;
 @property (nullable, nonatomic, readonly) NSString *address;
 @property (nonatomic, readonly) UInt160 hash160;
-@property (nonatomic, readonly) UInt256 const * _Nullable secretKey;
+@property (nonatomic, readonly, nullable) const UInt256 *secretKey;
 
 + (nullable instancetype)keyWithPrivateKey:(nonnull NSString *)privateKey;
 + (nullable instancetype)keyWithSecret:(UInt256)secret compressed:(BOOL)compressed;
