@@ -36,7 +36,6 @@ import Foundation
     var blockHeight: Int = 0
     var exchangeRate: Int = 0
     var exchangeRateCurrency: String = ""
-    var confirmations: Int = 0
     var size: Int = 0
     var created: NSDate = NSDate.zeroValue()
     var firstConfirmation: NSDate = NSDate.zeroValue()
@@ -50,7 +49,6 @@ import Foundation
         blockHeight = decoder.decode("bh")
         exchangeRate = decoder.decode("er")
         exchangeRateCurrency = decoder.decode("erc")
-        confirmations = decoder.decode("conf")
         size = decoder.decode("s")
         firstConfirmation = decoder.decode("fconf")
         created = decoder.decode("c")
@@ -62,7 +60,6 @@ import Foundation
         coder.encode(blockHeight, key: "bh")
         coder.encode(exchangeRate, key: "er")
         coder.encode(exchangeRateCurrency, key: "erc")
-        coder.encode(confirmations, key: "conf")
         coder.encode(size, key: "s")
         coder.encode(firstConfirmation, key: "fconf")
         coder.encode(created, key: "c")
@@ -105,7 +102,6 @@ import Foundation
         blockHeight =           s.blockHeight
         exchangeRate =          s.exchangeRate
         exchangeRateCurrency =  s.exchangeRateCurrency
-        confirmations =         s.confirmations
         size =                  s.size
         firstConfirmation =     s.firstConfirmation
         created =               s.created
