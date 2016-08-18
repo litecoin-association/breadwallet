@@ -49,12 +49,12 @@ protocol BRCoding {
 
 // A basic analogue of NSKeyedArchiver, except it uses JSON and uses
 public class BRKeyedArchiver {
-    static func archivedDataWithRootObject(obj: BRCoding) -> NSData {
+    static func archivedDataWithRootObject(obj: BRCoding, compressed: Bool = true) -> NSData {
         let coder = BRCoder(data: [String : AnyObject]())
         obj.encode(coder)
         do {
             let j = try NSJSONSerialization.dataWithJSONObject(coder.data, options: [])
-            guard let bz = j.bzCompressedData else {
+            guard let bz = (compressed ? j.bzCompressedData : j) else {
                 print("compression error")
                 return NSData()
             }
@@ -68,9 +68,9 @@ public class BRKeyedArchiver {
 
 // A basic analogue of NSKeyedUnarchiver
 public class BRKeyedUnarchiver {
-    static func unarchiveObjectWithData<T: BRCoding>(data: NSData) -> T? {
+    static func unarchiveObjectWithData<T: BRCoding>(data: NSData, compressed: Bool = true) -> T? {
         do {
-            guard let bz = NSData(bzCompressedData: data),
+            guard let bz = (compressed ? NSData(bzCompressedData: data) : data),
                 j = try NSJSONSerialization.JSONObjectWithData(bz, options: []) as? [String: AnyObject] else {
                 print("BRKeyedUnarchiver invalid json object, or invalid bz data")
                 return nil
