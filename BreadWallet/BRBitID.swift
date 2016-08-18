@@ -132,7 +132,7 @@ import Security
             let uri = "\(scheme)://\(url.host!)\(url.path!)"
             
             // build a payload consisting of the signature, address and signed uri
-            let priv = BRKey(privateKey: seq.bitIdPrivateKey(BRBitID.DEFAULT_INDEX, forURI: uri, fromSeed: seed))!
+            let priv = BRKey(privateKey: seq.bitIdPrivateKey(BRBitID.DEFAULT_INDEX, forURI: uri, fromSeed: seed)!)!
             let uriWithNonce = "bitid://\(url.host!)\(url.path!)?x=\(nonce)"
             let signature = BRBitID.signMessage(uriWithNonce, usingKey: priv)
             let payload: [String: String] = [

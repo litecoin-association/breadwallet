@@ -91,6 +91,64 @@ import Foundation
                 return BRHTTPResponse(request: request, code: 400)
             }
         }
+        
+        // POST /_wallet/sign_bitid
+        //
+        // Sign a message using the user's BitID private key. Calling this WILL trigger authentication
+        //
+        // Request body: application/json
+        //      {
+        //          "prompt_string": "Sign in to My Service", // shown to the user in the authentication prompt
+        //          "string_to_sign": "https://bitid.org/bitid?x=2783408723", // the string to sign
+        //          "bitid_url": "https://bitid.org/bitid", // the bitid url for deriving the private key
+        //          "bitid_index": "0" // the bitid index as a string (just pass "0")
+        //      }
+        //
+        // Response body: application/json
+        //      {
+        //          "signature": "oibwaeofbawoefb" // base64-encoded signature
+        //      }
+        router.post("/_wallet/sign_bitid") { (request, match) -> BRHTTPResponse in
+            guard let cts = request.headers["content-type"] where cts.count == 1 && cts[0] == "application/json" else {
+                return BRHTTPResponse(request: request, code: 400)
+            }
+            guard let data = request.body(),
+                      j = try? NSJSONSerialization.JSONObjectWithData(data, options: []),
+                      json = j as? [String: String],
+                      promptString = json["prompt_string"],
+                      stringToSign = json["string_to_sign"],
+                      bitidUrlString = json["bitid_url"], bitidUrl = NSURL(string: bitidUrlString),
+                      bii = json["bitid_index"], bitidIndex = Int(bii) else {
+                return BRHTTPResponse(request: request, code: 400)
+            }
+            var maybeSeed: NSData?
+            dispatch_sync(dispatch_get_main_queue()) {
+                maybeSeed = self.manager.seedWithPrompt(promptString, forAmount: 0)
+            }
+            guard let seed = maybeSeed else {
+                return BRHTTPResponse(request: request, code: 401)
+            }
+            let seq = BRBIP32Sequence()
+            guard let kd = seq.bitIdPrivateKey(UInt32(bitidIndex), forURI: bitidUrl.description, fromSeed: seed),
+                      key = BRKey(privateKey: kd) else {
+                return BRHTTPResponse(request: request, code: 500)
+            }
+            let sig = BRBitID.signMessage(stringToSign, usingKey: key)
+            let ret: [String: AnyObject] = [
+                "signature": sig
+            ]
+            guard let jsonData = try? NSJSONSerialization.dataWithJSONObject(ret, options: []) else {
+                return BRHTTPResponse(request: request, code: 500)
+            }
+            var jsonBytes = [UInt8](count: jsonData.length, repeatedValue: 0)
+            jsonData.getBytes(&jsonBytes)
+            let headers: [String: [String]] = [
+                "Content-Type": ["application/json"]
+            ]
+            return BRHTTPResponse(
+                request: request, statusCode: 200, statusReason: "OK", headers: headers, body: jsonBytes
+            )
+        }
     }
     
     // MARK: - basic wallet functions
