@@ -769,16 +769,31 @@ public class BRReplicatedKVStore: NSObject {
     public var lastModified: NSDate
     public var deleted: Bool
     public var key: String
-    public var data: NSData
+    
+    private var _data: NSData? = nil
+    
+    var data: NSData {
+        get {
+            return getData() ?? _data ?? NSData() // allow subclasses to override the data that is retrieved
+        }
+        set(v) {
+            _data = v
+            dataWasSet(v)
+        }
+    }
     
     init(key: String, version: UInt64, lastModified: NSDate, deleted: Bool, data: NSData) {
         self.version = version
         self.key = key
         self.lastModified = lastModified
         self.deleted = deleted
-        self.data = data
         super.init()
+        self.data = data
     }
+    
+    func getData() -> NSData? { return nil }
+    
+    func dataWasSet(value: NSData) { }
 }
 
 extension BRReplicatedKVStore {
@@ -789,8 +804,9 @@ extension BRReplicatedKVStore {
     }
     
     @objc public func set(object: BRKVStoreObject) throws -> BRKVStoreObject {
-        var bytes = [UInt8](count: object.data.length, repeatedValue: 0)
-        object.data.getBytes(&bytes, length: object.data.length)
+        let dat = object.data
+        var bytes = [UInt8](count: dat.length, repeatedValue: 0)
+        dat.getBytes(&bytes, length: dat.length)
         (object.version, object.lastModified) = try set(object.key, value: bytes, localVer: object.version)
         return object
     }

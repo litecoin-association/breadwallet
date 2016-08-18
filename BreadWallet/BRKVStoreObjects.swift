@@ -68,24 +68,6 @@ import Foundation
         coder.encode(created, key: "c")
     }
     
-    public override var data: NSData {
-        get {
-            return BRKeyedArchiver.archivedDataWithRootObject(self)
-        }
-        set(v) {
-            print("set derp")
-            if let s: BRTxMetadataObject = BRKeyedUnarchiver.unarchiveObjectWithData(v) {
-                blockHeight = s.blockHeight
-                exchangeRate = s.exchangeRate
-                exchangeRateCurrency = s.exchangeRateCurrency
-                confirmations = s.confirmations
-                size = s.size
-                firstConfirmation = s.firstConfirmation
-                created = s.created
-            }
-        }
-    }
-    
     /// Find metadata object based on the txHash
     public init?(txHash: UInt256, store: BRReplicatedKVStore) {
         var ver: UInt64
@@ -99,9 +81,7 @@ import Foundation
             print("Unable to initialize BRTxMetadataObject: \(e)")
             return nil
         }
-        let bytesDat = withUnsafePointer(&bytes) { p in
-            NSData(bytes: p, length: bytes.count)
-        }
+        let bytesDat = NSData(bytes: &bytes, length: bytes.count)
         super.init(key: txHash.txKey, version: ver, lastModified: date, deleted: del, data: bytesDat)
     }
     
@@ -111,6 +91,24 @@ import Foundation
         super.init(key: transaction.txHash.txKey, version: 0, lastModified: NSDate(), deleted: false, data: NSData())
         blockHeight = Int(transaction.blockHeight)
         created = NSDate()
+    }
+    
+    override func getData() -> NSData? {
+        return BRKeyedArchiver.archivedDataWithRootObject(self)
+    }
+    
+    override func dataWasSet(value: NSData) {
+        guard let s: BRTxMetadataObject = BRKeyedUnarchiver.unarchiveObjectWithData(value) else {
+            print("unable to deserialise tx metadata")
+            return
+        }
+        blockHeight =           s.blockHeight
+        exchangeRate =          s.exchangeRate
+        exchangeRateCurrency =  s.exchangeRateCurrency
+        confirmations =         s.confirmations
+        size =                  s.size
+        firstConfirmation =     s.firstConfirmation
+        created =               s.created
     }
 }
 

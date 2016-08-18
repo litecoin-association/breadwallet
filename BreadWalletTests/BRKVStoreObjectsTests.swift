@@ -21,6 +21,9 @@ class BRKVStoreObjectsTests: XCTestCase {
     }
     
     override func tearDown() {
+        try! store.rmdb()
+        store = nil
+        adaptor = nil
         super.tearDown()
     }
 
