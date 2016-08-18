@@ -156,3 +156,10 @@ size_t chacha20Poly1305AEADDecrypt(void *_Nullable out, size_t outLen, const voi
 - (NSString *_Nonnull)base58String;
 
 @end
+
+
+@interface NSValue (Utils)
+
++ (nonnull instancetype)valueWithUInt256:(UInt256)uint;
+
+@end

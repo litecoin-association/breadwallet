@@ -840,3 +840,13 @@ size_t chacha20Poly1305AEADDecrypt(void *out, size_t outLen, const void *key32, 
 }
 
 @end
+
+
+@implementation NSValue (Utils)
+
++ (instancetype)valueWithUInt256:(UInt256)uint
+{
+    return [NSValue value:uint.u8 withObjCType:@encode(UInt256)];
+}
+
+@end
