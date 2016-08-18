@@ -540,9 +540,10 @@ func buildRequestSigningString(r: NSMutableURLRequest) -> String {
                     self.client.log("[KV] KEYS err=\(err)")
                     return completionFunc([], .Unknown)
                 }
-                guard let _ = resp, dat = dat else {
+                guard let resp = resp, dat = dat where resp.statusCode == 200 else {
                     return completionFunc([], .Unknown)
                 }
+                
                 // data is encoded as:
                 // LE32(num) + (num * (LEU8(keyLeng) + (keyLen * LEU32(char)) + LEU64(ver) + LEU64(msTs) + LEU8(del)))
                 var i = UInt(sizeof(UInt32))
