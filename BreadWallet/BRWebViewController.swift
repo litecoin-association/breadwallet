@@ -128,6 +128,9 @@ import WebKit
         // link plugin which allows opening links to other apps
         router.plugin(BRLinkPlugin())
         
+        // kvstore plugin provides access to the shared replicated kv store
+        router.plugin(BRKVStorePlugin(client: BRAPIClient.sharedClient))
+        
         // GET /_close closes the browser modal
         router.get("/_close") { (request, match) -> BRHTTPResponse in
             dispatch_async(dispatch_get_main_queue()) {
