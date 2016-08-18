@@ -20,6 +20,73 @@ protocol BREncodable {
     static func decode(value: AnyObject) -> Self
 }
 
+
+// An object which can encode and decode values
+public class BRCoder {
+    var data: [String: AnyObject]
+    
+    init(data: [String: AnyObject]) {
+        self.data = data
+    }
+    
+    func encode(obj: BREncodable, key: String) {
+        self.data[key] = obj.encode()
+    }
+    
+    func decode<T: BREncodable>(key: String) -> T {
+        guard let d = self.data[key] else {
+            return T.zeroValue()
+        }
+        return T.decode(d)
+    }
+}
+
+// An object which may be encoded/decoded using the archiving/unarchiving classes below
+protocol BRCoding {
+    init?(coder decoder: BRCoder)
+    func encode(coder: BRCoder)
+}
+
+// A basic analogue of NSKeyedArchiver, except it uses JSON and uses
+public class BRKeyedArchiver {
+    static func archivedDataWithRootObject(obj: BRCoding) -> NSData {
+        let coder = BRCoder(data: [String : AnyObject]())
+        obj.encode(coder)
+        do {
+            let j = try NSJSONSerialization.dataWithJSONObject(coder.data, options: [])
+            guard let bz = j.bzCompressedData else {
+                print("compression error")
+                return NSData()
+            }
+            return bz
+        } catch let e {
+            print("BRKeyedArchiver unable to archive object: \(e)")
+            return "{}".dataUsingEncoding(NSUTF8StringEncoding)!
+        }
+    }
+}
+
+// A basic analogue of NSKeyedUnarchiver
+public class BRKeyedUnarchiver {
+    static func unarchiveObjectWithData<T: BRCoding>(data: NSData) -> T? {
+        do {
+            guard let bz = NSData(bzCompressedData: data),
+                j = try NSJSONSerialization.JSONObjectWithData(bz, options: []) as? [String: AnyObject] else {
+                print("BRKeyedUnarchiver invalid json object, or invalid bz data")
+                return nil
+            }
+            let coder = BRCoder(data: j)
+            return T(coder: coder)
+        } catch let e {
+            print("BRKeyedUnarchiver unable to deserialize JSON: \(e)")
+            return nil
+        }
+        
+    }
+}
+
+// converters
+
 extension NSDate: BREncodable {
     func encode() -> AnyObject {
         return self.timeIntervalSinceReferenceDate
@@ -64,70 +131,5 @@ extension String: BREncodable {
     
     static func decode(s: AnyObject) -> String {
         return (s as? String) ?? self.zeroValue()
-    }
-}
-
-
-// An object which can encode and decode values
-class BRCoder {
-    var data: [String: AnyObject]
-    
-    init(data: [String: AnyObject]) {
-        self.data = data
-    }
-    
-    func encode(obj: BREncodable, key: String) {
-        self.data[key] = obj.encode()
-    }
-    
-    func decode<T: BREncodable>(key: String) -> T {
-        guard let d = self.data[key] else {
-            return T.zeroValue()
-        }
-        return T.decode(d)
-    }
-}
-
-// An object which may be encoded/decoded using the archiving/unarchiving classes below
-protocol BRCoding {
-    init?(coder decoder: BRCoder)
-    func encode(coder: BRCoder)
-}
-
-// A basic analogue of NSKeyedArchiver, except it uses JSON and uses
-class BRKeyedArchiver {
-    static func archivedDataWithRootObject(obj: BRCoding) -> NSData {
-        let coder = BRCoder(data: [String : AnyObject]())
-        obj.encode(coder)
-        do {
-            let j = try NSJSONSerialization.dataWithJSONObject(coder.data, options: [])
-            guard let bz = j.bzCompressedData else {
-                print("compression error")
-                return NSData()
-            }
-            return bz
-        } catch let e {
-            print("BRKeyedArchiver unable to archive object: \(e)")
-            return "{}".dataUsingEncoding(NSUTF8StringEncoding)!
-        }
-    }
-}
-
-// A basic analogue of NSKeyedUnarchiver
-class BRKeyedUnarchiver {
-    static func unarchiveObjectWithData<T: BRCoding>(data: NSData) -> T? {
-        do {
-            guard let bz = NSData(bzCompressedData: data),
-                j = try NSJSONSerialization.JSONObjectWithData(bz, options: []) as? [String: AnyObject] else {
-                print("BRKeyedUnarchiver invalid json object, or invalid bz data")
-                return nil
-            }
-            let coder = BRCoder(data: j)
-            return T(coder: coder)
-        } catch let e {
-            print("BRKeyedUnarchiver unable to deserialize JSON: \(e)")
-            return nil
-        }
-        
     }
 }

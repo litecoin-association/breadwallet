@@ -10,27 +10,53 @@ import XCTest
 @testable import breadwallet
 
 class BRKVStoreObjectsTests: XCTestCase {
+    var adaptor: BRReplicatedKVStoreTestAdapter!
+    var store: BRReplicatedKVStore!
+    var key = BRKey(privateKey: "S6c56bnXQiBjk9mqSYE7ykVQ7NzrRy")!
 
     override func setUp() {
         super.setUp()
-        // Put setup code here. This method is called before the invocation of each test method in the class.
+        adaptor = BRReplicatedKVStoreTestAdapter(testCase: self)
+        store = try! BRReplicatedKVStore(encryptionKey: key, remoteAdaptor: adaptor)
     }
     
     override func tearDown() {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
         super.tearDown()
     }
 
-    func testExample() {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
+    func getTxn() -> BRTransaction {
+        let script = NSMutableData()
+        let s = "0000000000000000000000000000000000000000000000000000000000000001".hexToData()
+        let p = UnsafeMutablePointer<UInt256>.alloc(sizeof(UInt256))
+        s.getBytes(p)
+        let sec = p.move()
+        let k = BRKey(secret: sec, compressed: true)!
+        let hash = NSValue(UInt256: UInt256(u64: (0, 0, 0, 0)))
+        script.appendScriptPubKeyForAddress(k.address)
+        let tx = BRTransaction(inputHashes: [hash], inputIndexes: [NSNumber(int: 0)], inputScripts: [script],
+                               outputAddresses: [k.address!, k.address!],
+                               outputAmounts: [NSNumber(int: 0), NSNumber(int: 0)])
+        tx.signWithPrivateKeys([k.privateKey!])
+        return tx
     }
-
-    func testPerformanceExample() {
-        // This is an example of a performance test case.
-        self.measureBlock {
-            // Put the code you want to measure the time of here.
+    
+    func testTxnMetadataGetSet() {
+        let tx = getTxn()
+        
+        let notThere = BRTxMetadataObject(txHash: tx.txHash, store: store)
+        XCTAssertNil(notThere)
+        
+        let newObj = BRTxMetadataObject(transaction: tx)
+        XCTAssertEqual(newObj.blockHeight, Int(tx.blockHeight))
+        try! store.set(newObj)
+        
+        guard let fetchedObj = BRTxMetadataObject(txHash: tx.txHash, store: store) else {
+            XCTFail()
+            return
         }
+        XCTAssertEqual(fetchedObj.blockHeight, Int(tx.blockHeight))
+        
+        let otherNewObj = BRTxMetadataObject(transaction: tx)
+        XCTAssertThrowsError(try store.set(otherNewObj))
     }
-
 }

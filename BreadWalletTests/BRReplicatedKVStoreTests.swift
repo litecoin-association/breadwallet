@@ -15,11 +15,6 @@ class BRReplicatedKVStoreTestAdapter: BRRemoteKVStoreAdaptor {
     
     init(testCase: XCTestCase) {
         self.testCase = testCase
-        db["hello"] = (1, NSDate(), [0, 1], false)
-        db["removed"] = (2, NSDate(), [0, 2], true)
-        for i in 1...20 {
-            db["testkey-\(i)"] = (1, NSDate(), [0, UInt8(i + 2)], false)
-        }
     }
     
     func keys(completionFunc: ([(String, UInt64, NSDate, BRRemoteKVStoreError?)], BRRemoteKVStoreError?) -> ()) {
@@ -99,6 +94,11 @@ class BRReplicatedKVStoreTest: XCTestCase {
     override func setUp() {
         super.setUp()
         adapter = BRReplicatedKVStoreTestAdapter(testCase: self)
+        adapter.db["hello"] = (1, NSDate(), [0, 1], false)
+        adapter.db["removed"] = (2, NSDate(), [0, 2], true)
+        for i in 1...20 {
+            adapter.db["testkey-\(i)"] = (1, NSDate(), [0, UInt8(i + 2)], false)
+        }
         store = try! BRReplicatedKVStore(encryptionKey: key, remoteAdaptor: adapter)
         store.encryptedReplication = false
     }

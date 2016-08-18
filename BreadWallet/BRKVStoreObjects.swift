@@ -29,7 +29,8 @@ import Foundation
 
 // Txn metadata stores additional information about a given transaction
 
-@objc class _TXMetadata: NSObject, BRCoding {
+
+@objc public class BRTxMetadataObject: BRKVStoreObject, BRCoding {
     var classVersion: Int = 1
     
     var blockHeight: Int = 0
@@ -40,11 +41,7 @@ import Foundation
     var created: NSDate = NSDate.zeroValue()
     var firstConfirmation: NSDate = NSDate.zeroValue()
     
-    override init() {
-        super.init()
-    }
-    
-    required init?(coder decoder: BRCoder) {
+    required public init?(coder decoder: BRCoder) {
         classVersion = decoder.decode("classVersion")
         if classVersion == Int.zeroValue() {
             print("Unable to unarchive _TXMetadata: no version")
@@ -57,87 +54,83 @@ import Foundation
         size = decoder.decode("s")
         firstConfirmation = decoder.decode("fconf")
         created = decoder.decode("c")
+        super.init(key: "", version: 0, lastModified: NSDate(), deleted: true, data: NSData())
     }
     
     func encode(coder: BRCoder) {
         coder.encode(classVersion, key: "classVersion")
-        coder.encode(blockHeight, key: "blockHeight")
-        coder.encode(exchangeRate, key: "exchangeRate")
-        coder.encode(exchangeRateCurrency, key: "exchangeRateCurrency")
-        coder.encode(confirmations, key: "confirmations")
-        coder.encode(size, key: "size")
-        coder.encode(firstConfirmation, key: "firstConfirmation")
-        coder.encode(created, key: "created")
+        coder.encode(blockHeight, key: "bh")
+        coder.encode(exchangeRate, key: "er")
+        coder.encode(exchangeRateCurrency, key: "erc")
+        coder.encode(confirmations, key: "conf")
+        coder.encode(size, key: "s")
+        coder.encode(firstConfirmation, key: "fconf")
+        coder.encode(created, key: "c")
     }
-}
-
-@objc public class BRTxMetadataObject: BRKVStoreObject {
-    var blockHeight: Int {
-        get { return _meta.blockHeight }
-        set(v) { _meta.blockHeight = v }
-    }
-    var exchangeRate: Int {
-        get { return _meta.exchangeRate }
-        set(v) { _meta.exchangeRate = v }
-    }
-    var exchangeRateCurrency: String {
-        get { return _meta.exchangeRateCurrency }
-        set(v) { _meta.exchangeRateCurrency = v }
-    }
-    var confirmations: Int {
-        get { return _meta.confirmations }
-        set(v) { _meta.confirmations = v }
-    }
-    var size: Int {
-        get { return _meta.size }
-        set(v) { _meta.size = v }
-    }
-    var firstConfirmation: NSDate {
-        get { return _meta.firstConfirmation }
-        set(v) { _meta.firstConfirmation = v }
-    }
-    var created: NSDate {
-        get { return _meta.created }
-        set(v) { _meta.created = v }
-    }
-    
-    // this is get and set by the `data` accessor
-    // if the data is invalid for some reason it create a fresh instance
-    private var _meta: _TXMetadata!
     
     public override var data: NSData {
         get {
-            return NSKeyedArchiver.archivedDataWithRootObject(_meta)
+            return BRKeyedArchiver.archivedDataWithRootObject(self)
         }
         set(v) {
-            _meta = (NSKeyedUnarchiver.unarchiveObjectWithData(v) as? _TXMetadata) ?? _TXMetadata()
+            print("set derp")
+            if let s: BRTxMetadataObject = BRKeyedUnarchiver.unarchiveObjectWithData(v) {
+                blockHeight = s.blockHeight
+                exchangeRate = s.exchangeRate
+                exchangeRateCurrency = s.exchangeRateCurrency
+                confirmations = s.confirmations
+                size = s.size
+                firstConfirmation = s.firstConfirmation
+                created = s.created
+            }
         }
     }
     
     /// Find metadata object based on the txHash
-    public init?(txHash: NSData, store: BRReplicatedKVStore) {
-        var sha = txHash.SHA256()
-        let txHashHash = NSData(bytes: &sha, length: sizeof(UInt256))
-        let key = "txm-\(txHashHash.hexString)"
+    public init?(txHash: UInt256, store: BRReplicatedKVStore) {
         var ver: UInt64
         var date: NSDate
         var del: Bool
         var bytes: [UInt8]
+        print("find \(txHash.txKey)")
         do {
-            (ver, date, del, bytes) = try store.get(key)
+            (ver, date, del, bytes) = try store.get(txHash.txKey)
         } catch let e {
             print("Unable to initialize BRTxMetadataObject: \(e)")
             return nil
         }
-        let bytesDat = NSData(bytes: &bytes, length: bytes.count)
-        super.init(key: key, version: ver, lastModified: date, deleted: del, data: bytesDat)
+        let bytesDat = withUnsafePointer(&bytes) { p in
+            NSData(bytes: p, length: bytes.count)
+        }
+        super.init(key: txHash.txKey, version: ver, lastModified: date, deleted: del, data: bytesDat)
     }
     
     /// Create new transaction metadata
     public init(transaction: BRTransaction) {
-        var sha = NSData(bytes: &transaction.txHash, length: sizeof(UInt256)).SHA256()
-        let txHashHash = NSData(bytes: &sha, length: sizeof(UInt256))
-        let k = "txm-\(txHashHash.hexString)"
-        super.init(key: k, version: 0, lastModified: NSDate(), deleted: false, data: NSData())
+        print("new \(transaction.txHash.txKey)")
+        super.init(key: transaction.txHash.txKey, version: 0, lastModified: NSDate(), deleted: false, data: NSData())
+        blockHeight = Int(transaction.blockHeight)
+        created = NSDate()
+    }
+}
+
+extension UInt256 {
+    var txKey: String {
+        get {
+            var u = self
+            return withUnsafePointer(&u) { p in
+                let bd = NSData(bytes: p, length: sizeofValue(p)).SHA256()
+                return "txn-\(bd.hexString)"
+            }
+        }
+    }
+    
+    var hexString: String {
+        get {
+            var u = self
+            return withUnsafePointer(&u, { p in
+                return NSData(bytes: p, length: sizeofValue(p)).hexString
+            })
+        }
     }
 }
