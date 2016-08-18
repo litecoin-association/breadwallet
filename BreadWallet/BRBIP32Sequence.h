@@ -34,18 +34,18 @@
 
 @interface BRBIP32Sequence : NSObject<BRKeySequence>
 
-- (NSData *)masterPublicKeyFromSeed:(NSData *)seed;
-- (NSData *)publicKey:(uint32_t)n internal:(BOOL)internal masterPublicKey:(NSData *)masterPublicKey;
-- (NSString *)privateKey:(uint32_t)n internal:(BOOL)internal fromSeed:(NSData *)seed;
-- (NSArray *)privateKeys:(NSArray *)n internal:(BOOL)internal fromSeed:(NSData *)seed;
+- (NSData * _Nullable)masterPublicKeyFromSeed:(NSData * _Nullable)seed;
+- (NSData * _Nullable)publicKey:(uint32_t)n internal:(BOOL)internal masterPublicKey:(NSData * _Nonnull)masterPublicKey;
+- (NSString * _Nullable)privateKey:(uint32_t)n internal:(BOOL)internal fromSeed:(NSData * _Nonnull)seed;
+- (NSArray * _Nullable)privateKeys:(NSArray * _Nonnull)n internal:(BOOL)internal fromSeed:(NSData * _Nonnull)seed;
 
 // key used for authenticated API calls, i.e. bitauth: https://github.com/bitpay/bitauth
-- (NSString *)authPrivateKeyFromSeed:(NSData *)seed;
+- (NSString * _Nullable)authPrivateKeyFromSeed:(NSData * _Nullable)seed;
 
 // key used for BitID: https://github.com/bitid/bitid/blob/master/BIP_draft.md
-- (NSString *)bitIdPrivateKey:(uint32_t)n forURI:(NSString *)uri fromSeed:(NSData *)seed;
+- (NSString * _Nullable)bitIdPrivateKey:(uint32_t)n forURI:(NSString * _Nonnull)uri fromSeed:(NSData * _Nonnull)seed;
 
-- (NSString *)serializedPrivateMasterFromSeed:(NSData *)seed;
-- (NSString *)serializedMasterPublicKey:(NSData *)masterPublicKey;
+- (NSString * _Nullable)serializedPrivateMasterFromSeed:(NSData * _Nullable)seed;
+- (NSString * _Nullable)serializedMasterPublicKey:(NSData * _Nonnull)masterPublicKey;
 
 @end
