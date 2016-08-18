@@ -103,6 +103,10 @@ public class BRReplicatedKVStore: NSObject {
     /// this property should only be used for testing with non-sensitive data
     public var encryptedReplication = true
     
+    
+    /// Whether the data is encrypted at rest on disk
+    public var encrypted = true
+    
     private var path: NSURL {
         let fm = NSFileManager.defaultManager()
         let docsUrl = fm.URLsForDirectory(.DocumentDirectory, inDomains: .UserDomainMask).first!
@@ -223,7 +227,7 @@ public class BRReplicatedKVStore: NSObject {
             deleted = sqlite3_column_int(stmt, 3) > 0
             ret = Array(UnsafeBufferPointer<UInt8>(start: UnsafePointer(blob), count: Int(blobLength)))
         }
-        return (curVer, time, deleted, try decrypt(ret))
+        return (curVer, time, deleted, (encrypted ? try decrypt(ret) : ret))
     }
     
     /// Set the value of a key locally in the database. If syncImmediately is true (the default) then immediately
@@ -251,7 +255,7 @@ public class BRReplicatedKVStore: NSObject {
             }
             self.log("SET key: \(key) ver: \(curVer)")
             newVer = curVer + 1
-            let encryptedData = try self.encrypt(value)
+            let encryptedData = self.encrypted ? try self.encrypt(value) : value
             var stmt: COpaquePointer = nil
             defer {
                 sqlite3_finalize(stmt)
