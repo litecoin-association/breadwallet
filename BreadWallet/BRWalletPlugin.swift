@@ -115,7 +115,6 @@ import Foundation
             guard let data = request.body(),
                       j = try? NSJSONSerialization.JSONObjectWithData(data, options: []),
                       json = j as? [String: String],
-                      promptString = json["prompt_string"],
                       stringToSign = json["string_to_sign"],
                       bitidUrlString = json["bitid_url"], bitidUrl = NSURL(string: bitidUrlString),
                       bii = json["bitid_index"], bitidIndex = Int(bii) else {
@@ -123,7 +122,7 @@ import Foundation
             }
             var maybeSeed: NSData?
             dispatch_sync(dispatch_get_main_queue()) {
-                maybeSeed = self.manager.seedWithPrompt(promptString, forAmount: 0)
+                maybeSeed = self.manager.seedWithPrompt((bitidUrl.host ?? bitidUrl.description), forAmount: 0)
             }
             guard let seed = maybeSeed else {
                 return BRHTTPResponse(request: request, code: 401)
