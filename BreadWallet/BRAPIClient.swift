@@ -176,6 +176,10 @@ func buildRequestSigningString(r: NSMutableURLRequest) -> String {
         print("[BRAPIClient] \(s)")
     }
     
+    var deviceId: String {
+        return getDeviceId()
+    }
+    
     // MARK: Networking functions
     
     // Constructs a full NSURL for a given path and url parameters

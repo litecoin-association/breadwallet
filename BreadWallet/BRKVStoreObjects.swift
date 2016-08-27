@@ -34,11 +34,12 @@ import Foundation
     var classVersion: Int = 1
     
     var blockHeight: Int = 0
-    var exchangeRate: Int = 0
+    var exchangeRate: Double = 0
     var exchangeRateCurrency: String = ""
+    var feeRate: Double = 0
     var size: Int = 0
     var created: NSDate = NSDate.zeroValue()
-    var firstConfirmation: NSDate = NSDate.zeroValue()
+    var deviceId: String = ""
     
     required public init?(coder decoder: BRCoder) {
         classVersion = decoder.decode("classVersion")
@@ -49,8 +50,9 @@ import Foundation
         blockHeight = decoder.decode("bh")
         exchangeRate = decoder.decode("er")
         exchangeRateCurrency = decoder.decode("erc")
+        feeRate = decoder.decode("fr")
         size = decoder.decode("s")
-        firstConfirmation = decoder.decode("fconf")
+        deviceId = decoder.decode("dId")
         created = decoder.decode("c")
         super.init(key: "", version: 0, lastModified: NSDate(), deleted: true, data: NSData())
     }
@@ -60,9 +62,10 @@ import Foundation
         coder.encode(blockHeight, key: "bh")
         coder.encode(exchangeRate, key: "er")
         coder.encode(exchangeRateCurrency, key: "erc")
+        coder.encode(feeRate, key: "fr")
         coder.encode(size, key: "s")
-        coder.encode(firstConfirmation, key: "fconf")
         coder.encode(created, key: "c")
+        coder.encode(deviceId, key: "dId")
     }
     
     /// Find metadata object based on the txHash
@@ -83,11 +86,17 @@ import Foundation
     }
     
     /// Create new transaction metadata
-    public init(transaction: BRTransaction) {
+    public init(transaction: BRTransaction, exchangeRate: Double, exchangeRateCurrency: String, feeRate: Double,
+                deviceId: String) {
         print("new \(transaction.txHash.txKey)")
         super.init(key: transaction.txHash.txKey, version: 0, lastModified: NSDate(), deleted: false, data: NSData())
-        blockHeight = Int(transaction.blockHeight)
-        created = NSDate()
+        self.blockHeight = Int(transaction.blockHeight)
+        self.created = NSDate()
+        self.size = Int(transaction.size)
+        self.exchangeRate = exchangeRate
+        self.exchangeRateCurrency = exchangeRateCurrency
+        self.feeRate = feeRate
+        self.deviceId = deviceId
     }
     
     override func getData() -> NSData? {
@@ -102,9 +111,10 @@ import Foundation
         blockHeight =           s.blockHeight
         exchangeRate =          s.exchangeRate
         exchangeRateCurrency =  s.exchangeRateCurrency
+        feeRate =               s.feeRate
         size =                  s.size
-        firstConfirmation =     s.firstConfirmation
         created =               s.created
+        deviceId =              s.deviceId
     }
 }
 

@@ -120,6 +120,20 @@ extension Int: BREncodable {
     }
 }
 
+extension Double: BREncodable {
+    func encode() -> AnyObject {
+        return self
+    }
+    
+    static func zeroValue() -> Double {
+        return 0.0
+    }
+    
+    static func decode(s: AnyObject) -> Double {
+        return (s as? Double) ?? self.zeroValue()
+    }
+}
+
 extension String: BREncodable {
     func encode() -> AnyObject {
         return self
