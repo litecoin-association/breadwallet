@@ -41,7 +41,7 @@ enum BRTarType {
     case Invalid
     
     init(fromData: NSData) {
-        if fromData.length <= 1 {
+        if fromData.length < 1 {
             BRTar.log("invalid data")
             self = Invalid
             return
