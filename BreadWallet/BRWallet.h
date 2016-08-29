@@ -141,9 +141,11 @@ typedef struct _BRUTXO {
 // true if tx is considered 0-conf safe (valid and not pending, timestamp is greater than 0, and no unverified inputs)
 - (BOOL)transactionIsVerified:(BRTransaction * _Nonnull)transaction;
 
-// set the block heights and timestamps for the given transactions, use a height of TX_UNCONFIRMED and timestamp of 0 to
-// indicate a transaction and it's dependents should remain marked as unverified (not 0-conf safe)
-- (void)setBlockHeight:(int32_t)height andTimestamp:(NSTimeInterval)timestamp forTxHashes:(NSArray * _Nonnull)txHashes;
+// sets the block heights and timestamps for the given transactions, and returns an array of hashes of the updated tx
+// use a height of TX_UNCONFIRMED and timestamp of 0 to indicate a transaction and it's dependents should remain marked
+// as unverified (not 0-conf safe)
+- (NSArray * _Nonnull)setBlockHeight:(int32_t)height andTimestamp:(NSTimeInterval)timestamp
+                         forTxHashes:(NSArray * _Nonnull)txHashes;
 
 // returns the amount received by the wallet from the transaction (total outputs to change and/or receive addresses)
 - (uint64_t)amountReceivedFromTransaction:(BRTransaction * _Nonnull)transaction;

@@ -731,7 +731,8 @@ static const char *dns_seeds[] = {
 
 - (void)setBlockHeight:(int32_t)height andTimestamp:(NSTimeInterval)timestamp forTxHashes:(NSArray *)txHashes
 {
-    [[BRWalletManager sharedInstance].wallet setBlockHeight:height andTimestamp:timestamp forTxHashes:txHashes];
+    NSArray *updatedTx = [[BRWalletManager sharedInstance].wallet setBlockHeight:height andTimestamp:timestamp
+                          forTxHashes:txHashes];
     
     if (height != TX_UNCONFIRMED) { // remove confirmed tx from publish list and relay counts
         [self.publishedTx removeObjectsForKeys:txHashes];
@@ -739,17 +740,14 @@ static const char *dns_seeds[] = {
         [self.txRelays removeObjectsForKeys:txHashes];
     }
     
-    for (NSValue *hash in txHashes) {
+    for (NSValue *hash in updatedTx) {
         BRTxMetadataObject *txm;
         UInt256 h;
         
         [hash getValue:&h];
         txm = [[BRTxMetadataObject alloc] initWithTxHash:h store:[BRAPIClient sharedClient].kv];
-
-        if (txm) {
-            txm.blockHeight = height;
-            [[BRAPIClient sharedClient].kv set:txm error:nil];
-        }
+        txm.blockHeight = height;
+        if (txm) [[BRAPIClient sharedClient].kv set:txm error:nil];
     }
 }
 

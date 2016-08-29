@@ -727,9 +727,9 @@ masterPublicKey:(NSData *)masterPublicKey seed:(NSData *(^)(NSString *authprompt
 
 // set the block heights and timestamps for the given transactions, use a height of TX_UNCONFIRMED and timestamp of 0 to
 // indicate a transaction and it's dependents should remain marked as unverified (not 0-conf safe)
-- (void)setBlockHeight:(int32_t)height andTimestamp:(NSTimeInterval)timestamp forTxHashes:(NSArray *)txHashes
+- (NSArray *)setBlockHeight:(int32_t)height andTimestamp:(NSTimeInterval)timestamp forTxHashes:(NSArray *)txHashes
 {
-    NSMutableArray *hashes = [NSMutableArray array];
+    NSMutableArray *hashes = [NSMutableArray array], *updated = [NSMutableArray array];
     BOOL needsUpdate = NO;
 
     if (height != TX_UNCONFIRMED && height > self.bestBlockHeight) self.bestBlockHeight = height;
@@ -745,6 +745,7 @@ masterPublicKey:(NSData *)masterPublicKey seed:(NSData *(^)(NSString *authprompt
         if ([self containsTransaction:tx]) {
             [hash getValue:&h];
             [hashes addObject:[NSData dataWithBytes:&h length:sizeof(h)]];
+            [updated addObject:hash];
             if ([self.pendingTx containsObject:hash] || [self.invalidTx containsObject:hash]) needsUpdate = YES;
         }
         else if (height != TX_UNCONFIRMED) [self.allTx removeObjectForKey:hash]; // remove confirmed non-wallet tx
@@ -791,6 +792,8 @@ masterPublicKey:(NSData *)masterPublicKey seed:(NSData *(^)(NSString *authprompt
             }
         }];
     }
+    
+    return updated;
 }
 
 // returns the amount received by the wallet from the transaction (total outputs to change and/or receive addresses)
