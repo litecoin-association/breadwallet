@@ -148,27 +148,47 @@ func buildRequestSigningString(r: NSMutableURLRequest) -> String {
 
 
 @objc public class BRAPIClient: NSObject, NSURLSessionDelegate, NSURLSessionTaskDelegate, BRAPIAdaptor {
+    // BRAPIClient is intended to be used as a singleton so this is the instance you should use
+    static let sharedClient = BRAPIClient()
+    
+    // whether or not to emit log messages from this instance of the client
     var logEnabled = true
+    
+    // proto is the transport protocol to use for talking to the API (either http or https)
     var proto = "https"
+    
+    // host is the server(s) on which the API is hosted
     var host = "api.breadwallet.com"
     
+    // isFetchingAuth is set to true when a request is currently trying to renew authentication (the token)
+    // it is useful because fetching auth is not idempotent and not reentrant, so at most one auth attempt
+    // can take place at any one time
+    private var isFetchingAuth = false
+    
+    // used when requests are waiting for authentication to be fetched
+    private var authFetchGroup: dispatch_group_t = dispatch_group_create()
+    
+    // storage for the session constructor below
     private var _session: NSURLSession? = nil
-    var session: NSURLSession {
+    
+    // the NSURLSession on which all NSURLSessionTasks are executed
+    private var session: NSURLSession {
         if _session == nil {
             let config = NSURLSessionConfiguration.defaultSessionConfiguration()
             _session = NSURLSession(configuration: config, delegate: self, delegateQueue: queue)
         }
         return _session!
     }
-    var queue = NSOperationQueue()
     
+    // the queue on which the NSURLSession operates
+    private var queue = NSOperationQueue()
+    
+    // convenience getter for the API endpoint
     var baseUrl: String {
         return "\(proto)://\(host)"
     }
     
-    // the singleton
-    static let sharedClient = BRAPIClient()
-    
+    // prints whatever you give it if logEnabled is true
     func log(s: String) {
         if !logEnabled {
             return
@@ -204,11 +224,13 @@ func buildRequestSigningString(r: NSMutableURLRequest) -> String {
             // add Date header if necessary
             mutableRequest.setValue(NSDate().RFC1123String(), forHTTPHeaderField: "Date")
         }
-        if let manager = BRWalletManager.sharedInstance(), tokenData = manager.userAccount,
-            token = tokenData["token"], authKey = getAuthKey() {
-            let sha = buildRequestSigningString(mutableRequest).dataUsingEncoding(NSUTF8StringEncoding)!.SHA256_2()
-            let sig = authKey.compactSign(sha)!.base58String()
-            mutableRequest.setValue("bread \(token):\(sig)", forHTTPHeaderField: "Authorization")
+        if let manager = BRWalletManager.sharedInstance(),
+            tokenData = manager.userAccount,
+            token = tokenData["token"],
+            authKey = getAuthKey(),
+            signingData = buildRequestSigningString(mutableRequest).dataUsingEncoding(NSUTF8StringEncoding),
+            sig = authKey.compactSign(signingData.SHA256_2()) {
+            mutableRequest.setValue("bread \(token):\(sig.base58String())", forHTTPHeaderField: "Authorization")
         }
         return mutableRequest.copy() as! NSURLRequest
     }
@@ -222,58 +244,71 @@ func buildRequestSigningString(r: NSMutableURLRequest) -> String {
         }
         let origRequest = request.mutableCopy() as! NSURLRequest
         var actualRequest = request
-        if authenticated && getAuthKey() != nil {
+        if authenticated {
             actualRequest = signRequest(request)
         }
         return session.dataTaskWithRequest(actualRequest) { (data, resp, err) -> Void in
-            let end = NSDate()
-            let dur = Int(end.timeIntervalSinceDate(start) * 1000)
-            if let httpResp = resp as? NSHTTPURLResponse {
-                var errStr = ""
-                if httpResp.statusCode >= 400 {
-                    if let data = data, s = NSString(data: data, encoding: NSUTF8StringEncoding) {
-                        errStr = s as String
+            dispatch_async(dispatch_get_main_queue()) {
+                let end = NSDate()
+                let dur = Int(end.timeIntervalSinceDate(start) * 1000)
+                if let httpResp = resp as? NSHTTPURLResponse {
+                    var errStr = ""
+                    if httpResp.statusCode >= 400 {
+                        if let data = data, s = NSString(data: data, encoding: NSUTF8StringEncoding) {
+                            errStr = s as String
+                        }
                     }
-                }
-                
-                self.log("\(logLine) -> status=\(httpResp.statusCode) duration=\(dur)ms errStr=\(errStr)")
-                
-                if authenticated && isBreadChallenge(httpResp) {
-                    self.log("got authentication challenge from API - will attempt to get token")
-                    self.getToken({ (err) -> Void in
-                        if err != nil && retryCount < 1 { // retry once
-                            self.log("error retrieving token: \(err) - will retry")
-                            dispatch_after(1, dispatch_get_main_queue(), { () -> Void in
+                    
+                    self.log("\(logLine) -> status=\(httpResp.statusCode) duration=\(dur)ms errStr=\(errStr)")
+                    
+                    if authenticated && isBreadChallenge(httpResp) {
+                        self.log("\(logLine) got authentication challenge from API - will attempt to get token")
+                        self.getToken { err in
+                            if err != nil && retryCount < 1 { // retry once
+                                self.log("\(logLine) error retrieving token: \(err) - will retry")
+                                dispatch_after(1, dispatch_get_main_queue()) {
+                                    self.dataTaskWithRequest(
+                                        origRequest, authenticated: authenticated,
+                                        retryCount: retryCount + 1, handler: handler
+                                        ).resume()
+                                }
+                            } else if err != nil && retryCount > 0 { // fail if we already retried
+                                self.log("\(logLine) error retrieving token: \(err) - will no longer retry")
+                                handler(nil, nil, err)
+                            } else if retryCount < 1 { // no error, so attempt the request again
+                                self.log("\(logLine) retrieved token, so retrying the original request")
                                 self.dataTaskWithRequest(
                                     origRequest, authenticated: authenticated,
                                     retryCount: retryCount + 1, handler: handler).resume()
-                            })
-                        } else if err != nil && retryCount > 0 { // fail if we already retried
-                            self.log("error retrieving token: \(err) - will no longer retry")
-                            handler(nil, nil, err)
-                        } else if retryCount < 1 { // no error, so attempt the request again
-                            self.log("retrieved token, so retrying the original request")
-                            self.dataTaskWithRequest(
-                                origRequest, authenticated: authenticated,
-                                retryCount: retryCount + 1, handler: handler).resume()
-                        } else {
-                            self.log("retried token multiple times, will not retry again")
-                            handler(data, httpResp, err)
+                            } else {
+                                self.log("\(logLine) retried token multiple times, will not retry again")
+                                handler(data, httpResp, err)
+                            }
                         }
-                    })
+                    } else {
+                        handler(data, httpResp, err)
+                    }
                 } else {
-                    handler(data, httpResp, err)
+                    self.log("\(logLine) encountered connection error \(err)")
+                    handler(data, nil, err)
                 }
-            } else {
-                self.log("\(logLine) encountered connection error \(err)")
-                handler(data, nil, err)
             }
         }
     }
     
     // retrieve a token and save it in the keychain data for this account
-    func getToken(handler: (NSError?) -> Void) -> Void {
-        if getAuthKey() == nil {
+    func getToken(handler: (NSError?) -> Void) {
+        if isFetchingAuth {
+            log("already fetching auth, waiting...")
+            dispatch_group_notify(authFetchGroup, dispatch_get_main_queue()) {
+                handler(nil)
+            }
+            return
+        }
+        isFetchingAuth = true
+        log("auth: entering group")
+        dispatch_group_enter(authFetchGroup)
+        guard let authKey = getAuthKey(), authPubKey = authKey.publicKey else {
             return handler(NSError(domain: BRAPIClientErrorDomain, code: 500, userInfo: [
                 NSLocalizedDescriptionKey: NSLocalizedString("Wallet not ready", comment: "")]))
         }
@@ -282,48 +317,54 @@ func buildRequestSigningString(r: NSMutableURLRequest) -> String {
         req.setValue("application/json", forHTTPHeaderField: "Content-Type")
         req.setValue("application/json", forHTTPHeaderField: "Accept")
         let reqJson = [
-            "pubKey": getAuthKey()!.publicKey!.base58String(),
+            "pubKey": authPubKey.base58String(),
             "deviceID": getDeviceId()
         ]
         do {
-            let dat = try NSJSONSerialization.dataWithJSONObject(reqJson, options: .PrettyPrinted)
+            let dat = try NSJSONSerialization.dataWithJSONObject(reqJson, options: [])
             req.HTTPBody = dat
-        } catch (let e) {
+        } catch let e {
             log("JSON Serialization error \(e)")
+            isFetchingAuth = false
+            dispatch_group_leave(authFetchGroup)
             return handler(NSError(domain: BRAPIClientErrorDomain, code: 500, userInfo: [
                 NSLocalizedDescriptionKey: NSLocalizedString("JSON Serialization Error", comment: "")]))
         }
-        let task = session.dataTaskWithRequest(req) { (data, resp, err) -> Void in
-            if let httpResp = resp as? NSHTTPURLResponse {
-                // unsuccessful response from the server
-                if httpResp.statusCode != 200 {
-                    if let data = data {
-                        if let s = String(data: data, encoding: NSUTF8StringEncoding) {
+        session.dataTaskWithRequest(req) { (data, resp, err) in
+            dispatch_async(dispatch_get_main_queue()) {
+                if let httpResp = resp as? NSHTTPURLResponse {
+                    // unsuccessful response from the server
+                    if httpResp.statusCode != 200 {
+                        if let data = data, s = String(data: data, encoding: NSUTF8StringEncoding) {
                             self.log("Token error: \(s)")
                         }
-                    }
-                    return handler(NSError(domain: BRAPIClientErrorDomain, code: httpResp.statusCode, userInfo: [
+                        self.isFetchingAuth = false
+                        dispatch_group_leave(self.authFetchGroup)
+                        return handler(NSError(domain: BRAPIClientErrorDomain, code: httpResp.statusCode, userInfo: [
                             NSLocalizedDescriptionKey: NSLocalizedString("Unable to retrieve API token", comment: "")]))
-                }
-            }
-            if let data = data {
-                do {
-                    let json = try NSJSONSerialization.JSONObjectWithData(data, options: .AllowFragments)
-                    self.log("POST /token: \(json)")
-                    if let topObj = json as? NSDictionary,
-                        tok = topObj["token"] as? NSString,
-                        uid = topObj["userID"] as? NSString {
-                        // success! store it in the keychain
-                        let kcData = ["token": tok, "userID": uid]
-                        BRWalletManager.sharedInstance()!.userAccount = kcData
                     }
-                } catch let e {
-                    self.log("JSON Deserialization error \(e)")
                 }
+                if let data = data {
+                    do {
+                        let json = try NSJSONSerialization.JSONObjectWithData(data, options: .AllowFragments)
+                        self.log("POST /token json response: \(json)")
+                        if let topObj = json as? NSDictionary,
+                            tok = topObj["token"] as? NSString,
+                            uid = topObj["userID"] as? NSString,
+                            walletManager = BRWalletManager.sharedInstance() {
+                            // success! store it in the keychain
+                            let kcData = ["token": tok, "userID": uid]
+                            walletManager.userAccount = kcData
+                        }
+                    } catch let e {
+                        self.log("JSON Deserialization error \(e)")
+                    }
+                }
+                self.isFetchingAuth = false
+                dispatch_group_leave(self.authFetchGroup)
+                handler(err)
             }
-            handler(err)
-        }
-        task.resume()
+        }.resume()
     }
     
     // MARK: URLSession Delegate
