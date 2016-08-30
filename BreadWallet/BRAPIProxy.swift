@@ -49,7 +49,7 @@ import Foundation
         ]
     }
     
-    var bannedReceiveHeaders: [String] = ["content-length", "connection"]
+    var bannedReceiveHeaders: [String] = ["content-length", "content-encoding", "connection"]
     
     init(mountAt: String, client: BRAPIClient) {
         mountPoint = mountAt
