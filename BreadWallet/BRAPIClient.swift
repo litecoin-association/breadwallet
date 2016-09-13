@@ -667,8 +667,8 @@ func buildRequestSigningString(r: NSMutableURLRequest) -> String {
         let fm = NSFileManager.defaultManager()
         let docsUrl = fm.URLsForDirectory(.DocumentDirectory, inDomains: .UserDomainMask).first!
         let bundleDirUrl = docsUrl.URLByAppendingPathComponent("bundles", isDirectory: true)
-        let bundleUrl = bundleDirUrl.URLByAppendingPathComponent("\(bundleName)-extracted", isDirectory: true)
-        return bundleUrl
+        let bundleUrl = bundleDirUrl!.URLByAppendingPathComponent("\(bundleName)-extracted", isDirectory: true)
+        return bundleUrl!
     }
     
     public func updateBundle(bundleName: String, handler: (error: String?) -> Void) {
@@ -685,11 +685,11 @@ func buildRequestSigningString(r: NSMutableURLRequest) -> String {
         let fm = NSFileManager.defaultManager()
         let docsUrl = fm.URLsForDirectory(.DocumentDirectory, inDomains: .UserDomainMask).first!
         let bundleDirUrl = docsUrl.URLByAppendingPathComponent("bundles", isDirectory: true)
-        let bundleUrl = bundleDirUrl.URLByAppendingPathComponent("\(bundleName).tar")
-        let bundleDirPath = bundleDirUrl.path!
-        let bundlePath = bundleUrl.path!
-        let bundleExtractedUrl = bundleDirUrl.URLByAppendingPathComponent("\(bundleName)-extracted")
-        let bundleExtractedPath = bundleExtractedUrl.path!
+        let bundleUrl = bundleDirUrl!.URLByAppendingPathComponent("\(bundleName).tar")
+        let bundleDirPath = bundleDirUrl!.path!
+        let bundlePath = bundleUrl!.path!
+        let bundleExtractedUrl = bundleDirUrl!.URLByAppendingPathComponent("\(bundleName)-extracted")
+        let bundleExtractedPath = bundleExtractedUrl!.path!
         print("[BRAPIClient] bundleUrl \(bundlePath)")
         
         // determines if the bundle exists, but also creates the bundles/extracted directory if it doesn't exist
@@ -719,7 +719,7 @@ func buildRequestSigningString(r: NSMutableURLRequest) -> String {
         if !bundleExists {
             if let bundledBundleUrl = NSBundle.mainBundle().URLForResource(bundleName, withExtension: "tar") {
                 do {
-                    try fm.copyItemAtURL(bundledBundleUrl, toURL: bundleUrl)
+                    try fm.copyItemAtURL(bundledBundleUrl, toURL: bundleUrl!)
                     bundleExists = true
                     log("used bundled bundle for \(bundleName)")
                 } catch let e {
@@ -759,8 +759,8 @@ func buildRequestSigningString(r: NSMutableURLRequest) -> String {
                                     self.url("/assets/bundles/\(bundleName)/diff/\(curBundleSha)"))
                                 self.dataTaskWithRequest(req, handler: { (diffDat, diffResp, diffErr) -> Void in
                                     if let diffDat = diffDat,
-                                        diffPath = bundleDirUrl.URLByAppendingPathComponent("\(bundleName).diff").path,
-                                        oldBundlePath = bundleDirUrl.URLByAppendingPathComponent("\(bundleName).old").path
+                                        diffPath = bundleDirUrl!.URLByAppendingPathComponent("\(bundleName).diff")!.path,
+                                        oldBundlePath = bundleDirUrl!.URLByAppendingPathComponent("\(bundleName).old")!.path
                                     where diffErr == nil {
                                         do {
                                             if fm.fileExistsAtPath(diffPath) {

@@ -1,41 +1,41 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="10174" systemVersion="15F34" minimumToolsVersion="Automatic">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="11232" systemVersion="15G1004" minimumToolsVersion="Xcode 7.3" sourceLanguage="Objective-C" userDefinedModelVersionIdentifier="">
     <entity name="BRAddressEntity" representedClassName="BRAddressEntity" syncable="YES">
         <attribute name="address" optional="YES" attributeType="String" indexed="YES" syncable="YES"/>
-        <attribute name="index" attributeType="Integer 32" defaultValueString="0" indexed="YES" syncable="YES"/>
-        <attribute name="internal" attributeType="Boolean" defaultValueString="0" indexed="YES" syncable="YES"/>
+        <attribute name="index" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="NO" indexed="YES" syncable="YES"/>
+        <attribute name="internal" attributeType="Boolean" defaultValueString="0" usesScalarValueType="NO" indexed="YES" syncable="YES"/>
     </entity>
     <entity name="BRMerkleBlockEntity" representedClassName="BRMerkleBlockEntity" syncable="YES">
         <attribute name="blockHash" attributeType="Binary" indexed="YES" syncable="YES"/>
         <attribute name="flags" optional="YES" attributeType="Binary" syncable="YES"/>
         <attribute name="hashes" optional="YES" attributeType="Binary" syncable="YES"/>
-        <attribute name="height" optional="YES" attributeType="Integer 32" defaultValueString="2147483647" indexed="YES" syncable="YES"/>
+        <attribute name="height" optional="YES" attributeType="Integer 32" defaultValueString="2147483647" usesScalarValueType="NO" indexed="YES" syncable="YES"/>
         <attribute name="merkleRoot" optional="YES" attributeType="Binary" syncable="YES"/>
-        <attribute name="nonce" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES"/>
+        <attribute name="nonce" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="prevBlock" optional="YES" attributeType="Binary" indexed="YES" syncable="YES"/>
-        <attribute name="target" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES"/>
-        <attribute name="timestamp" optional="YES" attributeType="Date" defaultDateTimeInterval="0" syncable="YES"/>
-        <attribute name="totalTransactions" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES"/>
-        <attribute name="version" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES"/>
+        <attribute name="target" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="timestamp" optional="YES" attributeType="Date" defaultDateTimeInterval="0" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="totalTransactions" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="version" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="NO" syncable="YES"/>
     </entity>
     <entity name="BRPeerEntity" representedClassName="BRPeerEntity" syncable="YES">
-        <attribute name="address" optional="YES" attributeType="Integer 32" defaultValueString="0" indexed="YES" syncable="YES"/>
-        <attribute name="misbehavin" optional="YES" attributeType="Integer 16" defaultValueString="0" indexed="YES" syncable="YES"/>
-        <attribute name="port" optional="YES" attributeType="Integer 16" defaultValueString="0" indexed="YES" syncable="YES"/>
-        <attribute name="services" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
-        <attribute name="timestamp" optional="YES" attributeType="Date" defaultDateTimeInterval="0" indexed="YES" syncable="YES"/>
+        <attribute name="address" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="NO" indexed="YES" syncable="YES"/>
+        <attribute name="misbehavin" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="NO" indexed="YES" syncable="YES"/>
+        <attribute name="port" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="NO" indexed="YES" syncable="YES"/>
+        <attribute name="services" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="timestamp" optional="YES" attributeType="Date" defaultDateTimeInterval="0" usesScalarValueType="NO" indexed="YES" syncable="YES"/>
     </entity>
     <entity name="BRTransactionEntity" representedClassName="BRTransactionEntity" syncable="YES">
-        <attribute name="blockHeight" optional="YES" attributeType="Integer 32" defaultValueString="2147483647" indexed="YES" syncable="YES"/>
-        <attribute name="lockTime" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES"/>
-        <attribute name="timestamp" optional="YES" attributeType="Date" defaultDateTimeInterval="0" syncable="YES"/>
+        <attribute name="blockHeight" optional="YES" attributeType="Integer 32" defaultValueString="2147483647" usesScalarValueType="NO" indexed="YES" syncable="YES"/>
+        <attribute name="lockTime" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="timestamp" optional="YES" attributeType="Date" defaultDateTimeInterval="0" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="txHash" optional="YES" attributeType="Binary" indexed="YES" syncable="YES"/>
         <relationship name="inputs" optional="YES" toMany="YES" deletionRule="Cascade" ordered="YES" destinationEntity="BRTxInputEntity" inverseName="transaction" inverseEntity="BRTxInputEntity" syncable="YES"/>
         <relationship name="outputs" optional="YES" toMany="YES" deletionRule="Cascade" ordered="YES" destinationEntity="BRTxOutputEntity" inverseName="transaction" inverseEntity="BRTxOutputEntity" syncable="YES"/>
     </entity>
     <entity name="BRTxInputEntity" representedClassName="BRTxInputEntity" syncable="YES">
-        <attribute name="n" optional="YES" attributeType="Integer 32" defaultValueString="0" indexed="YES" syncable="YES"/>
-        <attribute name="sequence" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES"/>
+        <attribute name="n" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="NO" indexed="YES" syncable="YES"/>
+        <attribute name="sequence" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="signature" optional="YES" attributeType="Binary" syncable="YES"/>
         <attribute name="txHash" optional="YES" attributeType="Binary" indexed="YES" syncable="YES"/>
         <relationship name="transaction" optional="YES" minCount="1" maxCount="1" deletionRule="Nullify" destinationEntity="BRTransactionEntity" inverseName="inputs" inverseEntity="BRTransactionEntity" syncable="YES"/>
@@ -43,15 +43,15 @@
     <entity name="BRTxMetadataEntity" representedClassName="BRTxMetadataEntity" syncable="YES">
         <attribute name="blob" optional="YES" attributeType="Binary" syncable="YES"/>
         <attribute name="txHash" optional="YES" attributeType="Binary" indexed="YES" syncable="YES"/>
-        <attribute name="type" optional="YES" attributeType="Integer 32" defaultValueString="0" indexed="YES" syncable="YES"/>
+        <attribute name="type" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="NO" indexed="YES" syncable="YES"/>
     </entity>
     <entity name="BRTxOutputEntity" representedClassName="BRTxOutputEntity" syncable="YES">
         <attribute name="address" optional="YES" attributeType="String" indexed="YES" syncable="YES"/>
-        <attribute name="n" attributeType="Integer 32" defaultValueString="0" indexed="YES" syncable="YES"/>
+        <attribute name="n" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="NO" indexed="YES" syncable="YES"/>
         <attribute name="script" optional="YES" attributeType="Binary" syncable="YES"/>
-        <attribute name="spent" optional="YES" attributeType="Boolean" defaultValueString="NO" indexed="YES" syncable="YES"/>
+        <attribute name="spent" optional="YES" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="NO" indexed="YES" syncable="YES"/>
         <attribute name="txHash" optional="YES" attributeType="Binary" indexed="YES" syncable="YES"/>
-        <attribute name="value" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
+        <attribute name="value" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="NO" syncable="YES"/>
         <relationship name="transaction" optional="YES" minCount="1" maxCount="1" deletionRule="Nullify" destinationEntity="BRTransactionEntity" inverseName="outputs" inverseEntity="BRTransactionEntity" syncable="YES"/>
     </entity>
     <elements>

@@ -73,7 +73,7 @@ class BRAWWatchDataManager: NSObject, WCSessionDelegate {
             let filemgr = NSFileManager.defaultManager()
             let dirPaths = NSSearchPathForDirectoriesInDomains(.DocumentDirectory,.UserDomainMask, true)
             let docsDir = dirPaths[0] as String
-            return NSURL(fileURLWithPath: docsDir).URLByAppendingPathComponent(applicationContextDataFileName)
+            return NSURL(fileURLWithPath: docsDir).URLByAppendingPathComponent(applicationContextDataFileName)!
         }()
     
     override init() {
@@ -85,6 +85,11 @@ class BRAWWatchDataManager: NSObject, WCSessionDelegate {
         session.activateSession()
     }
     
+    @available(watchOSApplicationExtension 2.2, *)
+    func session(session: WCSession, activationDidCompleteWithState activationState: WCSessionActivationState, error: NSError?) {
+        
+    }
+
     func requestAllData() {
         if self.session.reachable {
             // WKInterfaceDevice.currentDevice().playHaptic(WKHapticType.Click)
@@ -142,9 +147,9 @@ class BRAWWatchDataManager: NSObject, WCSessionDelegate {
         replyHandler: ([String : AnyObject]) -> Void) {
             print("Handle message from phone \(message)")
             if let noteV = message[AW_PHONE_NOTIFICATION_KEY],
-                noteStr = noteV as? String,
-                noteTypeV = message[AW_PHONE_NOTIFICATION_TYPE_KEY],
-                noteTypeN = noteTypeV as? NSNumber
+                let noteStr = noteV as? String,
+                let noteTypeV = message[AW_PHONE_NOTIFICATION_TYPE_KEY],
+                let noteTypeN = noteTypeV as? NSNumber
                 where noteTypeN.unsignedIntValue == AWPhoneNotificationTypeTxReceive.rawValue {
                     let note = NSNotification(
                         name: BRAWWatchDataManager.WalletTxReceiveNotification, object: nil, userInfo: [
@@ -163,8 +168,8 @@ class BRAWWatchDataManager: NSObject, WCSessionDelegate {
             session.sendMessage(msg,
                 replyHandler: { (ctx) -> Void in
                     if let dat = ctx[AW_QR_CODE_BITS_KEY],
-                        datDat = dat as? NSData,
-                        img = UIImage(data: datDat) {
+                        let datDat = dat as? NSData,
+                        let img = UIImage(data: datDat) {
                             responseHandler(qrImage: img, error: nil)
                             return
                     }

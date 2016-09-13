@@ -34,6 +34,11 @@ class BRAWReceiveMoneyInterfaceController: WKInterfaceController, WCSessionDeleg
     @IBOutlet var qrCodeButton: WKInterfaceButton!
     var customQR: UIImage?
     
+    @available(watchOSApplicationExtension 2.2, *)
+    func session(session: WCSession, activationDidCompleteWithState activationState: WCSessionActivationState, error: NSError?) {
+        
+    }
+    
     override func awakeWithContext(context: AnyObject?) {
         super.awakeWithContext(context)
     }
@@ -57,7 +62,7 @@ class BRAWReceiveMoneyInterfaceController: WKInterfaceController, WCSessionDeleg
     @objc func txReceive(notification: NSNotification?) {
         print("receive view controller received notification: \(notification)")
         if let userData = notification?.userInfo,
-            noteString = userData[NSLocalizedDescriptionKey] as? String {
+            let noteString = userData[NSLocalizedDescriptionKey] as? String {
                 self.presentAlertControllerWithTitle(
                     noteString, message: nil, preferredStyle: .Alert, actions: [
                         WKAlertAction(title: NSLocalizedString("OK", comment: ""),

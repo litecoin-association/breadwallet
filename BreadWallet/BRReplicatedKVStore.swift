@@ -111,7 +111,7 @@ public class BRReplicatedKVStore: NSObject {
         let fm = NSFileManager.defaultManager()
         let docsUrl = fm.URLsForDirectory(.DocumentDirectory, inDomains: .UserDomainMask).first!
         let bundleDirUrl = docsUrl.URLByAppendingPathComponent("kvstore.sqlite3")
-        return bundleDirUrl
+        return bundleDirUrl!
     }
     
     init(encryptionKey: BRKey, remoteAdaptor: BRRemoteKVStoreAdaptor) throws {
@@ -141,7 +141,7 @@ public class BRReplicatedKVStore: NSObject {
                 throw BRReplicatedKVStoreError.SQLiteError
             }
             try self.checkErr(sqlite3_open_v2(
-                self.path.absoluteString, &self.db,
+                self.path.absoluteString!, &self.db,
                 SQLITE_OPEN_FULLMUTEX | SQLITE_OPEN_CREATE | SQLITE_OPEN_READWRITE, nil
             ), s: "opening db")
             self.log("opened DB at \(self.path.absoluteString)")

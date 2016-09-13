@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 47;
+	objectVersion = 48;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -1242,7 +1242,7 @@
 				};
 			};
 			buildConfigurationList = 75D5F3B9191EC270004AB296 /* Build configuration list for PBXProject "LoafWallet" */;
-			compatibilityVersion = "Xcode 6.3";
+			compatibilityVersion = "Xcode 8.0";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -1729,6 +1729,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = "-frandom-seed=$@";
 				SDKROOT = iphoneos;
+				SWIFT_VERSION = 2.3;
 				ZERO_AR_DATE = 1;
 			};
 			name = Debug;
@@ -1768,6 +1769,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_CFLAGS = "-frandom-seed=$@";
 				SDKROOT = iphoneos;
+				SWIFT_VERSION = 2.3;
 				VALIDATE_PRODUCT = YES;
 				ZERO_AR_DATE = 1;
 			};
