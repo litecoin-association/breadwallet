@@ -515,7 +515,7 @@ static NSDictionary *getKeychainDict(NSString *key, NSError **error)
     }
 }
 
-#pragma mark - authentication
+// MARK: - authentication
 
 // prompts user to authenticate with touch id or passcode
 - (BOOL)authenticateWithPrompt:(NSString *)authprompt andTouchId:(BOOL)touchId
@@ -845,7 +845,7 @@ static NSDictionary *getKeychainDict(NSString *key, NSError **error)
     }
 }
 
-#pragma mark - exchange rate
+// MARK: - exchange rate
 
 - (double)localCurrencyPrice
 {
@@ -966,7 +966,7 @@ static NSDictionary *getKeychainDict(NSString *key, NSError **error)
     }];
 }
 
-#pragma mark - floating fees
+// MARK: - floating fees
 
 - (void)updateFeePerKb
 {
@@ -1004,7 +1004,7 @@ static NSDictionary *getKeychainDict(NSString *key, NSError **error)
     }] resume];
 }
 
-#pragma mark - query unspent outputs
+// MARK: - query unspent outputs
 
 // queries api.breadwallet.com and calls the completion block with unspent outputs for the given addresses
 - (void)utxosForAddresses:(NSArray *)addresses
@@ -1175,7 +1175,7 @@ completion:(void (^)(BRTransaction *tx, uint64_t fee, NSError *error))completion
     }];
 }
 
-#pragma mark - string helpers
+// MARK: - string helpers
 
 - (int64_t)amountForString:(NSString *)string
 {
@@ -1233,7 +1233,7 @@ completion:(void (^)(BRTransaction *tx, uint64_t fee, NSError *error))completion
     return [self.localFormat stringFromNumber:n];
 }
 
-#pragma mark - UITextFieldDelegate
+// MARK: - UITextFieldDelegate
 
 - (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range
 replacementString:(NSString *)string
@@ -1256,7 +1256,7 @@ replacementString:(NSString *)string
         CGPointMake([UIScreen mainScreen].bounds.size.width/2.0, [UIScreen mainScreen].bounds.size.height/2.0 - 108.0);
 }
 
-#pragma mark - UITextViewDelegate
+// MARK: - UITextViewDelegate
 
 - (void)textViewDidChange:(UITextView *)textView
 {
@@ -1291,7 +1291,7 @@ replacementString:(NSString *)string
         CGPointMake([UIScreen mainScreen].bounds.size.width/2.0, [UIScreen mainScreen].bounds.size.height/2.0 - 108.0);
 }
 
-#pragma mark - UIAlertViewDelegate
+// MARK: - UIAlertViewDelegate
 
 - (void)didPresentAlertView:(UIAlertView *)alertView
 {

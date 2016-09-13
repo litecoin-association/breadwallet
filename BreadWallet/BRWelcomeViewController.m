@@ -184,7 +184,7 @@
 //    }];
 //}
 
-#pragma mark IBAction
+// MARK: IBAction
 
 - (IBAction)start:(id)sender
 {
@@ -284,7 +284,7 @@
     }];
 }
 
-#pragma mark UIViewControllerAnimatedTransitioning
+// MARK: UIViewControllerAnimatedTransitioning
 
 // This is used for percent driven interactive transitions, as well as for container controllers that have companion
 // animations that might need to synchronize with the main animation.
@@ -317,7 +317,7 @@
     }];
 }
 
-#pragma mark - UINavigationControllerDelegate
+// MARK: - UINavigationControllerDelegate
 
 - (id<UIViewControllerAnimatedTransitioning>)navigationController:(UINavigationController *)navigationController
 animationControllerForOperation:(UINavigationControllerOperation)operation fromViewController:(UIViewController *)fromVC
@@ -328,7 +328,7 @@ toViewController:(UIViewController *)toVC
 
 //TODO: implement interactive transitions
 
-#pragma mark - UIViewControllerTransitioningDelegate
+// MARK: - UIViewControllerTransitioningDelegate
 
 - (id<UIViewControllerAnimatedTransitioning>)animationControllerForPresentedController:(UIViewController *)presented
 presentingController:(UIViewController *)presenting sourceController:(UIViewController *)source

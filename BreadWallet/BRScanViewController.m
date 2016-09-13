@@ -134,7 +134,7 @@
     [self.session removeOutput:self.session.outputs.firstObject];
 }
 
-#pragma mark - IBAction
+// MARK: - IBAction
 
 - (IBAction)flash:(id)sender
 {

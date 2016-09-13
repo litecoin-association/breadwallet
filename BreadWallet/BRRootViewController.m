@@ -413,9 +413,6 @@
     if ([UIApplication sharedApplication].protectedDataAvailable) {
         [self performSelector:@selector(protectedViewDidAppear) withObject:nil afterDelay:0.0];
     }
-	
-	[[self findHairlineImageViewUnder:self.navigationController.navigationBar] setHidden:YES];
-	[[self findHairlineImageViewUnder:self.tabBarController.tabBar] setHidden:YES];
     
     [super viewDidAppear:animated];
 }
@@ -820,22 +817,7 @@
     return YES;
 }
 
-#pragma mark - UIBarHandlers
-
-- (UIImageView *)findHairlineImageViewUnder:(UIView *)view {
-	if ([view isKindOfClass:UIImageView.class] && view.bounds.size.height <= 1.0) {
-		return (UIImageView *)view;
-	}
-	for (UIView *subview in view.subviews) {
-		UIImageView *imageView = [self findHairlineImageViewUnder:subview];
-		if (imageView) {
-			return imageView;
-		}
-	}
-	return nil;
-}
-
-#pragma mark - IBAction
+// MARK: - IBAction
 
 - (IBAction)tip:(id)sender
 {
@@ -950,8 +932,40 @@
 }
 #endif
 
+// MARK: - UIPageViewControllerDataSource
 
-#pragma mark - UIAlertViewDelegate
+- (UIViewController *)pageViewController:(UIPageViewController *)pageViewController
+viewControllerBeforeViewController:(UIViewController *)viewController
+{
+    return (viewController == self.receiveViewController) ? self.sendViewController : nil;
+}
+
+- (UIViewController *)pageViewController:(UIPageViewController *)pageViewController
+viewControllerAfterViewController:(UIViewController *)viewController
+{
+    return (viewController == self.sendViewController) ? self.receiveViewController : nil;
+}
+
+- (NSInteger)presentationCountForPageViewController:(UIPageViewController *)pageViewController
+{
+    return 2;
+}
+
+- (NSInteger)presentationIndexForPageViewController:(UIPageViewController *)pageViewController
+{
+    return (pageViewController.viewControllers.lastObject == self.receiveViewController) ? 1 : 0;
+}
+
+// MARK: - UIScrollViewDelegate
+
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView
+{
+    CGFloat off = scrollView.contentOffset.x + (scrollView.contentInset.left < 0 ? scrollView.contentInset.left : 0);
+    
+    self.wallpaperXLeft.constant = -PARALAX_RATIO*off;
+}
+
+// MARK: - UIAlertViewDelegate
 
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
 {
@@ -970,7 +984,7 @@
     [self performSegueWithIdentifier:@"SettingsSegue" sender:[alertView buttonTitleAtIndex:buttonIndex]];
 }
 
-#pragma mark - UIViewControllerAnimatedTransitioning
+// MARK: - UIViewControllerAnimatedTransitioning
 
 // This is used for percent driven interactive transitions, as well as for container controllers that have companion
 // animations that might need to synchronize with the main animation.
@@ -1099,7 +1113,7 @@
     }
 }
 
-#pragma mark - UINavigationControllerDelegate
+// MARK: - UINavigationControllerDelegate
 
 - (id<UIViewControllerAnimatedTransitioning>)navigationController:(UINavigationController *)navigationController
 animationControllerForOperation:(UINavigationControllerOperation)operation fromViewController:(UIViewController *)fromVC
@@ -1108,7 +1122,7 @@ toViewController:(UIViewController *)toVC
     return self;
 }
 
-#pragma mark - UIViewControllerTransitioningDelegate
+// MARK: - UIViewControllerTransitioningDelegate
 
 - (id<UIViewControllerAnimatedTransitioning>)animationControllerForPresentedController:(UIViewController *)presented
 presentingController:(UIViewController *)presenting sourceController:(UIViewController *)source

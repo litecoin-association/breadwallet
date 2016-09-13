@@ -124,7 +124,7 @@
     }
 }
 
-#pragma mark - IBAction
+// MARK: - IBAction
 
 - (IBAction)cancel:(id)sender
 {
@@ -136,7 +136,7 @@
     else [self.navigationController popViewControllerAnimated:NO];
 }
 
-#pragma mark - UITextViewDelegate
+// MARK: - UITextViewDelegate
 
 - (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text
 {
@@ -232,7 +232,7 @@
     return NO;
 }
 
-#pragma mark - UIAlertViewDelegate
+// MARK: - UIAlertViewDelegate
 
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
 {
@@ -241,7 +241,7 @@
     if ([[alertView buttonTitleAtIndex:buttonIndex] isEqual:NSLocalizedString(@"close app", nil)]) exit(0);
 }
 
-#pragma mark - UIActionSheetDelegate
+// MARK: - UIActionSheetDelegate
 
 - (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex
 {

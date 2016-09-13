@@ -384,7 +384,7 @@ masterPublicKey:(NSData *)masterPublicKey seed:(NSData *(^)(NSString *authprompt
     [[NSNotificationCenter defaultCenter] postNotificationName:BRWalletBalanceChangedNotification object:nil];
 }
 
-#pragma mark - wallet info
+// MARK: - wallet info
 
 // returns the first unused external address
 - (NSString *)receiveAddress
@@ -446,7 +446,7 @@ masterPublicKey:(NSData *)masterPublicKey seed:(NSData *(^)(NSString *authprompt
     return (address && [self.usedAddresses containsObject:address]) ? YES : NO;
 }
 
-#pragma mark - transactions
+// MARK: - transactions
 
 // returns an unsigned transaction that sends the specified amount from the wallet to the given address
 - (BRTransaction *)transactionFor:(uint64_t)amount to:(NSString *)address withFee:(BOOL)fee

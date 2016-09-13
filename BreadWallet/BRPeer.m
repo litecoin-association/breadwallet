@@ -257,7 +257,7 @@ services:(uint64_t)services
     });
 }
 
-#pragma mark - send
+// MARK: - send
 
 - (void)sendMessage:(NSData *)message type:(NSString *)type
 {
@@ -482,7 +482,7 @@ services:(uint64_t)services
     }
 }
 
-#pragma mark - accept
+// MARK: - accept
 
 - (void)acceptMessage:(NSData *)message type:(NSString *)type
 {
@@ -992,7 +992,7 @@ services:(uint64_t)services
     });
 }
 
-#pragma mark - hash
+// MARK: - hash
 
 #define FNV32_PRIME  0x01000193u
 #define FNV32_OFFSET 0x811C9dc5u
@@ -1018,7 +1018,7 @@ services:(uint64_t)services
                                uint128_eq(_address, [(BRPeer *)object address]))) ? YES : NO;
 }
 
-#pragma mark - NSStreamDelegate
+// MARK: - NSStreamDelegate
 
 - (void)stream:(NSStream *)aStream handleEvent:(NSStreamEvent)eventCode
 {

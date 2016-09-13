@@ -127,7 +127,7 @@ static NSString *serialize(uint8_t depth, uint32_t fingerprint, uint32_t child, 
 
 @implementation BRBIP32Sequence
 
-#pragma mark - BRKeySequence
+// MARK: - BRKeySequence
 
 // master public key format is: 4 byte parent fingerprint || 32 byte chain code || 33 byte compressed public key
 // the values are taken from BIP32 account m/0H
@@ -205,7 +205,7 @@ static NSString *serialize(uint8_t depth, uint32_t fingerprint, uint32_t child, 
     return a;
 }
 
-#pragma mark - authentication key
+// MARK: - authentication key
 
 - (NSString *)authPrivateKeyFromSeed:(NSData *)seed
 {
@@ -269,7 +269,7 @@ static NSString *serialize(uint8_t depth, uint32_t fingerprint, uint32_t child, 
     return [NSString base58checkWithData:privKey];
 }
 
-#pragma mark - serializations
+// MARK: - serializations
 
 - (NSString *)serializedPrivateMasterFromSeed:(NSData *)seed
 {

@@ -171,7 +171,7 @@
            [BRPeerManager sharedInstance].downloadPeerName];
 }
 
-#pragma mark - IBAction
+// MARK: - IBAction
 
 - (IBAction)done:(id)sender
 {
@@ -277,7 +277,7 @@
     [self.tableView reloadData];
 }
 
-#pragma mark - UITableViewDataSource
+// MARK: - UITableViewDataSource
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
@@ -423,7 +423,7 @@ _switch_cell:
     return nil;
 }
 
-#pragma mark - UITableViewDelegate
+// MARK: - UITableViewDelegate
 
 - (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
 {
@@ -661,7 +661,7 @@ _deselect_switch:
     }
 }
 
-#pragma mark - MFMailComposeViewControllerDelegate
+// MARK: - MFMailComposeViewControllerDelegate
 
 - (void)mailComposeController:(MFMailComposeViewController *)controller didFinishWithResult:(MFMailComposeResult)result
 error:(NSError *)error
@@ -669,7 +669,7 @@ error:(NSError *)error
     [self.navigationController dismissViewControllerAnimated:YES completion:nil];
 }
 
-#pragma mark - UIAlertViewDelegate
+// MARK: - UIAlertViewDelegate
 
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
 {

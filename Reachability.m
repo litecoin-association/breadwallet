@@ -58,7 +58,7 @@
 NSString *kReachabilityChangedNotification = @"kNetworkReachabilityChangedNotification";
 
 
-#pragma mark - Supporting functions
+// MARK: - Supporting functions
 
 #define kShouldPrintReachabilityFlags 1
 
@@ -95,7 +95,7 @@ static void ReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkReach
 }
 
 
-#pragma mark - Reachability implementation
+// MARK: - Reachability implementation
 
 @implementation Reachability
 {
@@ -171,7 +171,7 @@ static void ReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkReach
 }
 
 
-#pragma mark - Start and stop notifier
+// MARK: - Start and stop notifier
 
 - (BOOL)startNotifier
 {
@@ -209,7 +209,7 @@ static void ReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkReach
 }
 
 
-#pragma mark - Network Flag Handling
+// MARK: - Network Flag Handling
 
 - (NetworkStatus)localWiFiStatusForFlags:(SCNetworkReachabilityFlags)flags
 {

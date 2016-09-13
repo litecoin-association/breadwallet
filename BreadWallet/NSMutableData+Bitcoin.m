@@ -179,7 +179,7 @@ CFAllocatorRef SecureAllocator()
     [self appendBytes:s.UTF8String length:l];
 }
 
-#pragma mark - bitcoin script
+// MARK: - bitcoin script
 
 - (void)appendScriptPushData:(NSData *)d
 {
@@ -234,7 +234,7 @@ CFAllocatorRef SecureAllocator()
     }
 }
 
-#pragma mark - bitcoin protocol
+// MARK: - bitcoin protocol
 
 - (void)appendMessage:(NSData *)message type:(NSString *)type;
 {

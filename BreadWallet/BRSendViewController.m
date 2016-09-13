@@ -974,7 +974,7 @@ memo:(NSString *)memo isSecure:(BOOL)isSecure
     [self performSelector:@selector(cancel:) withObject:self afterDelay:0.1];
 }
 
-#pragma mark - IBAction
+// MARK: - IBAction
 
 - (IBAction)tip:(id)sender
 {
@@ -1074,7 +1074,7 @@ memo:(NSString *)memo isSecure:(BOOL)isSecure
     [self updateClipboardText];
 }
 
-#pragma mark - BRAmountViewControllerDelegate
+// MARK: - BRAmountViewControllerDelegate
 
 - (void)amountViewController:(BRAmountViewController *)amountViewController selectedAmount:(uint64_t)amount
 {
@@ -1082,7 +1082,7 @@ memo:(NSString *)memo isSecure:(BOOL)isSecure
     [self confirmProtocolRequest:self.request];
 }
 
-#pragma mark - AVCaptureMetadataOutputObjectsDelegate
+// MARK: - AVCaptureMetadataOutputObjectsDelegate
 
 - (void)captureOutput:(AVCaptureOutput *)captureOutput didOutputMetadataObjects:(NSArray *)metadataObjects
 fromConnection:(AVCaptureConnection *)connection
@@ -1187,7 +1187,7 @@ fromConnection:(AVCaptureConnection *)connection
     }
 }
 
-#pragma mark - UIAlertViewDelegate
+// MARK: - UIAlertViewDelegate
 
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
 {
@@ -1226,7 +1226,7 @@ fromConnection:(AVCaptureConnection *)connection
     else if (self.url) [self handleURL:self.url];
 }
 
-#pragma mark UITextViewDelegate
+// MARK: UITextViewDelegate
 
 - (BOOL)textViewShouldBeginEditing:(UITextView *)textView
 {
@@ -1269,7 +1269,7 @@ fromConnection:(AVCaptureConnection *)connection
     return YES;
 }
 
-#pragma mark UIViewControllerAnimatedTransitioning
+// MARK: UIViewControllerAnimatedTransitioning
 
 // This is used for percent driven interactive transitions, as well as for container controllers that have companion
 // animations that might need to synchronize with the main animation.
@@ -1340,7 +1340,7 @@ fromConnection:(AVCaptureConnection *)connection
     }
 }
 
-#pragma mark - UIViewControllerTransitioningDelegate
+// MARK: - UIViewControllerTransitioningDelegate
 
 - (id<UIViewControllerAnimatedTransitioning>)animationControllerForPresentedController:(UIViewController *)presented
 presentingController:(UIViewController *)presenting sourceController:(UIViewController *)source

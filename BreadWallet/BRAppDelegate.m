@@ -329,7 +329,7 @@ performFetchWithCompletionHandler:(void (^)(UIBackgroundFetchResult))completionH
     if (self.balanceObserver) [[NSNotificationCenter defaultCenter] removeObserver:self.balanceObserver];
 }
 
-#pragma mark PKPushRegistry
+// MARK: - PKPushRegistry
 
 - (void)pushRegistry:(PKPushRegistry *)registry didUpdatePushCredentials:(PKPushCredentials *)credentials
              forType:(NSString *)type
