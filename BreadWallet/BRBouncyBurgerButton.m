@@ -37,10 +37,9 @@
 
 @implementation BRBouncyBurgerButton
 
-- (instancetype)customInit
+- (instancetype)customInitWithSize:(CGSize)size
 {
-    CGFloat x = (self.bounds.size.width + self.contentEdgeInsets.left - self.contentEdgeInsets.right)/2.0,
-            y = (self.bounds.size.height + self.contentEdgeInsets.top - self.contentEdgeInsets.bottom)/2.0;
+    CGFloat x = size.width/2.0, y = size.height/2.0;
 
     self.bar1 = [[UIView alloc] initWithFrame:CGRectMake(x - BAR_WIDTH/2.0, y - BAR_SPACING, BAR_WIDTH, BAR_HEIGHT)];
     self.bar2 = [[UIView alloc] initWithFrame:CGRectMake(x - BAR_WIDTH/2.0, y, BAR_WIDTH, BAR_HEIGHT)];
@@ -56,13 +55,13 @@
 - (instancetype)initWithCoder:(NSCoder *)aDecoder
 {
     if (! (self = [super initWithCoder:aDecoder])) return nil;
-    return [self customInit];
+    return [self customInitWithSize:self.intrinsicContentSize];
 }
 
 - (instancetype)initWithFrame:(CGRect)frame
 {
     if (! (self = [super initWithFrame:frame])) return nil;
-    return [self customInit];
+    return [self customInitWithSize:frame.size];
 }
 
 - (void)setX:(BOOL)x
