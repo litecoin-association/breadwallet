@@ -160,7 +160,9 @@ static const struct { uint32_t height; char *hash; uint32_t timestamp; uint32_t 
     { 973728, "6316b454ead6c97be48c98979ec9ebb49763c21d436f47ff6918f02a58b46cec", 1460575822, 0x1b014319 },
     { 981792, "155bc8fb717564bd2dd600cedcb39d8a7a64070e3bc1b90e7be62168e7b35c82", 1461788191, 0x1b01436f },
     { 993888, "1d80e7793bd9e16e0ce84d93b105d6732ed63e1a6fe491c1b7ea310e75eb504e", 1463613744, 0x1b014cbd },
-    { 1001952, "eccbede26ac99ea996377972d5bd05b9306bcc6ac1f4071f1587e3094a704dff", 1464900396, 0x1b01a29e }
+    { 1001952, "eccbede26ac99ea996377972d5bd05b9306bcc6ac1f4071f1587e3094a704dff", 1464900396, 0x1b01a29e },
+    { 1058400, "76ce37c66d449a4ffbfc35674cf932da701066a001dc223754f9250dd2bdbc62", 1473296285, 0x1b013ca7 }
+    
 };
 
 static const char *dns_seeds[] = {
@@ -1225,6 +1227,7 @@ static const char *dns_seeds[] = {
             [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(txTimeout:) object:hash];
             [[NSNotificationCenter defaultCenter] postNotificationName:BRPeerManagerTxStatusNotification object:nil];
             if (callback) callback(nil);
+            
             [[BRAPIClient sharedClient].kv
              set:[[BRTxMetadataObject alloc] initWithTransaction:transaction exchangeRate:manager.localCurrencyPrice
                   exchangeRateCurrency:manager.localCurrencyCode feeRate:manager.wallet.feePerKb
