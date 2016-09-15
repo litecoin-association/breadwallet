@@ -36,6 +36,8 @@
 
 @property (nonatomic, weak) IBOutlet UIImageView *qrImage, *qrOverlay;
 @property (nonatomic, weak) IBOutlet UILabel *addressLabel, *sendLabel, *receiveLabel, *scanLabel;
+@property (nonatomic, weak) IBOutlet UIButton *scanButton;
+@property (nonatomic, weak) IBOutlet UIVisualEffectView *qrView, *scanView;
 @property (nonatomic, weak) IBOutlet UIView *noDataViewContainer;
 @property (nonatomic, weak) IBOutlet UIView *topViewContainer;
 @property (nonatomic, strong) NSData *qrCodeData;
@@ -54,6 +56,11 @@
         self.extensionContext.widgetLargestAvailableDisplayMode = NCWidgetDisplayModeExpanded;
         self.addressLabel.textColor = self.sendLabel.textColor = self.receiveLabel.textColor =
             self.scanLabel.textColor = [UIColor darkGrayColor];
+        self.qrView.effect = [UIVibrancyEffect
+                              effectForBlurEffect:[UIBlurEffect effectWithStyle:UIBlurEffectStyleExtraLight]];
+        self.scanView.effect = [UIVibrancyEffect
+                                effectForBlurEffect:[UIBlurEffect effectWithStyle:UIBlurEffectStyleExtraLight]];
+        self.scanButton.alpha = 0.1;
     }
     
     [self updateReceiveMoneyUI];
@@ -106,18 +113,25 @@
 
 - (void)updateReceiveMoneyUI
 {
-    CIColor *color = [CIColor colorWithRed:1.0 green:1.0 blue:1.0 alpha:0.0];
-    
     self.qrCodeData = [self.appGroupUserDefault objectForKey:APP_GROUP_REQUEST_DATA_KEY];
     
-    if ([[self.extensionContext class] instancesRespondToSelector:@selector(widgetLargestAvailableDisplayMode)]) {
-        color = [CIColor colorWithRed:0.0 green:0.0 blue:0.0 alpha:1.0];
-    }
-    
     if (self.qrCodeData && self.qrImage.bounds.size.width > 0) {
-        self.qrImage.image = self.qrOverlay.image = [[UIImage imageWithQRCodeData:self.qrCodeData color:color]
-                                                     resize:self.qrImage.bounds.size
-                                                     withInterpolationQuality:kCGInterpolationNone];
+        if ([[self.extensionContext class] instancesRespondToSelector:@selector(widgetLargestAvailableDisplayMode)]) {
+            self.qrOverlay.image = [[UIImage imageWithQRCodeData:self.qrCodeData
+                                    color:[CIColor colorWithRed:1.0 green:1.0 blue:1.0 alpha:1.0]]
+                                    resize:self.qrImage.bounds.size
+                                    withInterpolationQuality:kCGInterpolationNone];
+            self.qrImage.image = [[UIImage imageWithQRCodeData:self.qrCodeData
+                                  color:[CIColor colorWithRed:0.0 green:0.0 blue:0.0 alpha:0.3]]
+                                  resize:self.qrImage.bounds.size
+                                  withInterpolationQuality:kCGInterpolationNone];
+        }
+        else {
+            self.qrImage.image = self.qrOverlay.image = [[UIImage imageWithQRCodeData:self.qrCodeData
+                                                         color:[CIColor colorWithRed:1.0 green:1.0 blue:1.0 alpha:0.0]]
+                                                         resize:self.qrImage.bounds.size
+                                                         withInterpolationQuality:kCGInterpolationNone];
+        }
     }
 
     self.addressLabel.text = [self.appGroupUserDefault objectForKey:APP_GROUP_RECEIVE_ADDRESS_KEY];
