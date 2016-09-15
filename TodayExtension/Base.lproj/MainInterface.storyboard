@@ -234,7 +234,7 @@
                             <constraint firstAttribute="centerY" secondItem="jeJ-XT-nMj" secondAttribute="centerY" id="0Qu-j9-JbB"/>
                             <constraint firstAttribute="centerY" secondItem="ZgQ-IE-5k2" secondAttribute="centerY" id="2GS-R4-bkH"/>
                             <constraint firstItem="jeJ-XT-nMj" firstAttribute="width" secondItem="S3S-Oj-5AN" secondAttribute="width" id="BvG-F2-utq"/>
-                            <constraint firstItem="ZgQ-IE-5k2" firstAttribute="width" relation="greaterThanOrEqual" secondItem="S3S-Oj-5AN" secondAttribute="width" multiplier="1:2" id="IgO-Ve-SLQ"/>
+                            <constraint firstItem="ZgQ-IE-5k2" firstAttribute="width" relation="greaterThanOrEqual" secondItem="S3S-Oj-5AN" secondAttribute="width" multiplier="2:3" id="IgO-Ve-SLQ"/>
                             <constraint firstItem="ZgQ-IE-5k2" firstAttribute="width" relation="lessThanOrEqual" secondItem="S3S-Oj-5AN" secondAttribute="width" id="J9z-yS-PA8"/>
                             <constraint firstItem="jeJ-XT-nMj" firstAttribute="height" secondItem="S3S-Oj-5AN" secondAttribute="height" id="Otq-wQ-se2"/>
                             <constraint firstItem="ZgQ-IE-5k2" firstAttribute="height" secondItem="S3S-Oj-5AN" secondAttribute="height" id="ZVx-ah-zl8"/>
