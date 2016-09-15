@@ -35,7 +35,7 @@
 @interface BRTodayViewController () <NCWidgetProviding>
 
 @property (nonatomic, weak) IBOutlet UIImageView *qrImage, *qrOverlay;
-@property (nonatomic, weak) IBOutlet UILabel *addressLabel;
+@property (nonatomic, weak) IBOutlet UILabel *addressLabel, *sendLabel, *receiveLabel, *scanLabel;
 @property (nonatomic, weak) IBOutlet UIView *noDataViewContainer;
 @property (nonatomic, weak) IBOutlet UIView *topViewContainer;
 @property (nonatomic, strong) NSData *qrCodeData;
@@ -49,8 +49,22 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-
+    
+    if ([[self.extensionContext class] instancesRespondToSelector:@selector(widgetLargestAvailableDisplayMode)]) {
+        self.extensionContext.widgetLargestAvailableDisplayMode = NCWidgetDisplayModeExpanded;
+        self.addressLabel.textColor = self.sendLabel.textColor = self.receiveLabel.textColor =
+            self.scanLabel.textColor = [UIColor darkGrayColor];
+    }
+    
     [self updateReceiveMoneyUI];
+}
+
+- (void)widgetActiveDisplayModeDidChange:(NCWidgetDisplayMode)activeDisplayMode withMaximumSize:(CGSize)maxSize
+{
+    if (activeDisplayMode == NCWidgetDisplayModeExpanded) {
+        self.preferredContentSize = CGSizeMake(maxSize.width, maxSize.width*3/4);
+    }
+    else self.preferredContentSize = maxSize;
 }
 
 - (void)widgetPerformUpdateWithCompletionHandler:(void (^)(NCUpdateResult))completionHandler
