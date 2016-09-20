@@ -401,7 +401,7 @@ static const char *dns_seeds[] = {
 - (BRMerkleBlock *)lastBlock
 {
     if (! _lastBlock) {
-        NSFetchRequest *req = [BRMerkleBlockEntity fetchRequest];
+        NSFetchRequest *req = [BRMerkleBlockEntity fetchReq];
 
         req.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"height" ascending:NO]];
         req.predicate = [NSPredicate predicateWithFormat:@"height >= 0 && height != %d", BLOCK_UNKNOWN_HEIGHT];

@@ -234,7 +234,6 @@
                             <constraint firstAttribute="centerY" secondItem="jeJ-XT-nMj" secondAttribute="centerY" id="0Qu-j9-JbB"/>
                             <constraint firstAttribute="centerY" secondItem="ZgQ-IE-5k2" secondAttribute="centerY" id="2GS-R4-bkH"/>
                             <constraint firstItem="jeJ-XT-nMj" firstAttribute="width" secondItem="S3S-Oj-5AN" secondAttribute="width" id="BvG-F2-utq"/>
-                            <constraint firstItem="ZgQ-IE-5k2" firstAttribute="width" relation="greaterThanOrEqual" secondItem="S3S-Oj-5AN" secondAttribute="width" multiplier="2:3" id="IgO-Ve-SLQ"/>
                             <constraint firstItem="ZgQ-IE-5k2" firstAttribute="width" relation="lessThanOrEqual" secondItem="S3S-Oj-5AN" secondAttribute="width" id="J9z-yS-PA8"/>
                             <constraint firstItem="jeJ-XT-nMj" firstAttribute="height" secondItem="S3S-Oj-5AN" secondAttribute="height" id="Otq-wQ-se2"/>
                             <constraint firstItem="ZgQ-IE-5k2" firstAttribute="height" secondItem="S3S-Oj-5AN" secondAttribute="height" id="ZVx-ah-zl8"/>
@@ -258,6 +257,7 @@
                         <outlet property="receiveLabel" destination="KJN-zr-IQB" id="UkE-Pj-DLg"/>
                         <outlet property="scanButton" destination="A3s-aK-YRq" id="DzZ-4a-xEa"/>
                         <outlet property="scanLabel" destination="JgG-Ah-UZk" id="hDJ-MB-xVd"/>
+                        <outlet property="scanOverlay" destination="cGS-d8-28j" id="lBa-Qe-4sX"/>
                         <outlet property="scanView" destination="DNB-4V-cRh" id="b0e-et-B1o"/>
                         <outlet property="sendLabel" destination="QMM-JV-cTG" id="cYV-ob-UPj"/>
                         <outlet property="topViewContainer" destination="ZgQ-IE-5k2" id="rpo-gq-uPP"/>

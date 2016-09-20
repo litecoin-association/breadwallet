@@ -34,7 +34,7 @@
 
 @interface BRTodayViewController () <NCWidgetProviding>
 
-@property (nonatomic, weak) IBOutlet UIImageView *qrImage, *qrOverlay;
+@property (nonatomic, weak) IBOutlet UIImageView *qrImage, *qrOverlay, *scanOverlay;
 @property (nonatomic, weak) IBOutlet UILabel *addressLabel, *sendLabel, *receiveLabel, *scanLabel;
 @property (nonatomic, weak) IBOutlet UIButton *scanButton;
 @property (nonatomic, weak) IBOutlet UIVisualEffectView *qrView, *scanView;
@@ -61,6 +61,8 @@
         self.scanView.effect = [UIVibrancyEffect
                                 effectForBlurEffect:[UIBlurEffect effectWithStyle:UIBlurEffectStyleExtraLight]];
         self.scanButton.alpha = 0.1;
+        [self.scanButton setImage:[UIImage imageNamed:@"scanbutton-dark"] forState:UIControlStateNormal];
+        self.scanOverlay.image = [UIImage imageNamed:@"scanbutton-dark"];
     }
     
     [self updateReceiveMoneyUI];

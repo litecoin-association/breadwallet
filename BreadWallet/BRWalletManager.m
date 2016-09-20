@@ -481,7 +481,7 @@ static NSDictionary *getKeychainDict(NSString *key, NSError **error)
         NSMutableData *entropy = [NSMutableData secureDataWithLength:SEED_ENTROPY_LENGTH];
         NSTimeInterval time = [NSDate timeIntervalSinceReferenceDate];
 
-        SecRandomCopyBytes(kSecRandomDefault, entropy.length, entropy.mutableBytes);
+        if (SecRandomCopyBytes(kSecRandomDefault, entropy.length, entropy.mutableBytes) != 0) return nil;
 
         NSString *phrase = [self.mnemonic encodePhrase:entropy];
 
