@@ -898,9 +898,12 @@ memo:(NSString *)memo isSecure:(BOOL)isSecure
         
         if (img && &CIDetectorTypeQRCode) {
             @synchronized ([CIContext class]) {
-                for (CIQRCodeFeature *qr in [[CIDetector detectorOfType:CIDetectorTypeQRCode context:[CIContext
-                                              contextWithOptions:@{kCIContextUseSoftwareRenderer:@(YES)}] options:nil]
-                                             featuresInImage:[CIImage imageWithCGImage:img.CGImage]]) {
+                CIContext *context = [CIContext contextWithOptions:@{kCIContextUseSoftwareRenderer:@(YES)}];
+                
+                if (! context) context = [CIContext context];
+
+                for (CIQRCodeFeature *qr in [[CIDetector detectorOfType:CIDetectorTypeQRCode context:context
+                                              options:nil] featuresInImage:[CIImage imageWithCGImage:img.CGImage]]) {
                     [set addObject:[qr.messageString
                                     stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]]];
                 }
@@ -1035,8 +1038,15 @@ memo:(NSString *)memo isSecure:(BOOL)isSecure
         }
         
         if (img && &CIDetectorTypeQRCode) {
-            for (CIQRCodeFeature *qr in [[CIDetector detectorOfType:CIDetectorTypeQRCode context:[CIContext contextWithOptions:@{kCIContextUseSoftwareRenderer:@(YES)}] options:nil] featuresInImage:[CIImage imageWithCGImage:img.CGImage]]) {
-                [set addObject:[qr.messageString stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]]];
+            @synchronized ([CIContext class]) {
+                CIContext *context = [CIContext contextWithOptions:@{kCIContextUseSoftwareRenderer:@(YES)}];
+            
+                if (! context) context = [CIContext context];
+            
+                for (CIQRCodeFeature *qr in [[CIDetector detectorOfType:CIDetectorTypeQRCode context:context options:nil]
+                                         featuresInImage:[CIImage imageWithCGImage:img.CGImage]]) {
+                    [set addObject:[qr.messageString stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]]];
+                }
             }
         }
 

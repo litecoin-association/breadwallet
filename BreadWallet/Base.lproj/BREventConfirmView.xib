@@ -88,9 +88,6 @@ This information is completely anonymous and includes no financial information. 
                                     <exclude reference="7nV-QH-jnO"/>
                                     <exclude reference="Gq7-u9-ISD"/>
                                     <exclude reference="WYu-iT-s95"/>
-                                    <exclude reference="ic2-3L-XGp"/>
-                                    <exclude reference="mDK-tH-3Ts"/>
-                                    <exclude reference="yEa-LY-XjK"/>
                                     <exclude reference="Pbu-8f-YCt"/>
                                     <exclude reference="Rfi-xo-yzB"/>
                                     <exclude reference="dzb-EH-TRB"/>
@@ -98,6 +95,9 @@ This information is completely anonymous and includes no financial information. 
                                     <exclude reference="Bhd-0W-SOq"/>
                                     <exclude reference="JV6-3x-Z9q"/>
                                     <exclude reference="NpW-6e-y7K"/>
+                                    <exclude reference="ic2-3L-XGp"/>
+                                    <exclude reference="mDK-tH-3Ts"/>
+                                    <exclude reference="yEa-LY-XjK"/>
                                 </mask>
                             </variation>
                             <variation key="heightClass=regular-widthClass=compact">
@@ -111,9 +111,6 @@ This information is completely anonymous and includes no financial information. 
                                     <include reference="7nV-QH-jnO"/>
                                     <include reference="Gq7-u9-ISD"/>
                                     <include reference="WYu-iT-s95"/>
-                                    <include reference="ic2-3L-XGp"/>
-                                    <include reference="mDK-tH-3Ts"/>
-                                    <include reference="yEa-LY-XjK"/>
                                     <include reference="Pbu-8f-YCt"/>
                                     <include reference="Rfi-xo-yzB"/>
                                     <include reference="dzb-EH-TRB"/>
@@ -121,6 +118,9 @@ This information is completely anonymous and includes no financial information. 
                                     <include reference="Bhd-0W-SOq"/>
                                     <include reference="JV6-3x-Z9q"/>
                                     <include reference="NpW-6e-y7K"/>
+                                    <include reference="ic2-3L-XGp"/>
+                                    <include reference="mDK-tH-3Ts"/>
+                                    <include reference="yEa-LY-XjK"/>
                                 </mask>
                             </variation>
                         </view>

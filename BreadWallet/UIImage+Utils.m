@@ -53,8 +53,10 @@
     
     @synchronized ([CIContext class]) {
         // force software rendering for security (GPU rendering causes image artifacts on iOS 7 and is generally crashy)
-        cgImg = [[CIContext contextWithOptions:@{kCIContextUseSoftwareRenderer:@(YES)}]
-                 createCGImage:filter.outputImage fromRect:filter.outputImage.extent];
+        CIContext *context = [CIContext contextWithOptions:@{kCIContextUseSoftwareRenderer:@(YES)}];
+        
+        if (! context) context = [CIContext context];
+        cgImg = [context createCGImage:filter.outputImage fromRect:filter.outputImage.extent];
     }
 
     image = [UIImage imageWithCGImage:cgImg];

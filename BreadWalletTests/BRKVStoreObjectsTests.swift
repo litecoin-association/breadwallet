@@ -49,7 +49,7 @@ class BRKVStoreObjectsTests: XCTestCase {
         let notThere = BRTxMetadataObject(txHash: tx.txHash, store: store)
         XCTAssertNil(notThere)
         
-        let newObj = BRTxMetadataObject(transaction: tx)
+        let newObj = BRTxMetadataObject(transaction: tx, exchangeRate: 500.0, exchangeRateCurrency: "USD", feeRate: 33784, deviceId: "ABC123")
         XCTAssertEqual(newObj.blockHeight, Int(tx.blockHeight))
         try! store.set(newObj)
         
@@ -59,7 +59,7 @@ class BRKVStoreObjectsTests: XCTestCase {
         }
         XCTAssertEqual(fetchedObj.blockHeight, Int(tx.blockHeight))
         
-        let otherNewObj = BRTxMetadataObject(transaction: tx)
+        let otherNewObj = BRTxMetadataObject(transaction: tx, exchangeRate: 500.0, exchangeRateCurrency: "USD", feeRate: 33784, deviceId: "ABC123")
         XCTAssertThrowsError(try store.set(otherNewObj))
     }
 }
