@@ -29,6 +29,7 @@
 		2230E2441D610D9A001EF2E9 /* BRCoding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2230E2401D610A63001EF2E9 /* BRCoding.swift */; };
 		22331F441D60312F00F29551 /* BRKVStoreObjects.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22331F431D60312F00F29551 /* BRKVStoreObjects.swift */; };
 		225383011C694D7400968BEE /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 225383001C694D7400968BEE /* CoreLocation.framework */; };
+		22649FED1DAABDB200042EBC /* BRCameraPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22649FEC1DAABDB200042EBC /* BRCameraPlugin.swift */; };
 		2284B63F1C7BD28F0012ECDF /* BRAWKeypad.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22F45A0A1C30EAB700B07A15 /* BRAWKeypad.swift */; };
 		229279981C695C4200C98E78 /* BRHTTPServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 229279971C695C4200C98E78 /* BRHTTPServer.swift */; };
 		2292799A1C695CAE00C98E78 /* BRHTTPFileMiddleware.swift in Sources */ = {isa = PBXBuildFile; fileRef = 229279991C695CAE00C98E78 /* BRHTTPFileMiddleware.swift */; };
@@ -251,6 +252,7 @@
 		2230E2421D610C91001EF2E9 /* BRCodingTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BRCodingTests.swift; sourceTree = "<group>"; };
 		22331F431D60312F00F29551 /* BRKVStoreObjects.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BRKVStoreObjects.swift; sourceTree = "<group>"; };
 		225383001C694D7400968BEE /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
+		22649FEC1DAABDB200042EBC /* BRCameraPlugin.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BRCameraPlugin.swift; sourceTree = "<group>"; };
 		229279971C695C4200C98E78 /* BRHTTPServer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BRHTTPServer.swift; sourceTree = "<group>"; };
 		229279991C695CAE00C98E78 /* BRHTTPFileMiddleware.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BRHTTPFileMiddleware.swift; sourceTree = "<group>"; };
 		2292799B1C695CD600C98E78 /* BRHTTPRouter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BRHTTPRouter.swift; sourceTree = "<group>"; };
@@ -619,6 +621,7 @@
 				220128D61C76E4F30001CAC1 /* BRWalletPlugin.swift */,
 				22005B951C9276AF00F87733 /* BRLinkPlugin.swift */,
 				22B5F7831D665A0300657B77 /* BRKVStorePlugin.swift */,
+				22649FEC1DAABDB200042EBC /* BRCameraPlugin.swift */,
 			);
 			name = "HTTP Plugins";
 			sourceTree = "<group>";
@@ -1428,6 +1431,7 @@
 				752E28EA19234DA200DB5A3C /* NSMutableData+Bitcoin.m in Sources */,
 				752E28EB19234DA200DB5A3C /* NSString+Bitcoin.m in Sources */,
 				757C89521A2FCE420076B373 /* BRSettingsViewController.m in Sources */,
+				22649FED1DAABDB200042EBC /* BRCameraPlugin.swift in Sources */,
 				220128D51C76E1550001CAC1 /* BRWebSocket.swift in Sources */,
 				75D5F3D2191EC270004AB296 /* BRAppDelegate.m in Sources */,
 				759FBB36193290F600AB4465 /* BRRootViewController.m in Sources */,

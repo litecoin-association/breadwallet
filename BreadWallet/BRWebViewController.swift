@@ -122,6 +122,9 @@ import WebKit
         // geo plugin provides access to onboard geo location functionality
         router.plugin(BRGeoLocationPlugin())
         
+        // camera plugin 
+        router.plugin(BRCameraPlugin(fromViewController: self))
+        
         // wallet plugin provides access to the wallet
         router.plugin(BRWalletPlugin())
         
@@ -138,6 +141,8 @@ import WebKit
             }
             return BRHTTPResponse(request: request, code: 204)
         }
+        
+        router.printDebug()
         
         // enable debug if it is turned on
         if let debugUrl = debugEndpoint {

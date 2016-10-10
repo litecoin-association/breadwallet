@@ -177,4 +177,10 @@ public typealias BRHTTPRoute = (request: BRHTTPRequest, match: BRHTTPRouteMatch)
         plugin.hook(self)
         plugins.append(plugin)
     }
+    
+    public func printDebug() {
+        for (r, _) in routes {
+            print("[BRHTTPRouter] \(r.method) \(r.path)")
+        }
+    }
 }
