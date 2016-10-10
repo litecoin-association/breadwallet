@@ -9,7 +9,8 @@
 import Foundation
 
 @available(iOS 8.0, *)
-@objc public class BRCameraPlugin: NSObject, BRHTTPRouterPlugin, UIImagePickerControllerDelegate, UINavigationControllerDelegate, CameraOverlayDelegate {
+@objc public class BRCameraPlugin: NSObject, BRHTTPRouterPlugin, UIImagePickerControllerDelegate,
+                                   UINavigationControllerDelegate, CameraOverlayDelegate {
     
     let controller: UIViewController
     var response: BRHTTPResponse?
@@ -46,29 +47,29 @@ import Foundation
             self.response = response
             
             dispatch_async(dispatch_get_main_queue()) {
-                self.picker = UIImagePickerController()
-                self.picker!.delegate = self
-                self.picker!.sourceType = .Camera
-                self.picker!.cameraCaptureMode = .Photo
+                let picker = UIImagePickerController()
+                picker.delegate = self
+                picker.sourceType = .Camera
+                picker.cameraCaptureMode = .Photo
                 
                 // set overlay
                 if let overlay = request.query["overlay"] where overlay.count == 1 {
                     print(["BRCameraPlugin] overlay = \(overlay)"])
                     let screenBounds = UIScreen.mainScreen().bounds
                     if overlay[0] == "id" {
-                        self.picker!.showsCameraControls = false
-                        self.picker!.allowsEditing = false
-                        self.picker!.hidesBarsOnTap = true
-                        self.picker!.navigationBarHidden = true
+                        picker.showsCameraControls = false
+                        picker.allowsEditing = false
+                        picker.hidesBarsOnTap = true
+                        picker.navigationBarHidden = true
                         
                         let overlay = IDCameraOverlay(frame: screenBounds)
                         overlay.delegate = self
                         overlay.backgroundColor = UIColor.clearColor()
-                        self.picker!.cameraOverlayView = overlay
+                        picker.cameraOverlayView = overlay
                     }
                 }
-                
-                self.controller.presentViewController(self.picker!, animated: true, completion: nil)
+                self.picker = picker
+                self.controller.presentViewController(picker, animated: true, completion: nil)
             }
             
             return response
@@ -141,10 +142,7 @@ import Foundation
                 }
                 let id = try self.writeImage(img)
                 print(["[BRCameraPlugin] wrote image to \(id)"])
-                let respData = [
-                    "id": id
-                ]
-                resp.provide(200, json: respData)
+                resp.provide(200, json: ["id": id])
             } catch let e {
                 print("[BRCameraPlugin] error writing image: \(e)")
                 resp.provide(500)
@@ -157,7 +155,9 @@ import Foundation
     }
     
     func cancelPhoto() {
-        self.imagePickerController(self.picker!, didFinishPickingMediaWithInfo: [String: AnyObject]())
+        if let picker = self.picker {
+            self.imagePickerControllerDidCancel(picker)
+        }
     }
     
     func readImage(name: String) throws -> [UInt8] {
@@ -304,15 +304,14 @@ class IDCameraOverlay: UIView, CameraOverlay {
         case .Right:
             transform = CGAffineTransformTranslate(CGAffineTransformMakeRotation(rad(-90)), -image.size.width, 0)
         case .Down:
-            transform = CGAffineTransformTranslate(CGAffineTransformMakeRotation(rad(-180)), -image.size.width, -image.size.height)
+            transform = CGAffineTransformTranslate(CGAffineTransformMakeRotation(rad(-180)),
+                                                   -image.size.width, -image.size.height)
         default:
             transform = CGAffineTransformIdentity
         }
         transform = CGAffineTransformScale(transform, image.scale, image.scale)
         cutout = CGRectApplyAffineTransform(cutout, transform)
         
-        print("img \(image.size)")
-        print("cutout x=\(cutout.origin.x) y=\(cutout.origin.y) w=\(cutout.size.width) h=\(cutout.size.height))")
         guard let retRef = CGImageCreateWithImageInRect(cgimg, cutout) else {
             return nil
         }
