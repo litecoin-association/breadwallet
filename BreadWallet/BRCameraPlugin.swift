@@ -50,16 +50,17 @@ import Foundation
                 self.picker!.delegate = self
                 self.picker!.sourceType = .Camera
                 self.picker!.cameraCaptureMode = .Photo
-                self.picker!.showsCameraControls = false
-                self.picker!.allowsEditing = false
-                self.picker!.hidesBarsOnTap = true
-                self.picker!.navigationBarHidden = true
                 
                 // set overlay
                 if let overlay = request.query["overlay"] where overlay.count == 1 {
                     print(["BRCameraPlugin] overlay = \(overlay)"])
                     let screenBounds = UIScreen.mainScreen().bounds
                     if overlay[0] == "id" {
+                        self.picker!.showsCameraControls = false
+                        self.picker!.allowsEditing = false
+                        self.picker!.hidesBarsOnTap = true
+                        self.picker!.navigationBarHidden = true
+                        
                         let overlay = IDCameraOverlay(frame: screenBounds)
                         overlay.delegate = self
                         overlay.backgroundColor = UIColor.clearColor()
@@ -73,7 +74,7 @@ import Foundation
             return response
         }
         
-        // GET /_camera/picture(id)
+        // GET /_camera/picture/(id)
         //
         // Return a picture as taken by take_picture
         //
@@ -122,7 +123,7 @@ import Foundation
         guard let resp = self.response else {
             return
         }
-        guard let img = info[UIImagePickerControllerOriginalImage] as? UIImage else {
+        guard var img = info[UIImagePickerControllerOriginalImage] as? UIImage else {
             print("[BRCameraPlugin] error picking image... original image doesnt exist. data: \(info)")
             resp.provide(500)
             response = nil
@@ -133,6 +134,11 @@ import Foundation
                 self.response = nil
             }
             do {
+                if let overlay = self.picker?.cameraOverlayView as? CameraOverlay {
+                    if let croppedImg = overlay.cropImage(img) {
+                        img = croppedImg
+                    }
+                }
                 let id = try self.writeImage(img)
                 print(["[BRCameraPlugin] wrote image to \(id)"])
                 let respData = [
@@ -196,7 +202,11 @@ protocol CameraOverlayDelegate {
     func cancelPhoto()
 }
 
-class IDCameraOverlay: UIView {
+protocol CameraOverlay {
+    func cropImage(image: UIImage) -> UIImage?
+}
+
+class IDCameraOverlay: UIView, CameraOverlay {
     var delegate: CameraOverlayDelegate?
     let takePhotoButton: UIButton
     let cancelButton: UIButton
@@ -269,5 +279,43 @@ class IDCameraOverlay: UIView {
         ]
         
         str.drawInRect(CGRectMake(0, CGRectGetMaxY(cutout) + 14.0, rect.width, 22), withAttributes: attr)
+    }
+    
+    func cropImage(image: UIImage) -> UIImage? {
+        guard let cgimg = image.CGImage else {
+            return nil
+        }
+        let rect = CGRectMake(0, 0, image.size.width, image.size.height)
+        let width = rect.size.width * 0.9
+        var cutout = CGRect(origin: rect.origin,
+                            size: CGSize(width: width, height: width * 0.65))
+        cutout.origin.x = (rect.size.width - cutout.size.width) * 0.5
+        cutout.origin.y = (rect.size.height - cutout.size.height) * 0.5
+        cutout = CGRectIntegral(cutout)
+        
+        func rad(f: CGFloat) -> CGFloat {
+            return f / 180.0 * CGFloat(M_PI)
+        }
+        
+        var transform: CGAffineTransform!
+        switch image.imageOrientation {
+        case .Left:
+            transform = CGAffineTransformTranslate(CGAffineTransformMakeRotation(rad(90)), 0, -image.size.height)
+        case .Right:
+            transform = CGAffineTransformTranslate(CGAffineTransformMakeRotation(rad(-90)), -image.size.width, 0)
+        case .Down:
+            transform = CGAffineTransformTranslate(CGAffineTransformMakeRotation(rad(-180)), -image.size.width, -image.size.height)
+        default:
+            transform = CGAffineTransformIdentity
+        }
+        transform = CGAffineTransformScale(transform, image.scale, image.scale)
+        cutout = CGRectApplyAffineTransform(cutout, transform)
+        
+        print("img \(image.size)")
+        print("cutout x=\(cutout.origin.x) y=\(cutout.origin.y) w=\(cutout.size.width) h=\(cutout.size.height))")
+        guard let retRef = CGImageCreateWithImageInRect(cgimg, cutout) else {
+            return nil
+        }
+        return UIImage(CGImage: retRef, scale: image.scale, orientation: image.imageOrientation)
     }
 }
