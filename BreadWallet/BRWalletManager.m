@@ -559,7 +559,7 @@ static NSDictionary *getKeychainDict(NSString *key, NSError **error)
     if ([self authenticatePinWithTitle:[NSString stringWithFormat:NSLocalizedString(@"passcode for %@", nil),
                                         DISPLAY_NAME] message:authprompt]) {
         [self.alertView dismissWithClickedButtonIndex:self.alertView.cancelButtonIndex animated:YES];
-        [self hideKeyboard];
+//        [self hideKeyboard];
         return YES;
     }
     else return NO;
@@ -790,7 +790,7 @@ static NSDictionary *getKeychainDict(NSString *key, NSError **error)
             self.pinField.text = self.currentPin = nil;
             setKeychainString(pin, PIN_KEY, NO);
             [self.alertView dismissWithClickedButtonIndex:self.alertView.cancelButtonIndex animated:YES];
-            [self hideKeyboard];
+//            [self hideKeyboard];
             return YES;
         }
 
@@ -834,16 +834,16 @@ static NSDictionary *getKeychainDict(NSString *key, NSError **error)
 }
 
 // the keyboard can take a second or more to dismiss, this hides it quickly to improve perceived response time
-- (void)hideKeyboard
-{
-    for (UIWindow *w in [UIApplication sharedApplication].windows) {
-        if (w.windowLevel == UIWindowLevelNormal || w.windowLevel == UIWindowLevelAlert ||
-            w.windowLevel == UIWindowLevelStatusBar) continue;
-        [UIView animateWithDuration:0.2 animations:^{ w.alpha = 0; }];
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 2*NSEC_PER_SEC), dispatch_get_main_queue(), ^{ w.alpha = 1; });
-        break;
-    }
-}
+//- (void)hideKeyboard
+//{
+//    for (UIWindow *w in [UIApplication sharedApplication].windows) {
+//        if (w.windowLevel == UIWindowLevelNormal || w.windowLevel == UIWindowLevelAlert ||
+//            w.windowLevel == UIWindowLevelStatusBar) continue;
+//        [UIView animateWithDuration:0.2 animations:^{ w.alpha = 0; }];
+//        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 2*NSEC_PER_SEC), dispatch_get_main_queue(), ^{ w.alpha = 1; });
+//        break;
+//    }
+//}
 
 // MARK: - exchange rate
 
@@ -1303,7 +1303,7 @@ replacementString:(NSString *)string
 {
     [NSObject cancelPreviousPerformRequestsWithTarget:alertView];
     if (alertView == self.alertView) self.alertView = nil;
-    if (_pinField.isFirstResponder) [self hideKeyboard];
+//    if (_pinField.isFirstResponder) [self hideKeyboard];
     _pinField = nil;
 
     if (buttonIndex == alertView.cancelButtonIndex) {
