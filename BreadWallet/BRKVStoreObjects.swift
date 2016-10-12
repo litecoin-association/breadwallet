@@ -30,7 +30,7 @@ import Foundation
 // Txn metadata stores additional information about a given transaction
 
 
-@objc public class BRTxMetadataObject: BRKVStoreObject, BRCoding {
+@objc open class BRTxMetadataObject: BRKVStoreObject, BRCoding {
     var classVersion: Int = 1
     
     var blockHeight: Int = 0
@@ -38,7 +38,7 @@ import Foundation
     var exchangeRateCurrency: String = ""
     var feeRate: Double = 0
     var size: Int = 0
-    var created: NSDate = NSDate.zeroValue()
+    var created: Date = Date.zeroValue()
     var deviceId: String = ""
     
     required public init?(coder decoder: BRCoder) {
@@ -54,10 +54,10 @@ import Foundation
         size = decoder.decode("s")
         deviceId = decoder.decode("dId")
         created = decoder.decode("c")
-        super.init(key: "", version: 0, lastModified: NSDate(), deleted: true, data: NSData())
+        super.init(key: "", version: 0, lastModified: Date(), deleted: true, data: Data())
     }
     
-    func encode(coder: BRCoder) {
+    func encode(_ coder: BRCoder) {
         coder.encode(classVersion, key: "classVersion")
         coder.encode(blockHeight, key: "bh")
         coder.encode(exchangeRate, key: "er")
@@ -71,7 +71,7 @@ import Foundation
     /// Find metadata object based on the txHash
     public init?(txHash: UInt256, store: BRReplicatedKVStore) {
         var ver: UInt64
-        var date: NSDate
+        var date: Date
         var del: Bool
         var bytes: [UInt8]
         print("find \(txHash.txKey)")
@@ -81,7 +81,7 @@ import Foundation
             print("Unable to initialize BRTxMetadataObject: \(e)")
             return nil
         }
-        let bytesDat = NSData(bytes: &bytes, length: bytes.count)
+        let bytesDat = Data(bytes: &bytes, count: bytes.count)
         super.init(key: txHash.txKey, version: ver, lastModified: date, deleted: del, data: bytesDat)
     }
     
@@ -89,9 +89,9 @@ import Foundation
     public init(transaction: BRTransaction, exchangeRate: Double, exchangeRateCurrency: String, feeRate: Double,
                 deviceId: String) {
         print("new \(transaction.txHash.txKey)")
-        super.init(key: transaction.txHash.txKey, version: 0, lastModified: NSDate(), deleted: false, data: NSData())
+        super.init(key: transaction.txHash.txKey, version: 0, lastModified: Date(), deleted: false, data: Data())
         self.blockHeight = Int(transaction.blockHeight)
-        self.created = NSDate()
+        self.created = Date()
         self.size = Int(transaction.size)
         self.exchangeRate = exchangeRate
         self.exchangeRateCurrency = exchangeRateCurrency
@@ -99,11 +99,11 @@ import Foundation
         self.deviceId = deviceId
     }
     
-    override func getData() -> NSData? {
+    override func getData() -> Data? {
         return BRKeyedArchiver.archivedDataWithRootObject(self)
     }
     
-    override func dataWasSet(value: NSData) {
+    override func dataWasSet(_ value: Data) {
         guard let s: BRTxMetadataObject = BRKeyedUnarchiver.unarchiveObjectWithData(value) else {
             print("unable to deserialise tx metadata")
             return
@@ -122,8 +122,8 @@ extension UInt256 {
     var txKey: String {
         get {
             var u = self
-            return withUnsafePointer(&u) { p in
-                let bd = NSData(bytes: p, length: sizeofValue(p)).SHA256()
+            return withUnsafePointer(to: &u) { p in
+                let bd = (Data(bytes: p, count: MemoryLayout.size(ofValue: p)) as NSData).sha256()
                 return "txn-\(bd.hexString)"
             }
         }
@@ -132,8 +132,8 @@ extension UInt256 {
     var hexString: String {
         get {
             var u = self
-            return withUnsafePointer(&u, { p in
-                return NSData(bytes: p, length: sizeofValue(p)).hexString
+            return withUnsafePointer(to: &u, { p in
+                return Data(bytes: p, count: MemoryLayout.size(ofValue: p)).hexString
             })
         }
     }

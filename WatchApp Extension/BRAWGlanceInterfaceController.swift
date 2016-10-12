@@ -24,6 +24,26 @@
 //  THE SOFTWARE.
 
 import WatchKit
+fileprivate func < <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
+  switch (lhs, rhs) {
+  case let (l?, r?):
+    return l < r
+  case (nil, _?):
+    return true
+  default:
+    return false
+  }
+}
+
+fileprivate func <= <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
+  switch (lhs, rhs) {
+  case let (l?, r?):
+    return l <= r
+  default:
+    return !(rhs < lhs)
+  }
+}
+
 
 class BRAWGlanceInterfaceController: WKInterfaceController {
     
@@ -33,8 +53,8 @@ class BRAWGlanceInterfaceController: WKInterfaceController {
     @IBOutlet var lastTransactionLabel: WKInterfaceLabel!
     @IBOutlet var balanceInfoContainer: WKInterfaceGroup!
     @IBOutlet var loadingIndicator: WKInterfaceGroup!
-    override func awakeWithContext(context: AnyObject?) {
-        super.awakeWithContext(context)
+    override func awake(withContext context: Any?) {
+        super.awake(withContext: context)
         // Configure interface objects here.
         updateUI()
     }
@@ -44,15 +64,15 @@ class BRAWGlanceInterfaceController: WKInterfaceController {
         super.willActivate()
         BRAWWatchDataManager.sharedInstance.setupTimer()
         updateUI()
-        NSNotificationCenter.defaultCenter().addObserver(
-            self, selector: #selector(BRAWGlanceInterfaceController.updateUI), name: BRAWWatchDataManager.ApplicationDataDidUpdateNotification, object: nil)
+        NotificationCenter.default.addObserver(
+            self, selector: #selector(BRAWGlanceInterfaceController.updateUI), name: NSNotification.Name(rawValue: BRAWWatchDataManager.ApplicationDataDidUpdateNotification), object: nil)
     }
     
     override func didDeactivate() {
         // This method is called when watch view controller is no longer visible
         super.didDeactivate()
         BRAWWatchDataManager.sharedInstance.destoryTimer()
-        NSNotificationCenter.defaultCenter().removeObserver(self)
+        NotificationCenter.default.removeObserver(self)
     }
     
     func updateUI() {
@@ -75,15 +95,15 @@ class BRAWGlanceInterfaceController: WKInterfaceController {
     
     func updateContainerVisibility() {
         switch BRAWWatchDataManager.sharedInstance.walletStatus {
-            case .Unknown:
+            case .unknown:
                 loadingIndicator.setHidden(false)
                 balanceInfoContainer.setHidden(true)
                 setupWalletContainer.setHidden(true)
-            case .NotSetup:
+            case .notSetup:
                 loadingIndicator.setHidden(true)
                 balanceInfoContainer.setHidden(true)
                 setupWalletContainer.setHidden(false)
-            case .HasSetup:
+            case .hasSetup:
                 loadingIndicator.setHidden(true)
                 balanceInfoContainer.setHidden(false)
                 setupWalletContainer.setHidden(true)

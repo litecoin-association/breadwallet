@@ -45,10 +45,10 @@ class BreadWalletUISnapshot: XCTestCase {
             let app = XCUIApplication()
             snapshot("1")
             
-            app.childrenMatchingType(.Window).elementBoundByIndex(0).tap()
+            app.children(matching: .window).element(boundBy: 0).tap()
             snapshot("3")
             
-            app.pageIndicators.elementBoundByIndex(0).tap()
+            app.pageIndicators.element(boundBy: 0).tap()
             snapshot("2")
             
             app.navigationBars.buttons["burger"].tap()

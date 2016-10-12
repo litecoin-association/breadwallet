@@ -25,23 +25,43 @@
 //  THE SOFTWARE.
 
 import Foundation
+fileprivate func < <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
+  switch (lhs, rhs) {
+  case let (l?, r?):
+    return l < r
+  case (nil, _?):
+    return true
+  default:
+    return false
+  }
+}
+
+fileprivate func > <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
+  switch (lhs, rhs) {
+  case let (l?, r?):
+    return l > r
+  default:
+    return rhs < lhs
+  }
+}
 
 
-enum BRHTTPServerError: ErrorType {
-    case SocketCreationFailed
-    case SocketBindFailed
-    case SocketListenFailed
-    case SocketRecvFailed
-    case SocketWriteFailed
-    case InvalidHttpRequest
-    case InvalidRangeHeader
+
+enum BRHTTPServerError: Error {
+    case socketCreationFailed
+    case socketBindFailed
+    case socketListenFailed
+    case socketRecvFailed
+    case socketWriteFailed
+    case invalidHttpRequest
+    case invalidRangeHeader
 }
 
 @objc public protocol BRHTTPMiddleware {
-    func handle(request: BRHTTPRequest, next: (BRHTTPMiddlewareResponse) -> Void)
+    func handle(_ request: BRHTTPRequest, next: @escaping (BRHTTPMiddlewareResponse) -> Void)
 }
 
-@objc public class BRHTTPMiddlewareResponse: NSObject {
+@objc open class BRHTTPMiddlewareResponse: NSObject {
     var request: BRHTTPRequest
     var response: BRHTTPResponse?
     
@@ -51,7 +71,7 @@ enum BRHTTPServerError: ErrorType {
     }
 }
 
-@objc public class BRHTTPServer: NSObject {
+@objc open class BRHTTPServer: NSObject {
     var fd: Int32 = -1
     var clients: Set<Int32> = []
     var middleware: [BRHTTPMiddleware] = [BRHTTPMiddleware]()
@@ -59,16 +79,16 @@ enum BRHTTPServerError: ErrorType {
     var port: in_port_t = 0
     var listenAddress: String = "127.0.0.1"
     
-    var _Q: dispatch_queue_t? = nil
-    var Q: dispatch_queue_t {
+    var _Q: DispatchQueue? = nil
+    var Q: DispatchQueue {
         if _Q == nil {
-            _Q = dispatch_queue_create("br_http_server", DISPATCH_QUEUE_CONCURRENT)
+            _Q = DispatchQueue(label: "br_http_server", attributes: DispatchQueue.Attributes.concurrent)
         }
         return _Q!
     }
     
     func prependMiddleware(middleware mw: BRHTTPMiddleware) {
-        middleware.insert(mw, atIndex: 0)
+        middleware.insert(mw, at: 0)
     }
     
     func appendMiddleware(middle mw: BRHTTPMiddleware) {
@@ -87,66 +107,66 @@ enum BRHTTPServerError: ErrorType {
                 try listenServer(port)
                 self.port = port
                 // backgrounding
-                NSNotificationCenter.defaultCenter().addObserver(
+                NotificationCenter.default.addObserver(
                     self, selector: #selector(BRHTTPServer.suspend(_:)),
-                    name: UIApplicationWillResignActiveNotification, object: nil
+                    name: NSNotification.Name.UIApplicationWillResignActive, object: nil
                 )
-                NSNotificationCenter.defaultCenter().addObserver(
+                NotificationCenter.default.addObserver(
                     self, selector: #selector(BRHTTPServer.suspend(_:)),
-                    name: UIApplicationDidEnterBackgroundNotification, object: nil)
+                    name: NSNotification.Name.UIApplicationDidEnterBackground, object: nil)
                 // foregrounding
-                NSNotificationCenter.defaultCenter().addObserver(
+                NotificationCenter.default.addObserver(
                     self, selector: #selector(BRHTTPServer.resume(_:)),
-                    name: UIApplicationWillEnterForegroundNotification, object: nil)
-                NSNotificationCenter.defaultCenter().addObserver(
+                    name: NSNotification.Name.UIApplicationWillEnterForeground, object: nil)
+                NotificationCenter.default.addObserver(
                     self, selector: #selector(BRHTTPServer.resume(_:)),
-                    name: UIApplicationDidBecomeActiveNotification, object: nil
+                    name: NSNotification.Name.UIApplicationDidBecomeActive, object: nil
                 )
                 return
             } catch {
                 continue
             }
         }
-        throw BRHTTPServerError.SocketBindFailed
+        throw BRHTTPServerError.socketBindFailed
     }
     
-    func listenServer(port: in_port_t, maxPendingConnections: Int32 = SOMAXCONN) throws {
+    func listenServer(_ port: in_port_t, maxPendingConnections: Int32 = SOMAXCONN) throws {
         shutdownServer()
         
         let sfd = socket(AF_INET, SOCK_STREAM, 0)
         if sfd == -1 {
-            throw BRHTTPServerError.SocketCreationFailed
+            throw BRHTTPServerError.socketCreationFailed
         }
         var v: Int32 = 1
-        if setsockopt(sfd, SOL_SOCKET, SO_REUSEADDR, &v, socklen_t(sizeof(Int32))) == -1 {
-            Darwin.shutdown(sfd, SHUT_RDWR)
+        if setsockopt(sfd, SOL_SOCKET, SO_REUSEADDR, &v, socklen_t(MemoryLayout<Int32>.size)) == -1 {
+            _ = Darwin.shutdown(sfd, SHUT_RDWR)
             close(sfd)
-            throw BRHTTPServerError.SocketCreationFailed
+            throw BRHTTPServerError.socketCreationFailed
         }
         v = 1
-        setsockopt(sfd, SOL_SOCKET, SO_NOSIGPIPE, &v, socklen_t(sizeof(Int32)))
+        setsockopt(sfd, SOL_SOCKET, SO_NOSIGPIPE, &v, socklen_t(MemoryLayout<Int32>.size))
         var addr = sockaddr_in()
-        addr.sin_len = __uint8_t(sizeof(sockaddr_in))
+        addr.sin_len = __uint8_t(MemoryLayout<sockaddr_in>.size)
         addr.sin_family = sa_family_t(AF_INET)
         addr.sin_port = Int(OSHostByteOrder()) == OSLittleEndian ? _OSSwapInt16(port) : port
         addr.sin_addr = in_addr(s_addr: inet_addr(listenAddress))
         addr.sin_zero = (0, 0, 0, 0, 0, 0, 0 ,0)
         
         var bind_addr = sockaddr()
-        memcpy(&bind_addr, &addr, Int(sizeof(sockaddr_in)))
+        memcpy(&bind_addr, &addr, Int(MemoryLayout<sockaddr_in>.size))
         
-        if bind(sfd, &bind_addr, socklen_t(sizeof(sockaddr_in))) == -1 {
+        if bind(sfd, &bind_addr, socklen_t(MemoryLayout<sockaddr_in>.size)) == -1 {
             perror("bind error");
-            Darwin.shutdown(sfd, SHUT_RDWR)
+            _ = Darwin.shutdown(sfd, SHUT_RDWR)
             close(sfd)
-            throw BRHTTPServerError.SocketBindFailed
+            throw BRHTTPServerError.socketBindFailed
         }
         
         if listen(sfd, maxPendingConnections) == -1 {
             perror("listen error");
-            Darwin.shutdown(sfd, SHUT_RDWR)
+            _ = Darwin.shutdown(sfd, SHUT_RDWR)
             close(sfd)
-            throw BRHTTPServerError.SocketListenFailed
+            throw BRHTTPServerError.socketListenFailed
         }
         
         fd = sfd
@@ -155,33 +175,33 @@ enum BRHTTPServerError: ErrorType {
     }
     
     func shutdownServer() {
-        Darwin.shutdown(fd, SHUT_RDWR)
+        _ = Darwin.shutdown(fd, SHUT_RDWR)
         close(fd)
         fd = -1
         objc_sync_enter(self)
         defer { objc_sync_exit(self) }
         for cli_fd in self.clients {
-            Darwin.shutdown(cli_fd, SHUT_RDWR)
+            _ = Darwin.shutdown(cli_fd, SHUT_RDWR)
         }
-        self.clients.removeAll(keepCapacity: true)
+        self.clients.removeAll(keepingCapacity: true)
         print("[BRHTTPServer] no longer listening")
     }
     
     func stop() {
         shutdownServer()
         // background
-        NSNotificationCenter.defaultCenter().removeObserver(
-            self, name: UIApplicationDidEnterBackgroundNotification, object: nil)
-        NSNotificationCenter.defaultCenter().removeObserver(
-            self, name: UIApplicationWillResignActiveNotification, object: nil)
+        NotificationCenter.default.removeObserver(
+            self, name: NSNotification.Name.UIApplicationDidEnterBackground, object: nil)
+        NotificationCenter.default.removeObserver(
+            self, name: NSNotification.Name.UIApplicationWillResignActive, object: nil)
         // foreground
-        NSNotificationCenter.defaultCenter().removeObserver(
-            self, name: UIApplicationWillEnterForegroundNotification, object: nil)
-        NSNotificationCenter.defaultCenter().removeObserver(
-            self, name: UIApplicationDidBecomeActiveNotification, object: nil)
+        NotificationCenter.default.removeObserver(
+            self, name: NSNotification.Name.UIApplicationWillEnterForeground, object: nil)
+        NotificationCenter.default.removeObserver(
+            self, name: NSNotification.Name.UIApplicationDidBecomeActive, object: nil)
     }
     
-    func suspend(_: NSNotification) {
+    func suspend(_: Notification) {
         if isStarted {
             shutdownServer()
             print("[BRHTTPServer] suspended")
@@ -190,7 +210,7 @@ enum BRHTTPServerError: ErrorType {
         }
     }
     
-    func resume(_: NSNotification) {
+    func resume(_: Notification) {
         if !isStarted {
             do {
                 try listenServer(port)
@@ -203,20 +223,20 @@ enum BRHTTPServerError: ErrorType {
         }
     }
     
-    func addClient(cli_fd: Int32) {
+    func addClient(_ cli_fd: Int32) {
         objc_sync_enter(self)
         defer { objc_sync_exit(self) }
         clients.insert(cli_fd)
     }
     
-    func rmClient(cli_fd: Int32) {
+    func rmClient(_ cli_fd: Int32) {
         objc_sync_enter(self)
         defer { objc_sync_exit(self) }
         clients.remove(cli_fd)
     }
     
-    private func acceptClients() {
-        dispatch_async(Q) { () -> Void in
+    fileprivate func acceptClients() {
+        Q.async { () -> Void in
             while true {
                 var addr = sockaddr(sa_len: 0, sa_family: 0, sa_data: (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0))
                 var len: socklen_t = 0
@@ -225,13 +245,13 @@ enum BRHTTPServerError: ErrorType {
                     break
                 }
                 var v: Int32 = 1
-                setsockopt(cli_fd, SOL_SOCKET, SO_NOSIGPIPE, &v, socklen_t(sizeof(Int32)))
+                setsockopt(cli_fd, SOL_SOCKET, SO_NOSIGPIPE, &v, socklen_t(MemoryLayout<Int32>.size))
                 self.addClient(cli_fd)
                 // print("startup: \(cli_fd)")
-                dispatch_async(self.Q) { () -> Void in
+                self.Q.async { () -> Void in
                     while let req = try? BRHTTPRequestImpl(readFromFd: cli_fd, queue: self.Q) {
                         self.dispatch(middleware: self.middleware, req: req) { resp in
-                            Darwin.shutdown(cli_fd, SHUT_RDWR)
+                            _ = Darwin.shutdown(cli_fd, SHUT_RDWR)
                             // print("shutdown: \(cli_fd)")
                             close(cli_fd)
                             self.rmClient(cli_fd)
@@ -244,7 +264,7 @@ enum BRHTTPServerError: ErrorType {
         }
     }
     
-    private func dispatch(middleware mw: [BRHTTPMiddleware], req: BRHTTPRequest, finish: (BRHTTPResponse) -> Void) {
+    fileprivate func dispatch(middleware mw: [BRHTTPMiddleware], req: BRHTTPRequest, finish: @escaping (BRHTTPResponse) -> Void) {
         var newMw = mw
         if let curMw = newMw.popLast() {
             curMw.handle(req, next: { (mwResp) -> Void in
@@ -272,7 +292,7 @@ enum BRHTTPServerError: ErrorType {
         }
     }
     
-    private func logline(request: BRHTTPRequest, response: BRHTTPResponse) {
+    fileprivate func logline(_ request: BRHTTPRequest, response: BRHTTPResponse) {
         let ms = Double(round((request.start.timeIntervalSinceNow * -1000.0)*1000)/1000)
         let b = response.body?.count ?? 0
         let c = response.statusCode ?? -1
@@ -283,38 +303,38 @@ enum BRHTTPServerError: ErrorType {
 
 @objc public protocol BRHTTPRequest {
     var fd: Int32 { get }
-    var queue: dispatch_queue_t { get }
+    var queue: DispatchQueue { get }
     var method: String { get }
     var path: String { get }
     var queryString: String { get }
     var query: [String: [String]] { get }
     var headers: [String: [String]] { get }
     var isKeepAlive: Bool { get }
-    func body() -> NSData?
+    func body() -> Data?
     var hasBody: Bool { get }
     var contentType: String { get }
     var contentLength: Int { get }
-    var start: NSDate { get }
-    optional func json() -> AnyObject?
+    var start: Date { get }
+    @objc optional func json() -> AnyObject?
 }
 
-@objc public class BRHTTPRequestImpl: NSObject, BRHTTPRequest {
-    public var fd: Int32
-    public var queue: dispatch_queue_t
-    public var method = "GET"
-    public var path = "/"
-    public var queryString = ""
-    public var query = [String: [String]]()
-    public var headers = [String: [String]]()
-    public var start = NSDate()
+@objc open class BRHTTPRequestImpl: NSObject, BRHTTPRequest {
+    open var fd: Int32
+    open var queue: DispatchQueue
+    open var method = "GET"
+    open var path = "/"
+    open var queryString = ""
+    open var query = [String: [String]]()
+    open var headers = [String: [String]]()
+    open var start = Date()
     
-    public var isKeepAlive: Bool {
+    open var isKeepAlive: Bool {
         return (headers["connection"] != nil
             && headers["connection"]?.count > 0
             && headers["connection"]![0] == "keep-alive")
     }
     
-    static let rangeRe = try! NSRegularExpression(pattern: "bytes=(\\d*)-(\\d*)", options: .CaseInsensitive)
+    static let rangeRe = try! NSRegularExpression(pattern: "bytes=(\\d*)-(\\d*)", options: .caseInsensitive)
     
     public required init(fromRequest r: BRHTTPRequest) {
         fd = r.fd
@@ -330,25 +350,25 @@ enum BRHTTPServerError: ErrorType {
         }
     }
     
-    public required init(readFromFd: Int32, queue: dispatch_queue_t) throws {
+    public required init(readFromFd: Int32, queue: DispatchQueue) throws {
         fd = readFromFd
         self.queue = queue
         super.init()
         let status = try readLine()
-        let statusParts = status.componentsSeparatedByString(" ")
+        let statusParts = status.components(separatedBy: " ")
         if statusParts.count < 3 {
-            throw BRHTTPServerError.InvalidHttpRequest
+            throw BRHTTPServerError.invalidHttpRequest
         }
         method = statusParts[0]
         path = statusParts[1]
         // parse query string
-        if path.rangeOfString("?") != nil {
-            let parts = path.componentsSeparatedByString("?")
+        if path.range(of: "?") != nil {
+            let parts = path.components(separatedBy: "?")
             path = parts[0]
-            queryString = parts[1..<parts.count].joinWithSeparator("?")
-            let pairs = queryString.componentsSeparatedByString("&")
+            queryString = parts[1..<parts.count].joined(separator: "?")
+            let pairs = queryString.components(separatedBy: "&")
             for pair in pairs {
-                let pairSides = pair.componentsSeparatedByString("=")
+                let pairSides = pair.components(separatedBy: "=")
                 if pairSides.count == 2 {
                     if query[pairSides[0]] != nil {
                         query[pairSides[0]]?.append(pairSides[1])
@@ -362,11 +382,11 @@ enum BRHTTPServerError: ErrorType {
         while true {
             let hdr = try readLine()
             if hdr.isEmpty { break }
-            let hdrParts = hdr.componentsSeparatedByString(":")
+            let hdrParts = hdr.components(separatedBy: ":")
             if hdrParts.count >= 2 {
-                let name = hdrParts[0].lowercaseString
-                let hdrVal = hdrParts[1..<hdrParts.count].joinWithSeparator(":").stringByTrimmingCharactersInSet(
-                    NSCharacterSet.whitespaceCharacterSet())
+                let name = hdrParts[0].lowercased()
+                let hdrVal = hdrParts[1..<hdrParts.count].joined(separator: ":").trimmingCharacters(
+                    in: CharacterSet.whitespaces)
                 if headers[name] != nil {
                     headers[name]?.append(hdrVal)
                 } else {
@@ -381,16 +401,16 @@ enum BRHTTPServerError: ErrorType {
         var n = 0
         repeat {
             n = self.read()
-            if (n > 13 /* CR */) { chars.append(Character(UnicodeScalar(n))) }
+            if (n > 13 /* CR */) { chars.append(Character(UnicodeScalar(n)!)) }
         } while n > 0 && n != 10 /* NL */
         if n == -1 {
-            throw BRHTTPServerError.SocketRecvFailed
+            throw BRHTTPServerError.socketRecvFailed
         }
         return chars
     }
     
     func read() -> Int {
-        var buf = [UInt8](count: 1, repeatedValue: 0)
+        var buf = [UInt8](repeating: 0, count: 1)
         let n = recv(fd, &buf, 1, 0)
         if n <= 0 {
             return n
@@ -398,12 +418,12 @@ enum BRHTTPServerError: ErrorType {
         return Int(buf[0])
     }
     
-    public var hasBody: Bool {
+    open var hasBody: Bool {
         return method == "POST" || method == "PATCH" || method == "PUT"
     }
     
-    public var contentLength: Int {
-        if let hdrs = headers["content-length"] where hasBody && hdrs.count > 0 {
+    open var contentLength: Int {
+        if let hdrs = headers["content-length"] , hasBody && hdrs.count > 0 {
             if let i = Int(hdrs[0]) {
                 return i
             }
@@ -411,34 +431,34 @@ enum BRHTTPServerError: ErrorType {
         return 0
     }
     
-    public var contentType: String {
-        if let hdrs = headers["content-type"] where hdrs.count > 0 { return hdrs[0] }
+    open var contentType: String {
+        if let hdrs = headers["content-type"] , hdrs.count > 0 { return hdrs[0] }
         return "application/octet-stream"
     }
     
-    private var _body: [UInt8]?
-    private var _bodyRead: Bool = false
+    fileprivate var _body: [UInt8]?
+    fileprivate var _bodyRead: Bool = false
     
-    public func body() -> NSData? {
+    open func body() -> Data? {
         if _bodyRead && _body != nil {
-            return NSData(bytesNoCopy: UnsafeMutablePointer(_body!), length: contentLength, freeWhenDone: false)
+            return Data(bytesNoCopy: UnsafeMutablePointer<UInt8>(UnsafeMutablePointer(mutating: _body!)), count: contentLength, deallocator: .none)
         }
         if _bodyRead {
             return nil
         }
-        var buf = [UInt8](count: contentLength, repeatedValue: 0)
+        var buf = [UInt8](repeating: 0, count: contentLength)
         let n = recv(fd, &buf, contentLength, 0)
         if n <= 0 {
             _bodyRead = true
             return nil
         }
         _body = buf
-        return NSData(bytesNoCopy: UnsafeMutablePointer(_body!), length: contentLength, freeWhenDone: false)
+        return Data(bytesNoCopy: UnsafeMutablePointer<UInt8>(UnsafeMutablePointer(mutating: _body!)), count: contentLength, deallocator: .none)
     }
     
-    public func json() -> AnyObject? {
+    open func json() -> AnyObject? {
         if let b = body() {
-            return try? NSJSONSerialization.JSONObjectWithData(b, options: [])
+            return try! JSONSerialization.jsonObject(with: b, options: []) as AnyObject?
         }
         return nil
     }
@@ -448,21 +468,21 @@ enum BRHTTPServerError: ErrorType {
             return nil
         }
         guard let rngHeader = headers["range"]?[0],
-            match = BRHTTPRequestImpl.rangeRe.matchesInString(rngHeader, options: .Anchored, range:
+            let match = BRHTTPRequestImpl.rangeRe.matches(in: rngHeader, options: .anchored, range:
                 NSRange(location: 0, length: rngHeader.characters.count)).first
-            where match.numberOfRanges == 3 else {
-                throw BRHTTPServerError.InvalidRangeHeader
+            , match.numberOfRanges == 3 else {
+                throw BRHTTPServerError.invalidRangeHeader
         }
-        let startStr = (rngHeader as NSString).substringWithRange(match.rangeAtIndex(1))
-        let endStr = (rngHeader as NSString).substringWithRange(match.rangeAtIndex(2))
-        guard let start = Int(startStr), end = Int(endStr) else {
-            throw BRHTTPServerError.InvalidRangeHeader
+        let startStr = (rngHeader as NSString).substring(with: match.rangeAt(1))
+        let endStr = (rngHeader as NSString).substring(with: match.rangeAt(2))
+        guard let start = Int(startStr), let end = Int(endStr) else {
+            throw BRHTTPServerError.invalidRangeHeader
         }
         return (start, end)
     }
 }
 
-@objc public class BRHTTPResponse: NSObject {
+@objc open class BRHTTPResponse: NSObject {
     var request: BRHTTPRequest
     var statusCode: Int?
     var statusReason: String?
@@ -559,8 +579,8 @@ enum BRHTTPServerError: ErrorType {
     }
     
     convenience init(request: BRHTTPRequest, code: Int, json j: AnyObject) throws {
-        let jsonData = try NSJSONSerialization.dataWithJSONObject(j, options: [])
-        let bodyBuffer = UnsafeBufferPointer<UInt8>(start: UnsafePointer(jsonData.bytes), count: jsonData.length)
+        let jsonData = try JSONSerialization.data(withJSONObject: j, options: [])
+        let bodyBuffer = UnsafeBufferPointer<UInt8>(start: (jsonData as NSData).bytes.bindMemory(to: UInt8.self, capacity: jsonData.count), count: jsonData.count)
         self.init(
             request: request, statusCode: code, statusReason: BRHTTPResponse.reasonMap[code],
             headers: ["Content-Type": ["application/json"]], body: Array(bodyBuffer))
@@ -593,24 +613,24 @@ enum BRHTTPServerError: ErrorType {
         }
     }
     
-    func writeUTF8(s: String) throws {
+    func writeUTF8(_ s: String) throws {
         try writeUInt8([UInt8](s.utf8))
     }
     
-    func writeUInt8(data: [UInt8]) throws {
+    func writeUInt8(_ data: [UInt8]) throws {
         try data.withUnsafeBufferPointer { pointer in
             var sent = 0
             while sent < data.count {
-                let s = write(request.fd, pointer.baseAddress + sent, Int(data.count - sent))
+                let s = write(request.fd, pointer.baseAddress! + sent, Int(data.count - sent))
                 if s <= 0 {
-                    throw BRHTTPServerError.SocketWriteFailed
+                    throw BRHTTPServerError.socketWriteFailed
                 }
                 sent += s
             }
         }
     }
     
-    func provide(status: Int) {
+    func provide(_ status: Int) {
         objc_sync_enter(self)
         if isDone {
             print("ERROR: can not call provide() on async HTTP response more than once!")
@@ -628,7 +648,7 @@ enum BRHTTPServerError: ErrorType {
         objc_sync_exit(self)
     }
     
-    func provide(status: Int, json: AnyObject?) {
+    func provide(_ status: Int, json: Any?) {
         objc_sync_enter(self)
         if isDone {
             print("ERROR: can not call provide() on async HTTP response more than once!")
@@ -638,8 +658,8 @@ enum BRHTTPServerError: ErrorType {
         objc_sync_exit(self)
         do {
             if let json = json {
-                let jsonData = try NSJSONSerialization.dataWithJSONObject(json, options: [])
-                let bodyBuffer = UnsafeBufferPointer<UInt8>(start: UnsafePointer(jsonData.bytes), count: jsonData.length)
+                let jsonData = try JSONSerialization.data(withJSONObject: json, options: [])
+                let bodyBuffer = UnsafeBufferPointer<UInt8>(start: (jsonData as NSData).bytes.bindMemory(to: UInt8.self, capacity: jsonData.count), count: jsonData.count)
                 headers = ["Content-Type": ["application/json"]]
                 body = Array(bodyBuffer)
             }
@@ -658,7 +678,7 @@ enum BRHTTPServerError: ErrorType {
         objc_sync_exit(self)
     }
     
-    func provide(status: Int, data: [UInt8], contentType: String) {
+    func provide(_ status: Int, data: [UInt8], contentType: String) {
         objc_sync_enter(self)
         if isDone {
             print("ERROR: can not call provide() on async HTTP response more than once!")
@@ -692,7 +712,7 @@ enum BRHTTPServerError: ErrorType {
         objc_sync_exit(self)
     }
     
-    func done(onDone: () -> Void) {
+    func done(_ onDone: @escaping () -> Void) {
         objc_sync_enter(self)
         self.onDone = onDone
         if self.isDone {

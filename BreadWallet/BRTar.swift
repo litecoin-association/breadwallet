@@ -27,41 +27,41 @@
 import Foundation
 
 
-enum BRTarError: ErrorType {
-    case Unknown
-    case FileDoesntExist
+enum BRTarError: Error {
+    case unknown
+    case fileDoesntExist
 }
 
 enum BRTarType {
-    case File
-    case Directory
-    case NullBlock
-    case HeaderBlock
-    case Unsupported
-    case Invalid
+    case file
+    case directory
+    case nullBlock
+    case headerBlock
+    case unsupported
+    case invalid
     
-    init(fromData: NSData) {
-        if fromData.length < 1 {
+    init(fromData: Data) {
+        if fromData.count < 1 {
             BRTar.log("invalid data")
-            self = Invalid
+            self = .invalid
             return
         }
-        let byte = UnsafePointer<CChar>(fromData.bytes)[0]
+        let byte = (fromData as NSData).bytes.bindMemory(to: CChar.self, capacity: fromData.count)[0]
         switch byte {
         case CChar(48): // "0"
-            self = File
+            self = .file
         case CChar(53): // "5"
-            self = Directory
+            self = .directory
         case CChar(0):
-            self = NullBlock
+            self = .nullBlock
         case CChar(120): // "x"
-            self = HeaderBlock
+            self = .headerBlock
         case CChar(49), CChar(50), CChar(51), CChar(52), CChar(53), CChar(54), CChar(55), CChar(103):
             // "1, 2, 3, 4, 5, 6, 7, g"
-            self = Unsupported
+            self = .unsupported
         default:
             BRTar.log("invalid block type: \(byte)")
-            self = Invalid
+            self = .invalid
         }
     }
 }
@@ -76,124 +76,125 @@ class BRTar {
     static let tarMaxBlockLoadInMemory: UInt64 = 100
     static let tarLogEnabled: Bool = false
     
-    static func createFilesAndDirectoriesAtPath(path: String, withTarPath tarPath: String) throws {
-        let fm = NSFileManager.defaultManager()
-        if !fm.fileExistsAtPath(tarPath) {
+    static func createFilesAndDirectoriesAtPath(_ path: String, withTarPath tarPath: String) throws {
+        let fm = FileManager.default
+        if !fm.fileExists(atPath: tarPath) {
             log("tar file \(tarPath) does not exist")
-            throw BRTarError.FileDoesntExist
+            throw BRTarError.fileDoesntExist
         }
-        let attrs = try fm.attributesOfItemAtPath(tarPath)
-        guard let tarFh = NSFileHandle(forReadingAtPath: tarPath) else {
+        let attrs = try fm.attributesOfItem(atPath: tarPath)
+        guard let tarFh = FileHandle(forReadingAtPath: tarPath) else {
             log("could not open tar file for reading")
-            throw BRTarError.Unknown
+            throw BRTarError.unknown
         }
         var loc: UInt64 = 0
-        guard let size = attrs[NSFileSize]?.unsignedLongLongValue else {
+        guard let sizee = attrs[FileAttributeKey.size] as? Int else {
             log("could not read tar file size")
-            throw BRTarError.Unknown
+            throw BRTarError.unknown
         }
+        let size = UInt64(sizee)
         
         while loc < size {
             var blockCount: UInt64 = 1
             let tarType = readTypeAtLocation(loc, fromHandle: tarFh)
             switch tarType {
-            case .File:
+            case .file:
                 // read name
                 let name = try readNameAtLocation(loc, fromHandle: tarFh)
                 log("got file name from tar \(name)")
-                let newFilePath = (path as NSString).stringByAppendingPathComponent(name)
+                let newFilePath = (path as NSString).appendingPathComponent(name)
                 log("will write to \(newFilePath)")
                 var size = readSizeAtLocation(loc, fromHandle: tarFh)
                 log("its size is \(size)")
                 
-                if fm.fileExistsAtPath(newFilePath) {
-                    try fm.removeItemAtPath(newFilePath)
+                if fm.fileExists(atPath: newFilePath) {
+                    try fm.removeItem(atPath: newFilePath)
                 }
                 if size == 0 {
                     // empty file
-                    try "" .writeToFile(newFilePath, atomically: true, encoding: NSUTF8StringEncoding)
+                    try "" .write(toFile: newFilePath, atomically: true, encoding: String.Encoding.utf8)
                     break
                 }
                 blockCount += (size - 1) / tarBlockSize + 1
                 // write file
-                fm.createFileAtPath(newFilePath, contents: nil, attributes: nil)
-                guard let destFh = NSFileHandle(forWritingAtPath: newFilePath) else {
+                fm.createFile(atPath: newFilePath, contents: nil, attributes: nil)
+                guard let destFh = FileHandle(forWritingAtPath: newFilePath) else {
                     log("unable to open destination file for writing")
-                    throw BRTarError.Unknown
+                    throw BRTarError.unknown
                 }
-                tarFh.seekToFileOffset(loc + tarBlockSize)
+                tarFh.seek(toFileOffset: loc + tarBlockSize)
                 let maxSize = tarMaxBlockLoadInMemory * tarBlockSize
                 while size > maxSize {
-                    autoreleasepool({ () -> () in
-                        destFh.writeData(tarFh.readDataOfLength(Int(maxSize)))
+                    autoreleasepool(invoking: { () -> () in
+                        destFh.write(tarFh.readData(ofLength: Int(maxSize)))
                         size -= maxSize
                     })
                 }
-                destFh.writeData(tarFh.readDataOfLength(Int(size)))
+                destFh.write(tarFh.readData(ofLength: Int(size)))
                 destFh.closeFile()
                 log("success writing file")
                 break
-            case .Directory:
+            case .directory:
                 let name = try readNameAtLocation(loc, fromHandle: tarFh)
                 log("got new directory name \(name)")
-                let dirPath = (path as NSString).stringByAppendingPathComponent(name)
+                let dirPath = (path as NSString).appendingPathComponent(name)
                 log("will create directory at \(dirPath)")
                 
-                if fm.fileExistsAtPath(dirPath) {
-                    try fm.removeItemAtPath(dirPath) // will automatically recursively remove directories if exists
+                if fm.fileExists(atPath: dirPath) {
+                    try fm.removeItem(atPath: dirPath) // will automatically recursively remove directories if exists
                 }
                 
-                try fm.createDirectoryAtPath(dirPath, withIntermediateDirectories: true, attributes: nil)
+                try fm.createDirectory(atPath: dirPath, withIntermediateDirectories: true, attributes: nil)
                 log("success creating directory")
                 break
-            case .NullBlock:
+            case .nullBlock:
                 break
-            case .HeaderBlock:
+            case .headerBlock:
                 blockCount += 1
                 break
-            case .Unsupported:
+            case .unsupported:
                 let size = readSizeAtLocation(loc, fromHandle: tarFh)
                 blockCount += size / tarBlockSize
                 break
-            case .Invalid:
+            case .invalid:
                 log("Invalid block encountered")
-                throw BRTarError.Unknown
+                throw BRTarError.unknown
             }
             loc += blockCount * tarBlockSize
             log("new location \(loc)")
         }
     }
     
-    static private func readTypeAtLocation(location: UInt64, fromHandle handle: NSFileHandle) -> BRTarType {
+    static fileprivate func readTypeAtLocation(_ location: UInt64, fromHandle handle: FileHandle) -> BRTarType {
         log("reading type at location \(location)")
-        handle.seekToFileOffset(location + tarTypePosition)
-        let typeDat = handle.readDataOfLength(1)
+        handle.seek(toFileOffset: location + tarTypePosition)
+        let typeDat = handle.readData(ofLength: 1)
         let ret = BRTarType(fromData: typeDat)
         log("type: \(ret)")
         return ret
     }
     
-    static private func readNameAtLocation(location: UInt64, fromHandle handle: NSFileHandle) throws -> String {
-        handle.seekToFileOffset(location + tarNamePosition)
-        guard let ret = NSString(data: handle.readDataOfLength(Int(tarNameSize)), encoding: NSASCIIStringEncoding)
+    static fileprivate func readNameAtLocation(_ location: UInt64, fromHandle handle: FileHandle) throws -> String {
+        handle.seek(toFileOffset: location + tarNamePosition)
+        guard let ret = NSString(data: handle.readData(ofLength: Int(tarNameSize)), encoding: String.Encoding.ascii.rawValue)
             else {
                 log("unable to read name")
-                throw BRTarError.Unknown
+                throw BRTarError.unknown
         }
         return ret as String
     }
     
-    static private func readSizeAtLocation(location: UInt64, fromHandle handle: NSFileHandle) -> UInt64 {
-        handle.seekToFileOffset(location + tarSizePosition)
-        let sizeDat = handle.readDataOfLength(Int(tarSizeSize))
-        let octal = NSString(data: sizeDat, encoding: NSASCIIStringEncoding)!
+    static fileprivate func readSizeAtLocation(_ location: UInt64, fromHandle handle: FileHandle) -> UInt64 {
+        handle.seek(toFileOffset: location + tarSizePosition)
+        let sizeDat = handle.readData(ofLength: Int(tarSizeSize))
+        let octal = NSString(data: sizeDat, encoding: String.Encoding.ascii.rawValue)!
         log("size octal: \(octal)")
-        let dec = strtoll(octal.UTF8String, nil, 8)
+        let dec = strtoll(octal.utf8String, nil, 8)
         log("size decimal: \(dec)")
         return UInt64(dec)
     }
     
-    static private func log(string: String) {
+    static fileprivate func log(_ string: String) {
         if tarLogEnabled {
             print("[BRTar] \(string)")
         }

@@ -29,17 +29,20 @@ class BRKVStoreObjectsTests: XCTestCase {
 
     func getTxn() -> BRTransaction {
         let script = NSMutableData()
-        let s = "0000000000000000000000000000000000000000000000000000000000000001".hexToData()
-        let p = UnsafeMutablePointer<UInt256>.alloc(sizeof(UInt256))
-        s.getBytes(p)
-        let sec = p.move()
-        let k = BRKey(secret: sec, compressed: true)!
-        let hash = NSValue(UInt256: UInt256(u64: (0, 0, 0, 0)))
-        script.appendScriptPubKeyForAddress(k.address)
-        let tx = BRTransaction(inputHashes: [hash], inputIndexes: [NSNumber(int: 0)], inputScripts: [script],
+        let s = "0000000000000000000000000000000000000000000000000000000000000001".hexToData()!
+//        let p = UnsafeMutablePointer<UInt8>.allocate(capacity: MemoryLayout<UInt256>.size)
+//        s.copyBytes(to: p, count: 32)
+//        let sec = p.move()
+        let k = s.withUnsafeBytes { (p: UnsafePointer<UInt256>) -> BRKey in
+            return BRKey(secret: p.pointee, compressed: true)!
+        }
+//        let k = BRKey(secret: sec, compressed: true)!
+        let hash = NSValue(uInt256: UInt256(u64: (0, 0, 0, 0)))
+        script.appendScriptPubKey(forAddress: k.address)
+        let tx = BRTransaction(inputHashes: [hash], inputIndexes: [NSNumber(value: 0 as Int32)], inputScripts: [script],
                                outputAddresses: [k.address!, k.address!],
-                               outputAmounts: [NSNumber(int: 0), NSNumber(int: 0)])
-        tx.signWithPrivateKeys([k.privateKey!])
+                               outputAmounts: [NSNumber(value: 0 as Int32), NSNumber(value: 0 as Int32)])!
+        tx.sign(withPrivateKeys: [k.privateKey!])
         return tx
     }
     
@@ -51,7 +54,7 @@ class BRKVStoreObjectsTests: XCTestCase {
         
         let newObj = BRTxMetadataObject(transaction: tx, exchangeRate: 500.0, exchangeRateCurrency: "USD", feeRate: 33784, deviceId: "ABC123")
         XCTAssertEqual(newObj.blockHeight, Int(tx.blockHeight))
-        try! store.set(newObj)
+        _ = try! store.set(newObj)
         
         guard let fetchedObj = BRTxMetadataObject(txHash: tx.txHash, store: store) else {
             XCTFail()

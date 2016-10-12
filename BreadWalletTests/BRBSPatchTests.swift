@@ -27,23 +27,23 @@ import XCTest
 @testable import breadwallet
 
 class BRBSPatchTests: XCTestCase {
-    var bundle1Url: NSURL?
-    var bundle2Url: NSURL?
-    var patchUrl: NSURL?
+    var bundle1Url: URL?
+    var bundle2Url: URL?
+    var patchUrl: URL?
 
     override func setUp() {
         // download test files
-        func download(urlStr: String, inout resultingUrl: NSURL?) {
-            let fm = NSFileManager.defaultManager()
-            let url = NSURL(string: urlStr)!
-            let documentsUrl =  fm.URLsForDirectory(.DocumentDirectory, inDomains: .UserDomainMask).first!
-            let destinationUrl = documentsUrl.URLByAppendingPathComponent(url.lastPathComponent!)
-            if fm.fileExistsAtPath(destinationUrl.path!) {
-                print("file already exists [\(destinationUrl.path!)]")
+        func download(_ urlStr: String, resultingUrl: inout URL?) {
+            let fm = FileManager.default
+            let url = URL(string: urlStr)!
+            let documentsUrl =  fm.urls(for: .documentDirectory, in: .userDomainMask).first!
+            let destinationUrl = documentsUrl.appendingPathComponent(url.lastPathComponent)
+            if fm.fileExists(atPath: destinationUrl.path) {
+                print("file already exists [\(destinationUrl.path)]")
                 resultingUrl = destinationUrl
-            } else if let dataFromURL = NSData(contentsOfURL: url){
-                if dataFromURL.writeToURL(destinationUrl, atomically: true) {
-                    print("file saved [\(destinationUrl.path!)]")
+            } else if let dataFromURL = try? Data(contentsOf: url){
+                if (try? dataFromURL.write(to: destinationUrl, options: [.atomic])) != nil {
+                    print("file saved [\(destinationUrl.path)]")
                     resultingUrl = destinationUrl
                 } else {
                     XCTFail("error saving file")
@@ -63,29 +63,29 @@ class BRBSPatchTests: XCTestCase {
     }
 
     func testPatch() {
-        guard let bundle1Url = bundle1Url, bundle2Url = bundle2Url, patchUrl = patchUrl
+        guard let bundle1Url = bundle1Url, let bundle2Url = bundle2Url, let patchUrl = patchUrl
             else { XCTFail("test files not downloaded successfully"); return }
-        let fm = NSFileManager.defaultManager()
-        let docsPath = fm.URLsForDirectory(.DocumentDirectory, inDomains: .UserDomainMask).first!
-        let destPath = docsPath.URLByAppendingPathComponent("bundle3.tar")
-        if fm.fileExistsAtPath(destPath.path!) {
+        let fm = FileManager.default
+        let docsPath = fm.urls(for: .documentDirectory, in: .userDomainMask).first!
+        let destPath = docsPath.appendingPathComponent("bundle3.tar")
+        if fm.fileExists(atPath: destPath.path) {
             do {
-                try fm.removeItemAtPath(destPath.path!)
+                try fm.removeItem(atPath: destPath.path)
             } catch { XCTFail("unable to remove old test file") }
         }
-        var x: UnsafeMutablePointer<CUnsignedChar> = nil
+        var x: UnsafeMutablePointer<CUnsignedChar>? = nil
         do {
-            x = try BRBSPatch.patch(bundle1Url.path!, newFilePath: destPath.path!, patchFilePath: patchUrl.path!)
+            x = try BRBSPatch.patch(bundle1Url.path, newFilePath: destPath.path, patchFilePath: patchUrl.path)
         } catch let e {
             XCTFail("failed to patch file: \(e)")
         }
-        let b2contents = NSData(contentsOfURL: bundle2Url)!
-        let b2contentsRaw = UnsafeMutablePointer<CUnsignedChar>(b2contents.bytes)
-        print("should be bytes len \(b2contents.length)")
+        let b2contents = try! Data(contentsOf: bundle2Url)
+        let b2contentsRaw = UnsafeMutablePointer<CUnsignedChar>(mutating: (b2contents as NSData).bytes.bindMemory(to: CUnsignedChar.self, capacity: b2contents.count))
+        print("should be bytes len \(b2contents.count)")
         let iseq = b2contentsRaw == x
         print("is eq \(iseq)")
-        let b3contents = NSData(contentsOfURL: destPath)!
-        if !b2contents.isEqualToData(b3contents) {
+        let b3contents = try! Data(contentsOf: destPath)
+        if b2contents != b3contents {
             XCTFail("patch did not create an identical file")
         }
     }

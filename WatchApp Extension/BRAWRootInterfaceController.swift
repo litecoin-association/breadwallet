@@ -33,48 +33,48 @@ class BRAWRootInterfaceController: WKInterfaceController {
     }
     @IBOutlet var loadingIndicator: WKInterfaceGroup!
 
-    override func awakeWithContext(context: AnyObject?) {
-        super.awakeWithContext(context)
+    override func awake(withContext context: Any?) {
+        super.awake(withContext: context)
     }
 
     override func willActivate() {
         // This method is called when watch view controller is about to be visible to user
         super.willActivate()
         updateUI()
-        NSNotificationCenter.defaultCenter().addObserver(
-            self, selector: #selector(BRAWRootInterfaceController.updateUI), name: BRAWWatchDataManager.WalletStatusDidChangeNotification, object: nil)
-        NSNotificationCenter.defaultCenter().addObserver(
-            self, selector: #selector(BRAWRootInterfaceController.txReceive(_:)), name: BRAWWatchDataManager.WalletTxReceiveNotification, object: nil)
+        NotificationCenter.default.addObserver(
+            self, selector: #selector(BRAWRootInterfaceController.updateUI), name: NSNotification.Name(rawValue: BRAWWatchDataManager.WalletStatusDidChangeNotification), object: nil)
+        NotificationCenter.default.addObserver(
+            self, selector: #selector(BRAWRootInterfaceController.txReceive(_:)), name: NSNotification.Name(rawValue: BRAWWatchDataManager.WalletTxReceiveNotification), object: nil)
     }
 
     override func didDeactivate() {
         // This method is called when watch view controller is no longer visible
         super.didDeactivate()
-        NSNotificationCenter.defaultCenter().removeObserver(self)
+        NotificationCenter.default.removeObserver(self)
     }
     
     func updateUI() {
         switch BRAWWatchDataManager.sharedInstance.walletStatus {
-        case .Unknown:
+        case .unknown:
             loadingIndicator.setHidden(false)
             setupWalletMessageLabel.setHidden(true)
-        case .NotSetup:
+        case .notSetup:
             loadingIndicator.setHidden(true)
             setupWalletMessageLabel.setHidden(false)
-        case .HasSetup:
-            WKInterfaceController.reloadRootControllersWithNames(
-                ["BRAWBalanceInterfaceController","BRAWReceiveMoneyInterfaceController"], contexts: [])
+        case .hasSetup:
+            WKInterfaceController.reloadRootControllers(
+                withNames: ["BRAWBalanceInterfaceController","BRAWReceiveMoneyInterfaceController"], contexts: [])
         }
     }
     
-    @objc func txReceive(notification: NSNotification?) {
+    @objc func txReceive(_ notification: Notification?) {
         print("root view controller received notification: \(notification)")
-        if let userData = notification?.userInfo,
-            noteString = userData[NSLocalizedDescriptionKey] as? String {
-                self.presentAlertControllerWithTitle(
-                    noteString, message: nil, preferredStyle: .Alert, actions: [
+        if let userData = (notification as NSNotification?)?.userInfo,
+            let noteString = userData[NSLocalizedDescriptionKey] as? String {
+                self.presentAlert(
+                    withTitle: noteString, message: nil, preferredStyle: .alert, actions: [
                         WKAlertAction(title: NSLocalizedString("OK", comment: ""),
-                            style: .Cancel, handler: { self.dismissController() })])
+                            style: .cancel, handler: { self.dismiss() })])
         }
     }
 }

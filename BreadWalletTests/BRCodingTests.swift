@@ -12,9 +12,9 @@ import XCTest
 class TestObject: BRCoding {
     var string: String
     var int: Int
-    var date: NSDate
+    var date: Date
     
-    init(string: String, int: Int, date: NSDate) {
+    init(string: String, int: Int, date: Date) {
         self.string = string
         self.int = int
         self.date = date
@@ -26,7 +26,7 @@ class TestObject: BRCoding {
         date = decoder.decode("date")
     }
     
-    func encode(coder: BRCoder) {
+    func encode(_ coder: BRCoder) {
         coder.encode(string, key: "string")
         coder.encode(int, key: "int")
         coder.encode(date, key: "date")
@@ -43,7 +43,7 @@ class BRCodingTests: XCTestCase {
     }
 
     func testBasicEncodeAndDecode() {
-        let orig = TestObject(string: "hello", int: 823483, date: NSDate(timeIntervalSince1970: 872347))
+        let orig = TestObject(string: "hello", int: 823483, date: Date(timeIntervalSince1970: 872347))
         let dat = BRKeyedArchiver.archivedDataWithRootObject(orig)
         
         guard let new: TestObject = BRKeyedUnarchiver.unarchiveObjectWithData(dat) else {

@@ -28,25 +28,25 @@ import XCTest
 
 class BRHTTPServerTests: XCTestCase {
     var server: BRHTTPServer!
-    var bundle1Url: NSURL?
-    var bundle1Data: NSData?
+    var bundle1Url: URL?
+    var bundle1Data: Data?
 
     override func setUp() {
         super.setUp()
-        let fm = NSFileManager.defaultManager()
-        let documentsUrl =  fm.URLsForDirectory(.DocumentDirectory, inDomains: .UserDomainMask).first!
+        let fm = FileManager.default
+        let documentsUrl =  fm.urls(for: .documentDirectory, in: .userDomainMask).first!
         
         // download test files
-        func download(urlStr: String, inout resultingUrl: NSURL?, inout resultingData: NSData?) {
-            let url = NSURL(string: urlStr)!
-            let destinationUrl = documentsUrl.URLByAppendingPathComponent(url.lastPathComponent!)
-            if fm.fileExistsAtPath(destinationUrl.path!) {
-                print("file already exists [\(destinationUrl.path!)]")
-                resultingData = NSData(contentsOfURL: destinationUrl)
+        func download(_ urlStr: String, resultingUrl: inout URL?, resultingData: inout Data?) {
+            let url = URL(string: urlStr)!
+            let destinationUrl = documentsUrl.appendingPathComponent(url.lastPathComponent)
+            if fm.fileExists(atPath: destinationUrl.path) {
+                print("file already exists [\(destinationUrl.path)]")
+                resultingData = try? Data(contentsOf: destinationUrl)
                 resultingUrl = destinationUrl
-            } else if let dataFromURL = NSData(contentsOfURL: url){
-                if dataFromURL.writeToURL(destinationUrl, atomically: true) {
-                    print("file saved [\(destinationUrl.path!)]")
+            } else if let dataFromURL = try? Data(contentsOf: url){
+                if (try? dataFromURL.write(to: destinationUrl, options: [.atomic])) != nil {
+                    print("file saved [\(destinationUrl.path)]")
                     resultingData = dataFromURL
                     resultingUrl = destinationUrl
                 } else {
@@ -75,21 +75,21 @@ class BRHTTPServerTests: XCTestCase {
     }
 
     func testDownloadFile() {
-        let exp = expectationWithDescription("load")
+        let exp = expectation(description: "load")
         
-        let url = NSURL(string: "http://localhost:\(server.port)/bundle.tar")!
-        let req = NSURLRequest(URL: url)
-        NSURLSession.sharedSession().dataTaskWithRequest(req) { (data, resp, error) -> Void in
+        let url = URL(string: "http://localhost:\(server.port)/bundle.tar")!
+        let req = URLRequest(url: url)
+        URLSession.shared.dataTask(with: req, completionHandler: { (data, resp, error) -> Void in
             NSLog("error: \(error)")
-            let httpResp = resp as! NSHTTPURLResponse
+            let httpResp = resp as! HTTPURLResponse
             NSLog("status: \(httpResp.statusCode)")
             NSLog("headers: \(httpResp.allHeaderFields)")
             
-            XCTAssert(data!.isEqualToData(self.bundle1Data!), "data should be equal to that stored on disk")
+            XCTAssert(data! == self.bundle1Data!, "data should be equal to that stored on disk")
             exp.fulfill()
-        }.resume()
+        }) .resume()
         
-        waitForExpectationsWithTimeout(5.0) { (err) -> Void in
+        waitForExpectations(timeout: 5.0) { (err) -> Void in
             if err != nil {
                 NSLog("timeout error \(err)")
             }
@@ -108,15 +108,15 @@ class BRHTTPServerTests: XCTestCase {
     var hasBody: Bool = false
     var contentType: String = "application/octet-stream"
     var contentLength: Int = 0
-    var queue: dispatch_queue_t = dispatch_get_main_queue()
-    var start = NSDate()
+    var queue: DispatchQueue = DispatchQueue.main
+    var start = Date()
     
     init(m: String, p: String) {
         method = m
         path = p
     }
     
-    func body() -> NSData? {
+    func body() -> Data? {
         return nil
     }
 }
@@ -179,12 +179,12 @@ class BRHTTPRouteTests: XCTestCase {
         router.get("/hello") { (request, match) -> BRHTTPResponse in
             return BRHTTPResponse(request: request, code: 500)
         }
-        let exp = expectationWithDescription("handle func")
+        let exp = expectation(description: "handle func")
         router.handle(BRTestHTTPRequest(m: "GET", p: "/hello")) { (resp) -> Void in
             if resp.response?.statusCode != 500 { XCTFail() }
             exp.fulfill()
         }
         
-        waitForExpectationsWithTimeout(5, handler: nil)
+        waitForExpectations(timeout: 5, handler: nil)
     }
 }

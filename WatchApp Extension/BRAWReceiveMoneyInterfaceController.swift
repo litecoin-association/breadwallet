@@ -35,38 +35,38 @@ class BRAWReceiveMoneyInterfaceController: WKInterfaceController, WCSessionDeleg
     var customQR: UIImage?
     
     @available(watchOSApplicationExtension 2.2, *)
-    func session(session: WCSession, activationDidCompleteWithState activationState: WCSessionActivationState, error: NSError?) {
+    func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
         
     }
     
-    override func awakeWithContext(context: AnyObject?) {
-        super.awakeWithContext(context)
+    override func awake(withContext context: Any?) {
+        super.awake(withContext: context)
     }
 
     override func willActivate() {
         super.willActivate()
         customQR = nil
         updateReceiveUI()
-        NSNotificationCenter.defaultCenter().addObserver(
+        NotificationCenter.default.addObserver(
             self, selector: #selector(BRAWReceiveMoneyInterfaceController.updateReceiveUI),
-            name: BRAWWatchDataManager.ApplicationDataDidUpdateNotification, object: nil)
-        NSNotificationCenter.defaultCenter().addObserver(
-            self, selector: #selector(BRAWReceiveMoneyInterfaceController.txReceive(_:)), name: BRAWWatchDataManager.WalletTxReceiveNotification, object: nil)
+            name: NSNotification.Name(rawValue: BRAWWatchDataManager.ApplicationDataDidUpdateNotification), object: nil)
+        NotificationCenter.default.addObserver(
+            self, selector: #selector(BRAWReceiveMoneyInterfaceController.txReceive(_:)), name: NSNotification.Name(rawValue: BRAWWatchDataManager.WalletTxReceiveNotification), object: nil)
     }
 
     override func didDeactivate() {
         super.didDeactivate()
-        NSNotificationCenter.defaultCenter().removeObserver(self)
+        NotificationCenter.default.removeObserver(self)
     }
     
-    @objc func txReceive(notification: NSNotification?) {
+    @objc func txReceive(_ notification: Notification?) {
         print("receive view controller received notification: \(notification)")
-        if let userData = notification?.userInfo,
+        if let userData = (notification as NSNotification?)?.userInfo,
             let noteString = userData[NSLocalizedDescriptionKey] as? String {
-                self.presentAlertControllerWithTitle(
-                    noteString, message: nil, preferredStyle: .Alert, actions: [
+                self.presentAlert(
+                    withTitle: noteString, message: nil, preferredStyle: .alert, actions: [
                         WKAlertAction(title: NSLocalizedString("OK", comment: ""),
-                            style: .Cancel, handler: { self.dismissController() })])
+                            style: .cancel, handler: { self.dismiss() })])
         }
     }
     
@@ -86,14 +86,14 @@ class BRAWReceiveMoneyInterfaceController: WKInterfaceController, WCSessionDeleg
         }
     }
     
-    @IBAction func qrCodeTap(sender: AnyObject?) {
+    @IBAction func qrCodeTap(_ sender: AnyObject?) {
         let ctx = BRAWKeypadModel(delegate: self)
-        self.presentControllerWithName("Keypad", context: ctx)
+        self.presentController(withName: "Keypad", context: ctx)
     }
     
     // - MARK: Keypad delegate
     
-    func keypadDidFinish(stringValueBits: String) {
+    func keypadDidFinish(_ stringValueBits: String) {
         qrCodeButton.setHidden(true)
         loadingIndicator.setHidden(false)
         BRAWWatchDataManager.sharedInstance.requestQRCodeForBalance(stringValueBits) { (qrImage, error) -> Void in
@@ -103,7 +103,7 @@ class BRAWReceiveMoneyInterfaceController: WKInterfaceController, WCSessionDeleg
             self.updateReceiveUI()
             print("Got new qr image: \(qrImage) error: \(error)")
         }
-        self.dismissController()
+        self.dismiss()
     }
     
     

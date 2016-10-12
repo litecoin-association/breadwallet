@@ -26,14 +26,14 @@
 import Foundation
 
 @objc class BRLinkPlugin: NSObject, BRHTTPRouterPlugin {
-    func hook(router: BRHTTPRouter) {
+    func hook(_ router: BRHTTPRouter) {
         // opens any url that UIApplication.openURL can open
         // arg: "url" - the url to open
         router.get("/_open_url") { (request, match) -> BRHTTPResponse in
-            if let encodedUrls = request.query["url"] where encodedUrls.count == 1 {
-                if let decodedUrl = encodedUrls[0].stringByRemovingPercentEncoding, url = NSURL(string: decodedUrl) {
+            if let encodedUrls = request.query["url"] , encodedUrls.count == 1 {
+                if let decodedUrl = encodedUrls[0].removingPercentEncoding, let url = URL(string: decodedUrl) {
                     print("[BRLinkPlugin] /_open_url \(decodedUrl)")
-                    UIApplication.sharedApplication().openURL(url)
+                    UIApplication.shared.openURL(url)
                     return BRHTTPResponse(request: request, code: 204)
                 }
             }
@@ -44,17 +44,17 @@ import Foundation
         // arg: "from_point" - the origination point as a comma separated pair of floats - latitude,longitude
         router.get("/_open_maps") { (request, match) -> BRHTTPResponse in
             let invalidResp = BRHTTPResponse(request: request, code: 400)
-            guard let toAddress = request.query["address"] where toAddress.count == 1 else {
+            guard let toAddress = request.query["address"] , toAddress.count == 1 else {
                 return invalidResp
             }
-            guard let fromPoint = request.query["from_point"] where fromPoint.count == 1 else {
+            guard let fromPoint = request.query["from_point"] , fromPoint.count == 1 else {
                 return invalidResp
             }
-            guard let url = NSURL(string: "http://maps.apple.com/?daddr=\(toAddress[0])&spn=\(fromPoint[0])") else {
+            guard let url = URL(string: "http://maps.apple.com/?daddr=\(toAddress[0])&spn=\(fromPoint[0])") else {
                 print("[BRLinkPlugin] /_open_maps unable to construct url")
                 return invalidResp
             }
-            UIApplication.sharedApplication().openURL(url)
+            UIApplication.shared.openURL(url)
             return BRHTTPResponse(request: request, code: 204)
         }
     }

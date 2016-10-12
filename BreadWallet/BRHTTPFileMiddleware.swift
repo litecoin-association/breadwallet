@@ -27,43 +27,43 @@
 import Foundation
 
 
-@objc public class BRHTTPFileMiddleware: NSObject, BRHTTPMiddleware {
-    var baseURL: NSURL!
-    var debugURL: NSURL?
+@objc open class BRHTTPFileMiddleware: NSObject, BRHTTPMiddleware {
+    var baseURL: URL!
+    var debugURL: URL?
     
-    init(baseURL: NSURL, debugURL: NSURL? = nil) {
+    init(baseURL: URL, debugURL: URL? = nil) {
         super.init()
         self.baseURL = baseURL
         self.debugURL = debugURL
     }
     
-    public func handle(request: BRHTTPRequest, next: (BRHTTPMiddlewareResponse) -> Void) {
-        var fileURL: NSURL!
-        var body: NSData!
+    open func handle(_ request: BRHTTPRequest, next: @escaping (BRHTTPMiddlewareResponse) -> Void) {
+        var fileURL: URL!
+        var body: Data!
         var contentTypeHint: String? = nil
         var headers = [String: [String]]()
         if debugURL == nil {
             // fetch the file locally
-            fileURL = baseURL.URLByAppendingPathComponent(request.path)
-            let fm = NSFileManager.defaultManager()
+            fileURL = baseURL.appendingPathComponent(request.path)
+            let fm = FileManager.default
             // read the file attributes
-            guard let attrs = try? fm.attributesOfItemAtPath(fileURL.path!) else {
+            guard let attrs = try? fm.attributesOfItem(atPath: fileURL.path) else {
                 print("[BRHTTPServer] file not found: \(fileURL)")
                 return next(BRHTTPMiddlewareResponse(request: request, response: nil))
             }
             // generate an etag
-            let etag = (attrs[NSFileModificationDate] as? NSDate ?? NSDate()).description.md5()
+            let etag = (attrs[FileAttributeKey.modificationDate] as? Date ?? Date()).description.md5()
             headers["ETag"] = [etag]
             var modified = true
             // if the client sends an if-none-match header, determine if we have a newer version of the file
-            if let etagHeaders = request.headers["if-none-match"] where etagHeaders.count > 0 {
+            if let etagHeaders = request.headers["if-none-match"] , etagHeaders.count > 0 {
                 let etagHeader = etagHeaders[0]
                 if etag == etagHeader {
                     modified = false
                 }
             }
             if modified {
-                guard let bb = NSData(contentsOfURL: fileURL) else {
+                guard let bb = try? Data(contentsOf: fileURL) else {
                     return next(BRHTTPMiddlewareResponse(request: request, response: nil))
                 }
                 body = bb
@@ -73,25 +73,25 @@ import Foundation
             }
         } else {
             // download the file from the debug endpoint
-            fileURL = debugURL!.URLByAppendingPathComponent(request.path)
-            let req = NSURLRequest(URL: fileURL)
-            let grp = dispatch_group_create()
-            dispatch_group_enter(grp)
-            NSURLSession.sharedSession().dataTaskWithRequest(req, completionHandler: { (dat, resp, err) -> Void in
+            fileURL = debugURL!.appendingPathComponent(request.path)
+            let req = URLRequest(url: fileURL)
+            let grp = DispatchGroup()
+            grp.enter()
+            URLSession.shared.dataTask(with: req, completionHandler: { (dat, resp, err) -> Void in
                 defer {
-                    dispatch_group_leave(grp)
+                    grp.leave()
                 }
                 if err != nil {
                     return
                 }
-                if let dat = dat, resp = resp as? NSHTTPURLResponse {
+                if let dat = dat, let resp = resp as? HTTPURLResponse {
                     body = dat
                     contentTypeHint = resp.allHeaderFields["content-type"] as? String
                 } else {
                     
                 }
             }).resume()
-            dispatch_group_wait(grp, dispatch_time(DISPATCH_TIME_NOW, Int64(30) * Int64(NSEC_PER_SEC)))
+            _ = grp.wait(timeout: DispatchTime.now() + Double(Int64(30) * Int64(NSEC_PER_SEC)) / Double(NSEC_PER_SEC))
             if body == nil {
                 print("[BRHTTPServer] DEBUG file not found \(fileURL)")
                 return next(BRHTTPMiddlewareResponse(request: request, response: nil))
@@ -107,19 +107,19 @@ import Foundation
                 let (end, start) = rangeHeader!
                 let length = end - start
                 let range = NSRange(location: start, length: length + 1)
-                guard range.location + range.length <= body.length else {
+                guard range.location + range.length <= body.count else {
                     let r =  BRHTTPResponse(
                         request: request, statusCode: 418, statusReason: "Request Range Not Satisfiable",
                         headers: nil, body: nil)
                     return next(BRHTTPMiddlewareResponse(request: request, response: r))
                 }
-                let subDat = body.subdataWithRange(range)
+                let subDat = body.subdata(in: start..<range.length)
                 let headers = [
-                    "Content-Range": ["bytes \(start)-\(end)/\(body.length)"],
+                    "Content-Range": ["bytes \(start)-\(end)/\(body.count)"],
                     "Content-Type": [detectContentType(URL: fileURL)]
                 ]
-                var ary = [UInt8](count: subDat.length, repeatedValue: 0)
-                subDat.getBytes(&ary, length: subDat.length)
+                var ary = [UInt8](repeating: 0, count: subDat.count)
+                (subDat as NSData).getBytes(&ary, length: subDat.count)
                 let r =  BRHTTPResponse(
                     request: request, statusCode: 200, statusReason: "OK", headers: headers, body: ary)
                 return next(BRHTTPMiddlewareResponse(request: request, response: r))
@@ -131,8 +131,8 @@ import Foundation
             return next(BRHTTPMiddlewareResponse(request: request, response: r))
         }
         
-        var ary = [UInt8](count: body.length, repeatedValue: 0)
-        body.getBytes(&ary, length: body.length)
+        var ary = [UInt8](repeating: 0, count: body.count)
+        body.copyBytes(to: &ary, count: body.count)
         let r = BRHTTPResponse(
             request: request,
             statusCode: 200,
@@ -142,32 +142,31 @@ import Foundation
         return next(BRHTTPMiddlewareResponse(request: request, response: r))
     }
     
-    private func detectContentType(URL url: NSURL) -> String {
-        if let ext = url.pathExtension {
-            switch ext {
-            case "ttf":
-                return "application/font-truetype"
-            case "woff":
-                return "application/font-woff"
-            case "otf":
-                return "application/font-opentype"
-            case "svg":
-                return "image/svg+xml"
-            case "html":
-                return "text/html"
-            case "png":
-                return "image/png"
-            case "jpeg", "jpg":
-                return "image/jpeg"
-            case "css":
-                return "text/css"
-            case "js":
-                return "application/javascript"
-            case "json":
-                return "application/json"
-            default: break
-            }
+    fileprivate func detectContentType(URL url: URL) -> String {
+        let ext = url.pathExtension
+        switch ext {
+        case "ttf":
+            return "application/font-truetype"
+        case "woff":
+            return "application/font-woff"
+        case "otf":
+            return "application/font-opentype"
+        case "svg":
+            return "image/svg+xml"
+        case "html":
+            return "text/html"
+        case "png":
+            return "image/png"
+        case "jpeg", "jpg":
+            return "image/jpeg"
+        case "css":
+            return "text/css"
+        case "js":
+            return "application/javascript"
+        case "json":
+            return "application/json"
+        default:
+            return "application/octet-stream"
         }
-        return "application/octet-stream"
     }
 }

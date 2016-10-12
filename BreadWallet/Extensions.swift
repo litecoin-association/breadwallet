@@ -29,16 +29,17 @@ import Foundation
 
 public extension String {
     func md5() -> String {
-        let data = (self as NSString).dataUsingEncoding(NSUTF8StringEncoding)!
+        let data = (self as NSString).data(using: String.Encoding.utf8.rawValue)!
         let result = NSMutableData(length: Int(128/8))!
-        let resultBytes = UnsafeMutablePointer<CUnsignedChar>(result.mutableBytes)
-        MD5(resultBytes, data.bytes, data.length)
+        let resultBytes = result.mutableBytes
+        MD5(resultBytes, (data as NSData).bytes, data.count)
         
-        let a = UnsafeBufferPointer<CUnsignedChar>(start: resultBytes, count: result.length)
+//        let a = UnsafeBufferPointer<CUnsignedChar>(start: resultBytes, count: result.length)
+        let a = resultBytes.assumingMemoryBound(to: CUnsignedChar.self)
         let hash = NSMutableString()
         
-        for i in a {
-            hash.appendFormat("%02x", i)
+        for i in 0..<result.length {
+            hash.appendFormat("%02x", a[i])
         }
         
         return hash as String
@@ -47,13 +48,13 @@ public extension String {
     func parseQueryString() -> [String: [String]] {
         var ret = [String: [String]]()
         var strippedString = self
-        if self.substringToIndex(self.startIndex.advancedBy(1)) == "?" {
-            strippedString = self.substringFromIndex(self.startIndex.advancedBy(1))
+        if self.substring(to: self.characters.index(self.startIndex, offsetBy: 1)) == "?" {
+            strippedString = self.substring(from: self.characters.index(self.startIndex, offsetBy: 1))
         }
-        strippedString = strippedString.stringByReplacingOccurrencesOfString("+", withString: " ")
-        strippedString = strippedString.stringByRemovingPercentEncoding!
-        for s in strippedString.componentsSeparatedByString("&") {
-            let kp = s.componentsSeparatedByString("=")
+        strippedString = strippedString.replacingOccurrences(of: "+", with: " ")
+        strippedString = strippedString.removingPercentEncoding!
+        for s in strippedString.components(separatedBy: "&") {
+            let kp = s.components(separatedBy: "=")
             if kp.count == 2 {
                 if var k = ret[kp[0]] {
                     k.append(kp[1])
@@ -65,9 +66,9 @@ public extension String {
         return ret
     }
     
-    static func buildQueryString(options: [String: [String]]?, includeQ: Bool = false) -> String {
+    static func buildQueryString(_ options: [String: [String]]?, includeQ: Bool = false) -> String {
         var s = ""
-        if let options = options where options.count > 0 {
+        if let options = options , options.count > 0 {
             s = includeQ ? "?" : ""
             var i = 0
             for (k, vals) in options {
@@ -88,36 +89,23 @@ var BZCompressionBufferSize: UInt32 = 1024
 var BZDefaultBlockSize: Int32 = 7
 var BZDefaultWorkFactor: Int32 = 100
 
-public extension NSData {
-    var hexString : String {
-        let buf = UnsafePointer<UInt8>(bytes)
-        let charA = UInt8(UnicodeScalar("a").value)
-        let char0 = UInt8(UnicodeScalar("0").value)
-        
-        func itoh(i: UInt8) -> UInt8 {
-            return (i > 9) ? (charA + i - 10) : (char0 + i)
-        }
-        
-        let p = UnsafeMutablePointer<UInt8>.alloc(length * 2)
-        
-        for i in 0..<length {
-            p[i*2] = itoh((buf[i] >> 4) & 0xF)
-            p[i*2+1] = itoh(buf[i] & 0xF)
-        }
-        
-        return NSString(bytesNoCopy: p, length: length*2, encoding: NSUTF8StringEncoding, freeWhenDone: true) as! String
+public extension Data {
+    var hexString: String {
+        return reduce("") {$0 + String(format: "%02x", $1)}
     }
     
-    var bzCompressedData: NSData? {
+    var bzCompressedData: Data? {
         get {
-            if self.length == 0 {
+            if self.count == 0 {
                 return self
             }
             var stream = bz_stream()
-            stream.next_in = UnsafeMutablePointer<Int8>(self.bytes)
-            stream.avail_in = UInt32(self.length)
+            stream.next_in = UnsafeMutablePointer<Int8>(
+                mutating: (self as NSData).bytes.bindMemory(to: Int8.self, capacity: self.count))
+            stream.avail_in = UInt32(self.count)
             let buffer = NSMutableData(length: Int(BZCompressionBufferSize))!
-            stream.next_out = UnsafeMutablePointer<Int8>(buffer.bytes)
+            stream.next_out = UnsafeMutablePointer<Int8>(
+                mutating: buffer.bytes.bindMemory(to: Int8.self, capacity: buffer.length))
             stream.avail_out = BZCompressionBufferSize
             var bzret = BZ2_bzCompressInit(&stream, BZDefaultBlockSize, 0, BZDefaultWorkFactor)
             if bzret != BZ_OK {
@@ -131,52 +119,59 @@ public extension NSData {
                     print("failed compress")
                     return nil
                 }
-                compressed.appendBytes(buffer.bytes, length: (Int(BZCompressionBufferSize) - Int(stream.avail_out)))
-                stream.next_out = UnsafeMutablePointer<Int8>(buffer.bytes)
+                compressed.append(buffer.bytes, length: (Int(BZCompressionBufferSize) - Int(stream.avail_out)))
+                stream.next_out = UnsafeMutablePointer<Int8>(
+                    mutating: buffer.bytes.bindMemory(to: Int8.self, capacity: buffer.length))
                 stream.avail_out = BZCompressionBufferSize
             } while bzret != BZ_STREAM_END
             BZ2_bzCompressEnd(&stream)
-            return compressed
+            return compressed as Data
         }
     }
-    
-    convenience init?(bzCompressedData data: NSData) {
-        if data.length == 0 {
-            self.init()
-            return
+
+    init?(bzCompressedData data: Data) {
+        if data.count == 0 {
+            return nil
         }
         var stream = bz_stream()
-        stream.next_in = UnsafeMutablePointer<CChar>(data.bytes)
-        stream.avail_in = UInt32(data.length)
-        let buffer = [UInt8](count: Int(BZCompressionBufferSize), repeatedValue: 0)
-        stream.next_out = UnsafeMutablePointer<CChar>(buffer)
-        stream.avail_out = BZCompressionBufferSize
-        var bzret = BZ2_bzDecompressInit(&stream, 0, 0)
-        if bzret != BZ_OK {
-            print("failed decompress init")
-            self.init()
-            return
-        }
-        let decompressed = NSMutableData()
-        repeat {
-            bzret = BZ2_bzDecompress(&stream)
-            if bzret < BZ_OK {
-                print("failed decompress")
-                self.init()
-                return
+        var decompressed = [UInt8]()
+        var myDat = data
+        myDat.withUnsafeMutableBytes { (datBuff: UnsafeMutablePointer<Int8>) -> Void in
+            stream.next_in = datBuff
+            stream.avail_in = UInt32(data.count)
+            var buff = Data(capacity: Int(BZCompressionBufferSize))
+            buff.withUnsafeMutableBytes { (outBuff: UnsafeMutablePointer<Int8>) -> Void in
+                stream.next_out = outBuff
+                stream.avail_out = BZCompressionBufferSize
+                var bzret = BZ2_bzDecompressInit(&stream, 0, 0)
+                if bzret != BZ_OK {
+                    print("failed decompress init")
+                    return
+                }
+                repeat {
+                    bzret = BZ2_bzDecompress(&stream)
+                    if bzret < BZ_OK {
+                        print("failed decompress")
+                        return
+                    }
+                    buff.withUnsafeBytes({ (bp: UnsafePointer<UInt8>) -> Void in
+                        let bpp = UnsafeBufferPointer(start: bp, count: (Int(BZCompressionBufferSize) - Int(stream.avail_out)))
+                        decompressed.append(contentsOf: bpp)
+                    })
+                    stream.next_out = outBuff
+                    stream.avail_out = BZCompressionBufferSize
+                } while bzret != BZ_STREAM_END
             }
-            decompressed.appendBytes(buffer, length: (Int(BZCompressionBufferSize) - Int(stream.avail_out)))
-            stream.next_out = UnsafeMutablePointer<CChar>(buffer)
-            stream.avail_out = BZCompressionBufferSize
-        } while bzret != BZ_STREAM_END
+        }
         BZ2_bzDecompressEnd(&stream)
-        self.init(data: decompressed)
+        
+        self.init(bytes: decompressed)
     }
 }
 
-public extension NSDate {
-    static func withMsTimestamp(ms: UInt64) -> NSDate {
-        return NSDate(timeIntervalSince1970: Double(ms) / 1000.0)
+public extension Date {
+    static func withMsTimestamp(_ ms: UInt64) -> Date {
+        return Date(timeIntervalSince1970: Double(ms) / 1000.0)
     }
     
     func msTimestamp() -> UInt64 {
@@ -185,8 +180,8 @@ public extension NSDate {
 
     // this is lifted from: https://github.com/Fykec/NSDate-RFC1123/blob/master/NSDate%2BRFC1123.swift
     // Copyright © 2015 Foster Yin. All rights reserved.
-    private static func cachedThreadLocalObjectWithKey<T: AnyObject>(key: String, create: () -> T) -> T {
-        let threadDictionary = NSThread.currentThread().threadDictionary
+    fileprivate static func cachedThreadLocalObjectWithKey<T: AnyObject>(_ key: String, create: () -> T) -> T {
+        let threadDictionary = Thread.current.threadDictionary
         if let cachedObject = threadDictionary[key] as! T? {
             return cachedObject
         }
@@ -197,11 +192,11 @@ public extension NSDate {
         }
     }
     
-    private static func RFC1123DateFormatter() -> NSDateFormatter {
+    fileprivate static func RFC1123DateFormatter() -> DateFormatter {
         return cachedThreadLocalObjectWithKey("RFC1123DateFormatter") {
-            let locale = NSLocale(localeIdentifier: "en_US")
-            let timeZone = NSTimeZone(name: "GMT")
-            let dateFormatter = NSDateFormatter()
+            let locale = Locale(identifier: "en_US")
+            let timeZone = TimeZone(identifier: "GMT")
+            let dateFormatter = DateFormatter()
             dateFormatter.locale = locale //need locale for some iOS 9 verision, will not select correct default locale
             dateFormatter.timeZone = timeZone
             dateFormatter.dateFormat = "EEE, dd MMM yyyy HH:mm:ss z"
@@ -209,11 +204,11 @@ public extension NSDate {
         }
     }
     
-    private static func RFC850DateFormatter() -> NSDateFormatter {
+    fileprivate static func RFC850DateFormatter() -> DateFormatter {
         return cachedThreadLocalObjectWithKey("RFC850DateFormatter") {
-            let locale = NSLocale(localeIdentifier: "en_US")
-            let timeZone = NSTimeZone(name: "GMT")
-            let dateFormatter = NSDateFormatter()
+            let locale = Locale(identifier: "en_US")
+            let timeZone = TimeZone(identifier: "GMT")
+            let dateFormatter = DateFormatter()
             dateFormatter.locale = locale //need locale for some iOS 9 verision, will not select correct default locale
             dateFormatter.timeZone = timeZone
             dateFormatter.dateFormat = "EEEE, dd-MMM-yy HH:mm:ss z"
@@ -221,11 +216,11 @@ public extension NSDate {
         }
     }
     
-    private static func asctimeDateFormatter() -> NSDateFormatter {
+    fileprivate static func asctimeDateFormatter() -> DateFormatter {
         return cachedThreadLocalObjectWithKey("asctimeDateFormatter") {
-            let locale = NSLocale(localeIdentifier: "en_US")
-            let timeZone = NSTimeZone(name: "GMT")
-            let dateFormatter = NSDateFormatter()
+            let locale = Locale(identifier: "en_US")
+            let timeZone = TimeZone(identifier: "GMT")
+            let dateFormatter = DateFormatter()
             dateFormatter.locale = locale //need locale for some iOS 9 verision, will not select correct default locale
             dateFormatter.timeZone = timeZone
             dateFormatter.dateFormat = "EEE MMM d HH:mm:ss yyyy"
@@ -233,23 +228,23 @@ public extension NSDate {
         }
     }
     
-    static func fromRFC1123(dateString: String) -> NSDate? {
+    static func fromRFC1123(_ dateString: String) -> Date? {
         
-        var date: NSDate?
+        var date: Date?
         // RFC1123
-        date = NSDate.RFC1123DateFormatter().dateFromString(dateString)
+        date = Date.RFC1123DateFormatter().date(from: dateString)
         if date != nil {
             return date
         }
         
         // RFC850
-        date = NSDate.RFC850DateFormatter().dateFromString(dateString)
+        date = Date.RFC850DateFormatter().date(from: dateString)
         if date != nil {
             return date
         }
         
         // asctime-date
-        date = NSDate.asctimeDateFormatter().dateFromString(dateString)
+        date = Date.asctimeDateFormatter().date(from: dateString)
         if date != nil {
             return date
         }
@@ -257,6 +252,6 @@ public extension NSDate {
     }
     
     func RFC1123String() -> String? {
-        return NSDate.RFC1123DateFormatter().stringFromDate(self)
+        return Date.RFC1123DateFormatter().string(from: self)
     }
 }

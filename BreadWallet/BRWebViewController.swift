@@ -29,7 +29,7 @@ import WebKit
 
 
 @available(iOS 8.0, *)
-@objc public class BRWebViewController : UIViewController, WKNavigationDelegate {
+@objc open class BRWebViewController : UIViewController, WKNavigationDelegate {
     var wkProcessPool: WKProcessPool
     var webView: WKWebView?
     var bundleName: String
@@ -52,7 +52,7 @@ import WebKit
         stopServer()
     }
     
-    override public func loadView() {
+    override open func loadView() {
         let config = WKWebViewConfiguration()
         config.processPool = wkProcessPool
         config.allowsInlineMediaPlayback = false
@@ -62,29 +62,29 @@ import WebKit
             config.allowsPictureInPictureMediaPlayback = false
         }
 
-        let indexUrl = NSURL(string: "http://127.0.0.1:\(server.port)\(mountPoint)")!
-        let request = NSURLRequest(URL: indexUrl)
+        let indexUrl = URL(string: "http://127.0.0.1:\(server.port)\(mountPoint)")!
+        let request = URLRequest(url: indexUrl)
         
-        view = UIView(frame: CGRectZero)
+        view = UIView(frame: CGRect.zero)
         view.backgroundColor = UIColor(red:0.98, green:0.98, blue:0.98, alpha:1.0)
         
-        webView = WKWebView(frame: CGRectZero, configuration: config)
+        webView = WKWebView(frame: CGRect.zero, configuration: config)
         webView?.navigationDelegate = self
         webView?.backgroundColor = UIColor(red:0.98, green:0.98, blue:0.98, alpha:1.0)
-        webView?.loadRequest(request)
-        webView?.autoresizingMask = [UIViewAutoresizing.FlexibleHeight, UIViewAutoresizing.FlexibleWidth]
+        _ = webView?.load(request)
+        webView?.autoresizingMask = [UIViewAutoresizing.flexibleHeight, UIViewAutoresizing.flexibleWidth]
         view.addSubview(webView!)
     }
     
-    override public func viewWillAppear(animated: Bool) {
-        edgesForExtendedLayout = .All
+    override open func viewWillAppear(_ animated: Bool) {
+        edgesForExtendedLayout = .all
     }
     
-    private func closeNow() {
-        dismissViewControllerAnimated(true, completion: nil)
+    fileprivate func closeNow() {
+        dismiss(animated: true, completion: nil)
     }
     
-    public func startServer() {
+    open func startServer() {
         do {
             if !server.isStarted {
                 try server.start()
@@ -95,14 +95,14 @@ import WebKit
         }
     }
     
-    public func stopServer() {
+    open func stopServer() {
         if server.isStarted {
             server.stop()
             server.resetMiddleware()
         }
     }
     
-    private func setupIntegrations() {
+    fileprivate func setupIntegrations() {
         // proxy api for signing and verification
         let apiProxy = BRAPIProxy(mountAt: "/_api", client: BRAPIClient.sharedClient)
         server.prependMiddleware(middleware: apiProxy)
@@ -136,7 +136,7 @@ import WebKit
         
         // GET /_close closes the browser modal
         router.get("/_close") { (request, match) -> BRHTTPResponse in
-            dispatch_async(dispatch_get_main_queue()) {
+            DispatchQueue.main.async {
                 self.closeNow()
             }
             return BRHTTPResponse(request: request, code: 204)
@@ -146,30 +146,30 @@ import WebKit
         
         // enable debug if it is turned on
         if let debugUrl = debugEndpoint {
-            let url = NSURL(string: debugUrl)
+            let url = URL(string: debugUrl)
             fileMw.debugURL = url
             indexMw.debugURL = url
         }
     }
     
-    public func preload() {
+    open func preload() {
         _ = self.view // force webview loading
     }
     
-    public func refresh() {
-        webView?.reload()
+    open func refresh() {
+        _ = webView?.reload()
     }
     
     // MARK: - navigation delegate
     
-    public func webView(webView: WKWebView, decidePolicyForNavigationAction navigationAction: WKNavigationAction,
-                        decisionHandler: (WKNavigationActionPolicy) -> Void) {
-        if let url = navigationAction.request.URL, host = url.host, port = url.port {
-            if host == server.listenAddress || port.intValue == Int32(server.port) {
-                return decisionHandler(.Allow)
+    open func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction,
+                        decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
+        if let url = navigationAction.request.url, let host = url.host, let port = (url as NSURL).port {
+            if host == server.listenAddress || port.int32Value == Int32(server.port) {
+                return decisionHandler(.allow)
             }
         }
         print("[BRWebViewController disallowing navigation: \(navigationAction)")
-        decisionHandler(.Cancel)
+        decisionHandler(.cancel)
     }
 }

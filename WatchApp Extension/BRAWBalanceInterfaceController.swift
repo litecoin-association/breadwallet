@@ -48,8 +48,8 @@ class BRAWBalanceInterfaceController: WKInterfaceController {
     
     // MARK: View life cycle
     
-    override func awakeWithContext(context: AnyObject?) {
-        super.awakeWithContext(context)
+    override func awake(withContext context: Any?) {
+        super.awake(withContext: context)
         updateBalance()
     }
 
@@ -58,26 +58,26 @@ class BRAWBalanceInterfaceController: WKInterfaceController {
         super.willActivate()
         updateBalance()
         updateTransactionList()
-        NSNotificationCenter.defaultCenter().addObserver(
-            self, selector: #selector(BRAWBalanceInterfaceController.updateUI), name: BRAWWatchDataManager.ApplicationDataDidUpdateNotification, object: nil)
-        NSNotificationCenter.defaultCenter().addObserver(
-            self, selector: #selector(BRAWBalanceInterfaceController.txReceive(_:)), name: BRAWWatchDataManager.WalletTxReceiveNotification, object: nil)
+        NotificationCenter.default.addObserver(
+            self, selector: #selector(BRAWBalanceInterfaceController.updateUI), name: NSNotification.Name(rawValue: BRAWWatchDataManager.ApplicationDataDidUpdateNotification), object: nil)
+        NotificationCenter.default.addObserver(
+            self, selector: #selector(BRAWBalanceInterfaceController.txReceive(_:)), name: NSNotification.Name(rawValue: BRAWWatchDataManager.WalletTxReceiveNotification), object: nil)
     }
     
     override func didDeactivate() {
         // This method is called when watch view controller is no longer visible
         super.didDeactivate()
-        NSNotificationCenter.defaultCenter().removeObserver(self)
+        NotificationCenter.default.removeObserver(self)
     }
     
-    @objc func txReceive(notification: NSNotification?) {
+    @objc func txReceive(_ notification: Notification?) {
         print("balance view controller received notification: \(notification)")
-        if let userData = notification?.userInfo,
-            noteString = userData[NSLocalizedDescriptionKey] as? String {
-                self.presentAlertControllerWithTitle(
-                    noteString, message: nil, preferredStyle: .Alert, actions: [
+        if let userData = (notification as NSNotification?)?.userInfo,
+            let noteString = userData[NSLocalizedDescriptionKey] as? String {
+                self.presentAlert(
+                    withTitle: noteString, message: nil, preferredStyle: .alert, actions: [
                         WKAlertAction(title: NSLocalizedString("OK", comment: ""),
-                            style: .Cancel, handler: { self.dismissController() })])
+                            style: .cancel, handler: { self.dismiss() })])
         }
     }
     
@@ -107,21 +107,21 @@ class BRAWBalanceInterfaceController: WKInterfaceController {
         self.transactionHeaderContainer.setHidden(newTransactionCount == 0)
         // insert or delete rows to match number of transactions
         if (numberRowsToInsertOrDelete > 0) {
-            let ixs = NSIndexSet(indexesInRange: NSMakeRange(currentTableRowCount, numberRowsToInsertOrDelete))
-            table.insertRowsAtIndexes(ixs, withRowType: "BRAWTransactionRowControl")
+            let ixs = IndexSet(integersIn: NSMakeRange(currentTableRowCount, numberRowsToInsertOrDelete).toRange() ?? 0..<0)
+            table.insertRows(at: ixs, withRowType: "BRAWTransactionRowControl")
         } else {
-            let ixs = NSIndexSet(indexesInRange: NSMakeRange(newTransactionCount, abs(numberRowsToInsertOrDelete)))
-            table.removeRowsAtIndexes(ixs)
+            let ixs = IndexSet(integersIn: NSMakeRange(newTransactionCount, abs(numberRowsToInsertOrDelete)).toRange() ?? 0..<0)
+            table.removeRows(at: ixs)
         }
         // update row content
         for index in 0 ..< newTransactionCount  {
-            if let rowControl = table.rowControllerAtIndex(index) as? BRAWTransactionRowControl {
+            if let rowControl = table.rowController(at: index) as? BRAWTransactionRowControl {
                 updateRow(rowControl, transaction: self.transactionList[index])
             }
         }
     }
     
-    func updateRow(rowControl: BRAWTransactionRowControl, transaction: BRAppleWatchTransactionData) {
+    func updateRow(_ rowControl: BRAWTransactionRowControl, transaction: BRAppleWatchTransactionData) {
         let localCurrencyAmount
             = (transaction.amountTextInLocalCurrency.characters.count > 2) ? transaction.amountTextInLocalCurrency : " "
         rowControl.amountLabel.setText(transaction.amountText)

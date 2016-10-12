@@ -33,17 +33,17 @@ import Foundation
         self.client = client
     }
     
-    func transformErrorToResponse(request: BRHTTPRequest, err: ErrorType?) -> BRHTTPResponse? {
+    func transformErrorToResponse(_ request: BRHTTPRequest, err: Error?) -> BRHTTPResponse? {
         switch err {
         case nil:
             return nil
         case let e as BRReplicatedKVStoreError:
             switch e {
-            case .NotFound:
+            case .notFound:
                 return BRHTTPResponse(request: request, code: 404)
-            case .Conflict:
+            case .conflict:
                 return BRHTTPResponse(request: request, code: 409)
-            case .InvalidKey:
+            case .invalidKey:
                 print("[BRHTTPStorePlugin]: invalid key!")
                 return BRHTTPResponse(request: request, code: 400)
             default: break
@@ -54,11 +54,11 @@ import Foundation
         return BRHTTPResponse(request: request, code: 500)
     }
     
-    func getKey(s: String) -> String {
+    func getKey(_ s: String) -> String {
         return "plat-\(s)"
     }
     
-    func hook(router: BRHTTPRouter) {
+    func hook(_ router: BRHTTPRouter) {
         // GET /_kv/(key)
         //
         // Retrieve a value from a key. If it exists, the most recent version will be returned as JSON. The ETag header 
@@ -71,7 +71,7 @@ import Foundation
         // If you are retrieving a key that was replaced after having deleted it, you may have to instruct your client
         // to ignore its cache (using Pragma: no-cache and Cache-Control: no-cache headers)
         router.get("/_kv/(key)") { (request, match) -> BRHTTPResponse in
-            guard let key = match["key"] where key.count == 1 else {
+            guard let key = match["key"] , key.count == 1 else {
                 print("[BRKVStorePlugin] missing key argument")
                 return BRHTTPResponse(request: request, code: 400)
             }
@@ -80,18 +80,18 @@ import Foundation
                 return BRHTTPResponse(request: request, code: 500)
             }
             var ver: UInt64
-            var date: NSDate
+            var date: Date
             var del: Bool
             var bytes: [UInt8]
-            var json: AnyObject
+            var json: Any
             var uncompressedBytes: [UInt8]
             do {
                 (ver, date, del, bytes) = try kv.get(self.getKey(key[0]))
-                let data = NSData(bzCompressedData: NSData(bytes: &bytes, length: bytes.count)) ?? NSData()
-                json = try NSJSONSerialization.JSONObjectWithData(data, options: []) // ensure valid json
-                let jsonData = try NSJSONSerialization.dataWithJSONObject(json, options: [])
-                uncompressedBytes = [UInt8](count: jsonData.length, repeatedValue: 0)
-                jsonData.getBytes(&uncompressedBytes)
+                let data = Data(bzCompressedData: Data(bytes: &bytes, count: bytes.count)) ?? Data()
+                json = try JSONSerialization.jsonObject(with: data, options: []) // ensure valid json
+                let jsonData = try JSONSerialization.data(withJSONObject: json, options: [])
+                uncompressedBytes = [UInt8](repeating: 0, count: jsonData.count)
+                (jsonData as NSData).getBytes(&uncompressedBytes, length: jsonData.count)
             } catch let e {
                 if let resp = self.transformErrorToResponse(request, err: e) {
                     return resp
@@ -129,7 +129,7 @@ import Foundation
         // Successful response is a 204 no content with the ETag set to the new version and Last-Modified header
         // set to that version's date
         router.put("/_kv/(key)") { (request, match) -> BRHTTPResponse in
-            guard let key = match["key"] where key.count == 1 else {
+            guard let key = match["key"] , key.count == 1 else {
                 print("[BRKVStorePlugin] missing key argument")
                 return BRHTTPResponse(request: request, code: 400)
             }
@@ -137,22 +137,22 @@ import Foundation
                 print("[BRKVStorePlugin] kv store is not yet set up on  client")
                 return BRHTTPResponse(request: request, code: 500)
             }
-            guard let ct = request.headers["content-type"] where ct.count == 1 && ct[0] == "application/json" else {
+            guard let ct = request.headers["content-type"] , ct.count == 1 && ct[0] == "application/json" else {
                 print("[BRKVStorePlugin] can only set application/json request bodies")
                 return BRHTTPResponse(request: request, code: 400)
             }
-            guard let vs = request.headers["if-none-match"] where vs.count == 1 && Int(vs[0]) != nil else {
+            guard let vs = request.headers["if-none-match"] , vs.count == 1 && Int(vs[0]) != nil else {
                 print("[BRKVStorePlugin] missing If-None-Match header, set to `0` if creating a new key")
                 return BRHTTPResponse(request: request, code: 400)
             }
-            guard let body = request.body(), compressedBody = body.bzCompressedData else {
+            guard let body = request.body(), let compressedBody = body.bzCompressedData else {
                 print("[BRKVStorePlugin] missing request body")
                 return BRHTTPResponse(request: request, code: 400)
             }
-            var bodyBytes = [UInt8](count: compressedBody.length, repeatedValue: 0)
-            compressedBody.getBytes(&bodyBytes)
+            var bodyBytes = [UInt8](repeating: 0, count: compressedBody.count)
+            (compressedBody as NSData).getBytes(&bodyBytes, length: compressedBody.count)
             var ver: UInt64
-            var date: NSDate
+            var date: Date
             do {
                 (ver, date) = try kv.set(self.getKey(key[0]), value: bodyBytes, localVer: UInt64(Int(vs[0])!))
             } catch let e {
@@ -178,7 +178,7 @@ import Foundation
         // Keys may not actually be removed from the database, and can be restored by PUTing a new version. This is
         // called a tombstone and is used to replicate deletes to other databases
         router.delete("/_kv/(key)") { (request, match) -> BRHTTPResponse in
-            guard let key = match["key"] where key.count == 1 else {
+            guard let key = match["key"] , key.count == 1 else {
                 print("[BRKVStorePlugin] missing key argument")
                 return BRHTTPResponse(request: request, code: 400)
             }
@@ -186,12 +186,12 @@ import Foundation
                 print("[BRKVStorePlugin] kv store is not yet set up on  client")
                 return BRHTTPResponse(request: request, code: 500)
             }
-            guard let vs = request.headers["if-none-match"] where vs.count == 1 && Int(vs[0]) != nil else {
+            guard let vs = request.headers["if-none-match"] , vs.count == 1 && Int(vs[0]) != nil else {
                 print("[BRKVStorePlugin] missing If-None-Match header")
                 return BRHTTPResponse(request: request, code: 400)
             }
             var ver: UInt64
-            var date: NSDate
+            var date: Date
             do {
                 (ver, date) = try kv.del(self.getKey(key[0]), localVer: UInt64(Int(vs[0])!))
             } catch let e {

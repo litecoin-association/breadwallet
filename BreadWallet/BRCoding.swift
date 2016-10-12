@@ -17,23 +17,23 @@ protocol BREncodable {
     // zeroValue is a zero-value initializer
     static func zeroValue() -> Self
     // decode can be passed any value which is json-able
-    static func decode(value: AnyObject) -> Self
+    static func decode(_ value: AnyObject) -> Self
 }
 
 
 // An object which can encode and decode values
-public class BRCoder {
+open class BRCoder {
     var data: [String: AnyObject]
     
     init(data: [String: AnyObject]) {
         self.data = data
     }
     
-    func encode(obj: BREncodable, key: String) {
+    func encode(_ obj: BREncodable, key: String) {
         self.data[key] = obj.encode()
     }
     
-    func decode<T: BREncodable>(key: String) -> T {
+    func decode<T: BREncodable>(_ key: String) -> T {
         guard let d = self.data[key] else {
             return T.zeroValue()
         }
@@ -44,34 +44,34 @@ public class BRCoder {
 // An object which may be encoded/decoded using the archiving/unarchiving classes below
 protocol BRCoding {
     init?(coder decoder: BRCoder)
-    func encode(coder: BRCoder)
+    func encode(_ coder: BRCoder)
 }
 
 // A basic analogue of NSKeyedArchiver, except it uses JSON and uses
-public class BRKeyedArchiver {
-    static func archivedDataWithRootObject(obj: BRCoding, compressed: Bool = true) -> NSData {
+open class BRKeyedArchiver {
+    static func archivedDataWithRootObject(_ obj: BRCoding, compressed: Bool = true) -> Data {
         let coder = BRCoder(data: [String : AnyObject]())
         obj.encode(coder)
         do {
-            let j = try NSJSONSerialization.dataWithJSONObject(coder.data, options: [])
+            let j = try JSONSerialization.data(withJSONObject: coder.data, options: [])
             guard let bz = (compressed ? j.bzCompressedData : j) else {
                 print("compression error")
-                return NSData()
+                return Data()
             }
             return bz
         } catch let e {
             print("BRKeyedArchiver unable to archive object: \(e)")
-            return "{}".dataUsingEncoding(NSUTF8StringEncoding)!
+            return "{}".data(using: String.Encoding.utf8)!
         }
     }
 }
 
 // A basic analogue of NSKeyedUnarchiver
-public class BRKeyedUnarchiver {
-    static func unarchiveObjectWithData<T: BRCoding>(data: NSData, compressed: Bool = true) -> T? {
+open class BRKeyedUnarchiver {
+    static func unarchiveObjectWithData<T: BRCoding>(_ data: Data, compressed: Bool = true) -> T? {
         do {
-            guard let bz = (compressed ? NSData(bzCompressedData: data) : data),
-                j = try NSJSONSerialization.JSONObjectWithData(bz, options: []) as? [String: AnyObject] else {
+            guard let bz = (compressed ? Data(bzCompressedData: data) : data),
+                let j = try JSONSerialization.jsonObject(with: bz, options: []) as? [String: AnyObject] else {
                 print("BRKeyedUnarchiver invalid json object, or invalid bz data")
                 return nil
             }
@@ -87,63 +87,63 @@ public class BRKeyedUnarchiver {
 
 // converters
 
-extension NSDate: BREncodable {
+extension Date: BREncodable {
     func encode() -> AnyObject {
-        return self.timeIntervalSinceReferenceDate
+        return self.timeIntervalSinceReferenceDate as AnyObject
     }
     
-    public class func zeroValue() -> Self {
+    public static func zeroValue() -> Date {
         return dateFromTimeIntervalSinceReferenceDate(0)
     }
     
-    public class func decode(value: AnyObject) -> Self {
+    public static func decode(_ value: AnyObject) -> Date {
         let d = (value as? Double) ?? Double()
         return dateFromTimeIntervalSinceReferenceDate(d)
     }
     
-    class func dateFromTimeIntervalSinceReferenceDate<T>(d: Double) -> T {
-        return NSDate(timeIntervalSinceReferenceDate: d) as! T
+    static func dateFromTimeIntervalSinceReferenceDate<T>(_ d: Double) -> T {
+        return Date(timeIntervalSinceReferenceDate: d) as! T
     }
 }
 
 extension Int: BREncodable {
     func encode() -> AnyObject {
-        return self
+        return self as AnyObject
     }
     
     static func zeroValue() -> Int {
         return 0
     }
     
-    static func decode(s: AnyObject) -> Int {
+    static func decode(_ s: AnyObject) -> Int {
         return (s as? Int) ?? self.zeroValue()
     }
 }
 
 extension Double: BREncodable {
     func encode() -> AnyObject {
-        return self
+        return self as AnyObject
     }
     
     static func zeroValue() -> Double {
         return 0.0
     }
     
-    static func decode(s: AnyObject) -> Double {
+    static func decode(_ s: AnyObject) -> Double {
         return (s as? Double) ?? self.zeroValue()
     }
 }
 
 extension String: BREncodable {
     func encode() -> AnyObject {
-        return self
+        return self as AnyObject
     }
     
     static func zeroValue() -> String {
         return ""
     }
     
-    static func decode(s: AnyObject) -> String {
+    static func decode(_ s: AnyObject) -> String {
         return (s as? String) ?? self.zeroValue()
     }
 }

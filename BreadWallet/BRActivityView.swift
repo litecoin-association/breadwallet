@@ -25,15 +25,13 @@
 
 import Foundation
 
-@objc public class BRActivityViewController: UIViewController {
-    public let activityView = BRActivityView()
+@objc open class BRActivityViewController: UIViewController {
+    open let activityView = BRActivityView()
     
     init(message: String) {
         super.init(nibName: nil, bundle: nil)
-        modalTransitionStyle = .CrossDissolve
-        if #available(iOS 8.0, *) {
-            modalPresentationStyle = .OverFullScreen
-        }
+        modalTransitionStyle = .crossDissolve
+        modalPresentationStyle = .overFullScreen
         activityView.messageLabel.text = message
         view = activityView
     }
@@ -43,13 +41,13 @@ import Foundation
     }
 }
 
-@objc public class BRActivityView: UIView {
-    public let activityIndicatorView = UIActivityIndicatorView(activityIndicatorStyle: .WhiteLarge)
-    let boundingBoxView = UIView(frame: CGRectZero)
-    public let messageLabel = UILabel(frame: CGRectZero)
+@objc open class BRActivityView: UIView {
+    open let activityIndicatorView = UIActivityIndicatorView(activityIndicatorStyle: .whiteLarge)
+    let boundingBoxView = UIView(frame: CGRect.zero)
+    open let messageLabel = UILabel(frame: CGRect.zero)
     
     init() {
-        super.init(frame: CGRectZero)
+        super.init(frame: CGRect.zero)
         
         backgroundColor = UIColor(white: 0.0, alpha: 0.5)
         
@@ -58,11 +56,11 @@ import Foundation
         
         activityIndicatorView.startAnimating()
         
-        messageLabel.font = UIFont.boldSystemFontOfSize(UIFont.labelFontSize())
-        messageLabel.textColor = UIColor.whiteColor()
-        messageLabel.textAlignment = .Center
-        messageLabel.shadowColor = UIColor.blackColor()
-        messageLabel.shadowOffset = CGSizeMake(0.0, 1.0)
+        messageLabel.font = UIFont.boldSystemFont(ofSize: UIFont.labelFontSize)
+        messageLabel.textColor = UIColor.white
+        messageLabel.textAlignment = .center
+        messageLabel.shadowColor = UIColor.black
+        messageLabel.shadowOffset = CGSize(width: 0.0, height: 1.0)
         messageLabel.numberOfLines = 0
         
         addSubview(boundingBoxView)
@@ -74,7 +72,7 @@ import Foundation
         fatalError("init(coder:) has not been implemented")
     }
     
-    public override func layoutSubviews() {
+    open override func layoutSubviews() {
         super.layoutSubviews()
         
         boundingBoxView.frame.size.width = 160.0
@@ -85,7 +83,7 @@ import Foundation
         activityIndicatorView.frame.origin.x = ceil((bounds.width / 2.0) - (activityIndicatorView.frame.width / 2.0))
         activityIndicatorView.frame.origin.y = ceil((bounds.height / 2.0) - (activityIndicatorView.frame.height / 2.0))
         
-        let messageLabelSize = messageLabel.sizeThatFits(CGSizeMake(160.0 - 20.0 * 2.0, CGFloat.max))
+        let messageLabelSize = messageLabel.sizeThatFits(CGSize(width: 160.0 - 20.0 * 2.0, height: CGFloat.greatestFiniteMagnitude))
         messageLabel.frame.size.width = messageLabelSize.width
         messageLabel.frame.size.height = messageLabelSize.height
         messageLabel.frame.origin.x = ceil((bounds.width / 2.0) - (messageLabel.frame.width / 2.0))

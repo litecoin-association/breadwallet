@@ -31,9 +31,9 @@ import Foundation
  
     let manager = BRWalletManager.sharedInstance()!
     
-    func announce(json: [String: AnyObject]) {
-        if let jsonData = try? NSJSONSerialization.dataWithJSONObject(json, options: []),
-            jsonString = NSString(data: jsonData, encoding: NSUTF8StringEncoding) {
+    func announce(_ json: [String: AnyObject]) {
+        if let jsonData = try? JSONSerialization.data(withJSONObject: json, options: []),
+            let jsonString = NSString(data: jsonData, encoding: String.Encoding.utf8.rawValue) {
             for sock in sockets {
                 sock.1.send(String(jsonString))
             }
@@ -42,42 +42,42 @@ import Foundation
         }
     }
  
-    func hook(router: BRHTTPRouter) {
+    func hook(_ router: BRHTTPRouter) {
         router.websocket("/_wallet/_socket", client: self)
         
-        let noteCenter = NSNotificationCenter.defaultCenter()
-        noteCenter.addObserverForName(BRPeerManagerSyncStartedNotification, object: nil, queue: nil) { (note) in
-            self.announce(["type": "sync_started"])
+        let noteCenter = NotificationCenter.default
+        noteCenter.addObserver(forName: NSNotification.Name.BRPeerManagerSyncStarted, object: nil, queue: nil) { (note) in
+            self.announce(["type": "sync_started" as AnyObject])
         }
-        noteCenter.addObserverForName(BRPeerManagerSyncFailedNotification, object: nil, queue: nil) { (note) in
-            self.announce(["type": "sync_failed"])
+        noteCenter.addObserver(forName: NSNotification.Name.BRPeerManagerSyncFailed, object: nil, queue: nil) { (note) in
+            self.announce(["type": "sync_failed" as AnyObject])
         }
-        noteCenter.addObserverForName(BRPeerManagerSyncFinishedNotification, object: nil, queue: nil) { (note) in
-            self.announce(["type": "sync_finished"])
+        noteCenter.addObserver(forName: NSNotification.Name.BRPeerManagerSyncFinished, object: nil, queue: nil) { (note) in
+            self.announce(["type": "sync_finished" as AnyObject])
         }
-        noteCenter.addObserverForName(BRPeerManagerTxStatusNotification, object: nil, queue: nil) { (note) in
-            self.announce(["type": "tx_status"])
+        noteCenter.addObserver(forName: NSNotification.Name.BRPeerManagerTxStatus, object: nil, queue: nil) { (note) in
+            self.announce(["type": "tx_status" as AnyObject])
         }
-        noteCenter.addObserverForName(BRWalletManagerSeedChangedNotification, object: nil, queue: nil) { (note) in
+        noteCenter.addObserver(forName: NSNotification.Name.BRWalletManagerSeedChanged, object: nil, queue: nil) { (note) in
             if let wallet = self.manager.wallet {
-                self.announce(["type": "seed_changed", "balance": NSNumber(unsignedLongLong: wallet.balance)])
+                self.announce(["type": "seed_changed" as AnyObject, "balance": NSNumber(value: wallet.balance as UInt64)])
             }
         }
-        noteCenter.addObserverForName(BRWalletBalanceChangedNotification, object: nil, queue: nil) { (note) in
+        noteCenter.addObserver(forName: NSNotification.Name.BRWalletBalanceChanged, object: nil, queue: nil) { (note) in
             if let wallet = self.manager.wallet {
-                self.announce(["type": "balance_changed", "balance": NSNumber(unsignedLongLong: wallet.balance)])
+                self.announce(["type": "balance_changed" as AnyObject, "balance": NSNumber(value: wallet.balance as UInt64)])
             }
         }
  
         router.get("/_wallet/info") { (request, match) -> BRHTTPResponse in
-            return try BRHTTPResponse(request: request, code: 200, json: self.walletInfo())
+            return try BRHTTPResponse(request: request, code: 200, json: self.walletInfo() as AnyObject)
         }
  
         router.get("/_wallet/format") { (request, match) -> BRHTTPResponse in
-            if let amounts = request.query["amount"] where amounts.count > 0 {
+            if let amounts = request.query["amount"] , amounts.count > 0 {
                 let amount = amounts[0]
                 var intAmount: Int64 = 0
-                if amount.containsString(".") { // assume full bitcoins
+                if amount.contains(".") { // assume full bitcoins
                     if let x = Float(amount) {
                         intAmount = Int64(x * 100000000.0)
                     }
@@ -86,7 +86,7 @@ import Foundation
                         intAmount = x
                     }
                 }
-                return try BRHTTPResponse(request: request, code: 200, json: self.currencyFormat(intAmount))
+                return try BRHTTPResponse(request: request, code: 200, json: self.currencyFormat(intAmount) as AnyObject)
             } else {
                 return BRHTTPResponse(request: request, code: 400)
             }
@@ -109,38 +109,38 @@ import Foundation
         //          "signature": "oibwaeofbawoefb" // base64-encoded signature
         //      }
         router.post("/_wallet/sign_bitid") { (request, match) -> BRHTTPResponse in
-            guard let cts = request.headers["content-type"] where cts.count == 1 && cts[0] == "application/json" else {
+            guard let cts = request.headers["content-type"] , cts.count == 1 && cts[0] == "application/json" else {
                 return BRHTTPResponse(request: request, code: 400)
             }
             guard let data = request.body(),
-                      j = try? NSJSONSerialization.JSONObjectWithData(data, options: []),
-                      json = j as? [String: String],
-                      stringToSign = json["string_to_sign"],
-                      bitidUrlString = json["bitid_url"], bitidUrl = NSURL(string: bitidUrlString),
-                      bii = json["bitid_index"], bitidIndex = Int(bii) else {
+                      let j = try? JSONSerialization.jsonObject(with: data, options: []),
+                      let json = j as? [String: String],
+                      let stringToSign = json["string_to_sign"],
+                      let bitidUrlString = json["bitid_url"], let bitidUrl = URL(string: bitidUrlString),
+                      let bii = json["bitid_index"], let bitidIndex = Int(bii) else {
                 return BRHTTPResponse(request: request, code: 400)
             }
-            var maybeSeed: NSData?
-            dispatch_sync(dispatch_get_main_queue()) {
-                maybeSeed = self.manager.seedWithPrompt((bitidUrl.host ?? bitidUrl.description), forAmount: 0)
+            var maybeSeed: Data?
+            DispatchQueue.main.sync {
+                maybeSeed = self.manager.seed(withPrompt: (bitidUrl.host ?? bitidUrl.description), forAmount: 0)
             }
             guard let seed = maybeSeed else {
                 return BRHTTPResponse(request: request, code: 401)
             }
             let seq = BRBIP32Sequence()
             guard let kd = seq.bitIdPrivateKey(UInt32(bitidIndex), forURI: bitidUrl.description, fromSeed: seed),
-                      key = BRKey(privateKey: kd) else {
+                      let key = BRKey(privateKey: kd) else {
                 return BRHTTPResponse(request: request, code: 500)
             }
             let sig = BRBitID.signMessage(stringToSign, usingKey: key)
-            let ret: [String: AnyObject] = [
+            let ret: [String: Any] = [
                 "signature": sig
             ]
-            guard let jsonData = try? NSJSONSerialization.dataWithJSONObject(ret, options: []) else {
+            guard let jsonData = try? JSONSerialization.data(withJSONObject: ret, options: []) else {
                 return BRHTTPResponse(request: request, code: 500)
             }
-            var jsonBytes = [UInt8](count: jsonData.length, repeatedValue: 0)
-            jsonData.getBytes(&jsonBytes)
+            var jsonBytes = [UInt8](repeating: 0, count: jsonData.count)
+            (jsonData as NSData).getBytes(&jsonBytes, length: jsonData.count)
             let headers: [String: [String]] = [
                 "Content-Type": ["application/json"]
             ]
@@ -154,42 +154,42 @@ import Foundation
     
     func walletInfo() -> [String: AnyObject] {
         var d = [String: AnyObject]()
-        d["no_wallet"] = manager.noWallet
-        d["watch_only"] = manager.watchOnly
-        d["receive_address"] = manager.wallet?.receiveAddress
+        d["no_wallet"] = manager.noWallet as AnyObject?
+        d["watch_only"] = manager.watchOnly as AnyObject?
+        d["receive_address"] = manager.wallet?.receiveAddress as AnyObject?
         return d
     }
     
-    func currencyFormat(amount: Int64) -> [String: AnyObject] {
+    func currencyFormat(_ amount: Int64) -> [String: AnyObject] {
         var d = [String: AnyObject]()
-        d["local_currency_amount"] = manager.localCurrencyStringForAmount(Int64(amount))
-        d["currency_amount"] = manager.stringForAmount(amount)
+        d["local_currency_amount"] = manager.localCurrencyString(forAmount: Int64(amount)) as AnyObject?
+        d["currency_amount"] = manager.string(forAmount: amount) as AnyObject?
         return d
     }
     
     // MARK: - socket handlers
     
-    func sendWalletInfo(socket: BRWebSocket) {
+    func sendWalletInfo(_ socket: BRWebSocket) {
         var d = self.walletInfo()
-        d["type"] = "wallet"
-        if let jdata = try? NSJSONSerialization.dataWithJSONObject(d, options: []),
-            jstring = NSString(data: jdata, encoding: NSUTF8StringEncoding) {
+        d["type"] = "wallet" as AnyObject?
+        if let jdata = try? JSONSerialization.data(withJSONObject: d, options: []),
+            let jstring = NSString(data: jdata, encoding: String.Encoding.utf8.rawValue) {
             socket.send(String(jstring))
         }
     }
     
-    func socketDidConnect(socket: BRWebSocket) {
+    func socketDidConnect(_ socket: BRWebSocket) {
         print("WALLET CONNECT \(socket.id)")
         sockets[socket.id] = socket
         sendWalletInfo(socket)
     }
     
-    func socketDidDisconnect(socket: BRWebSocket) {
+    func socketDidDisconnect(_ socket: BRWebSocket) {
         print("WALLET DISCONNECT \(socket.id)")
-        sockets.removeValueForKey(socket.id)
+        sockets.removeValue(forKey: socket.id)
     }
     
-    func socket(socket: BRWebSocket, didReceiveText text: String) {
+    func socket(_ socket: BRWebSocket, didReceiveText text: String) {
         print("WALLET RECV \(text)")
         socket.send(text)
     }
