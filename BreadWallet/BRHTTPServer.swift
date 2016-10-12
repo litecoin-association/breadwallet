@@ -25,27 +25,6 @@
 //  THE SOFTWARE.
 
 import Foundation
-fileprivate func < <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
-  switch (lhs, rhs) {
-  case let (l?, r?):
-    return l < r
-  case (nil, _?):
-    return true
-  default:
-    return false
-  }
-}
-
-fileprivate func > <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
-  switch (lhs, rhs) {
-  case let (l?, r?):
-    return l > r
-  default:
-    return rhs < lhs
-  }
-}
-
-
 
 enum BRHTTPServerError: Error {
     case socketCreationFailed
@@ -330,7 +309,7 @@ enum BRHTTPServerError: Error {
     
     open var isKeepAlive: Bool {
         return (headers["connection"] != nil
-            && headers["connection"]?.count > 0
+            && headers["connection"]?.count ?? 0 > 0
             && headers["connection"]![0] == "keep-alive")
     }
     
@@ -441,7 +420,8 @@ enum BRHTTPServerError: Error {
     
     open func body() -> Data? {
         if _bodyRead && _body != nil {
-            return Data(bytesNoCopy: UnsafeMutablePointer<UInt8>(UnsafeMutablePointer(mutating: _body!)), count: contentLength, deallocator: .none)
+            let bp = UnsafeMutablePointer<UInt8>(UnsafeMutablePointer(mutating: _body!))
+            return Data(bytesNoCopy: bp, count: contentLength, deallocator: .none)
         }
         if _bodyRead {
             return nil
@@ -453,7 +433,8 @@ enum BRHTTPServerError: Error {
             return nil
         }
         _body = buf
-        return Data(bytesNoCopy: UnsafeMutablePointer<UInt8>(UnsafeMutablePointer(mutating: _body!)), count: contentLength, deallocator: .none)
+        let bp = UnsafeMutablePointer<UInt8>(UnsafeMutablePointer(mutating: _body!))
+        return Data(bytesNoCopy: bp, count: contentLength, deallocator: .none)
     }
     
     open func json() -> AnyObject? {
@@ -578,9 +559,10 @@ enum BRHTTPServerError: Error {
             request: request, statusCode: code, statusReason: BRHTTPResponse.reasonMap[code], headers: nil, body: nil)
     }
     
-    convenience init(request: BRHTTPRequest, code: Int, json j: AnyObject) throws {
+    convenience init(request: BRHTTPRequest, code: Int, json j: Any) throws {
         let jsonData = try JSONSerialization.data(withJSONObject: j, options: [])
-        let bodyBuffer = UnsafeBufferPointer<UInt8>(start: (jsonData as NSData).bytes.bindMemory(to: UInt8.self, capacity: jsonData.count), count: jsonData.count)
+        let bp = (jsonData as NSData).bytes.bindMemory(to: UInt8.self, capacity: jsonData.count)
+        let bodyBuffer = UnsafeBufferPointer<UInt8>(start: bp, count: jsonData.count)
         self.init(
             request: request, statusCode: code, statusReason: BRHTTPResponse.reasonMap[code],
             headers: ["Content-Type": ["application/json"]], body: Array(bodyBuffer))
@@ -659,7 +641,8 @@ enum BRHTTPServerError: Error {
         do {
             if let json = json {
                 let jsonData = try JSONSerialization.data(withJSONObject: json, options: [])
-                let bodyBuffer = UnsafeBufferPointer<UInt8>(start: (jsonData as NSData).bytes.bindMemory(to: UInt8.self, capacity: jsonData.count), count: jsonData.count)
+                let bp = (jsonData as NSData).bytes.bindMemory(to: UInt8.self, capacity: jsonData.count)
+                let bodyBuffer = UnsafeBufferPointer<UInt8>(start: bp, count: jsonData.count)
                 headers = ["Content-Type": ["application/json"]]
                 body = Array(bodyBuffer)
             }

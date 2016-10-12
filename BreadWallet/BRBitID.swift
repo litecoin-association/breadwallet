@@ -53,7 +53,7 @@ import Security
     open class func signMessage(_ message: String, usingKey key: BRKey) -> String {
         let signingData = formatMessageForBitcoinSigning(message)
         let signature = key.compactSign((signingData as NSData).sha256_2())!
-        return NSString(data: signature.base64EncodedData(options: []), encoding: String.Encoding.utf8.rawValue)! as String
+        return String(bytes: signature.base64EncodedData(options: []), encoding: String.Encoding.utf8) ?? ""
     }
     
     open let url: URL
@@ -143,25 +143,18 @@ import Security
             let json = try! JSONSerialization.data(withJSONObject: payload, options: [])
             
             // send off said payload
-            let req = NSMutableURLRequest(url: URL(string: "\(uri)?x=\(nonce)")!)
+            var req = URLRequest(url: URL(string: "\(uri)?x=\(nonce)")!)
             req.setValue("application/json", forHTTPHeaderField: "Content-Type")
             req.httpMethod = "POST"
             req.httpBody = json
-//            URLSession.shared.dataTask(with: req, completionHandler: completionHandler).resume()
-            // TODO: this....
             let session = URLSession.shared
-            let task = session.dataTask(with: req as URLRequest, completionHandler: { (dat: Data?, resp: URLResponse?, err: Error?) in
+            session.dataTask(with: req, completionHandler: { (dat: Data?, resp: URLResponse?, err: Error?) in
                 var rerr: NSError?
                 if err != nil {
                     rerr = NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "\(err)"])
                 }
                 completionHandler(dat, resp, rerr)
-            })
-            task.resume()
-            
-//            session.dataTask(with: req, completionHandler: { (dat, resp, err) in
-//                
-//            }).resume()
+            }).resume()
         }
     }
 }

@@ -62,11 +62,12 @@ import Foundation
     
     open func handle(_ request: BRHTTPRequest, next: @escaping (BRHTTPMiddlewareResponse) -> Void) {
         if request.path.hasPrefix(mountPoint) {
-            var path = request.path.substring(from: request.path.characters.index(request.path.startIndex, offsetBy: mountPoint.characters.count))
+            let idx = request.path.characters.index(request.path.startIndex, offsetBy: mountPoint.characters.count)
+            var path = request.path.substring(from: idx)
             if request.queryString.utf8.count > 0 {
                 path += "?\(request.queryString)"
             }
-            let nsReq = NSMutableURLRequest(url: apiInstance.url(path))
+            var nsReq = URLRequest(url: apiInstance.url(path))
             nsReq.httpMethod = request.method
             // copy body
             if request.hasBody {
@@ -86,7 +87,7 @@ import Foundation
                     auth = true
                 }
             }
-            apiInstance.dataTaskWithRequest(nsReq as URLRequest, authenticated: auth, retryCount: 0, handler:
+            apiInstance.dataTaskWithRequest(nsReq, authenticated: auth, retryCount: 0, handler:
                 { (nsData, nsHttpResponse, nsError) -> Void in
                     if let httpResp = nsHttpResponse {
                         var hdrs = [String: [String]]()
@@ -96,7 +97,8 @@ import Foundation
                         }
                         var body: [UInt8]? = nil
                         if let bod = nsData {
-                            let b = UnsafeBufferPointer<UInt8>(start: (bod as NSData).bytes.bindMemory(to: UInt8.self, capacity: bod.count), count: bod.count)
+                            let bp = (bod as NSData).bytes.bindMemory(to: UInt8.self, capacity: bod.count)
+                            let b = UnsafeBufferPointer<UInt8>(start: bp, count: bod.count)
                             body = Array(b)
                         }
                         let resp = BRHTTPResponse(

@@ -65,12 +65,17 @@ public typealias BRHTTPRoute = (_ request: BRHTTPRequest, _ match: BRHTTPRouteMa
         var i = 0
         for part in parts {
             if part.hasPrefix("(") && part.hasSuffix(")") {
-                let wcRange = part.characters.index(part.endIndex, offsetBy: -2)..<part.characters.index(part.endIndex, offsetBy: -1)
-                if part.substring(with: wcRange) == "*" { // a wild card capture (part*)
-                    captureGroups[i] = part.substring(with: part.characters.index(part.startIndex, offsetBy: 1)..<part.characters.index(part.endIndex, offsetBy: -2))
+                let w1 = part.characters.index(part.endIndex, offsetBy: -2)
+                let w2 = part.characters.index(part.endIndex, offsetBy: -1)
+                if part.substring(with: w1..<w2) == "*" { // a wild card capture (part*)
+                    let i1 = part.characters.index(part.startIndex, offsetBy: 1)
+                    let i2 = part.characters.index(part.endIndex, offsetBy: -2)
+                    captureGroups[i] = part.substring(with: i1..<i2)
                     reParts.append("(.*)")
                 } else {
-                    captureGroups[i] = part.substring(with: part.characters.index(part.startIndex, offsetBy: 1)..<part.characters.index(part.endIndex, offsetBy: -1))
+                    let i1 = part.characters.index(part.startIndex, offsetBy: 1)
+                    let i2 = part.characters.index(part.endIndex, offsetBy: -1)
+                    captureGroups[i] = part.substring(with: i1..<i2)
                     reParts.append("([^/]+)") // a capture (part)
                 }
                 i += 1
@@ -88,14 +93,16 @@ public typealias BRHTTPRoute = (_ request: BRHTTPRequest, _ match: BRHTTPRouteMa
         if request.method.uppercased() != method {
             return nil
         }
-        var p = request.path as NSString // strip trailing slash
-        if p.hasSuffix("/") { p = request.path.substring(to: request.path.characters.index(request.path.endIndex, offsetBy: -1)) as NSString }
-        if let m = regex.firstMatch(in: request.path, options: [], range: NSMakeRange(0, p.length))
+        var p = request.path // strip trailing slash
+        if p.hasSuffix("/") {
+            p = request.path.substring(to: request.path.characters.index(request.path.endIndex, offsetBy: -1))
+        }
+        if let m = regex.firstMatch(in: request.path, options: [], range: NSMakeRange(0, p.characters.count))
             , m.numberOfRanges - 1 == captureGroups.count {
                 var match = BRHTTPRouteMatch()
                 for i in 1..<m.numberOfRanges {
                     let key = captureGroups[i-1]!
-                    let captured = p.substring(with: m.rangeAt(i))
+                    let captured = (p as NSString).substring(with: m.rangeAt(i))
                     if match[key] == nil {
                         match[key] = [captured]
                     } else {

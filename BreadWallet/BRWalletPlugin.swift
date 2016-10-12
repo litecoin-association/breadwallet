@@ -31,7 +31,7 @@ import Foundation
  
     let manager = BRWalletManager.sharedInstance()!
     
-    func announce(_ json: [String: AnyObject]) {
+    func announce(_ json: [String: Any]) {
         if let jsonData = try? JSONSerialization.data(withJSONObject: json, options: []),
             let jsonString = NSString(data: jsonData, encoding: String.Encoding.utf8.rawValue) {
             for sock in sockets {
@@ -46,31 +46,37 @@ import Foundation
         router.websocket("/_wallet/_socket", client: self)
         
         let noteCenter = NotificationCenter.default
-        noteCenter.addObserver(forName: NSNotification.Name.BRPeerManagerSyncStarted, object: nil, queue: nil) { (note) in
-            self.announce(["type": "sync_started" as AnyObject])
+        noteCenter.addObserver(forName: NSNotification.Name.BRPeerManagerSyncStarted,
+                               object: nil, queue: nil) { (note) in
+            self.announce(["type": "sync_started"])
         }
-        noteCenter.addObserver(forName: NSNotification.Name.BRPeerManagerSyncFailed, object: nil, queue: nil) { (note) in
-            self.announce(["type": "sync_failed" as AnyObject])
+        noteCenter.addObserver(forName: NSNotification.Name.BRPeerManagerSyncFailed,
+                               object: nil, queue: nil) { (note) in
+            self.announce(["type": "sync_failed"])
         }
-        noteCenter.addObserver(forName: NSNotification.Name.BRPeerManagerSyncFinished, object: nil, queue: nil) { (note) in
-            self.announce(["type": "sync_finished" as AnyObject])
+        noteCenter.addObserver(forName: NSNotification.Name.BRPeerManagerSyncFinished,
+                               object: nil, queue: nil) { (note) in
+            self.announce(["type": "sync_finished"])
         }
-        noteCenter.addObserver(forName: NSNotification.Name.BRPeerManagerTxStatus, object: nil, queue: nil) { (note) in
-            self.announce(["type": "tx_status" as AnyObject])
+        noteCenter.addObserver(forName: NSNotification.Name.BRPeerManagerTxStatus,
+                               object: nil, queue: nil) { (note) in
+            self.announce(["type": "tx_status"])
         }
-        noteCenter.addObserver(forName: NSNotification.Name.BRWalletManagerSeedChanged, object: nil, queue: nil) { (note) in
+        noteCenter.addObserver(forName: NSNotification.Name.BRWalletManagerSeedChanged,
+                               object: nil, queue: nil) { (note) in
             if let wallet = self.manager.wallet {
-                self.announce(["type": "seed_changed" as AnyObject, "balance": NSNumber(value: wallet.balance as UInt64)])
+                self.announce(["type": "seed_changed", "balance": Int(wallet.balance)])
             }
         }
-        noteCenter.addObserver(forName: NSNotification.Name.BRWalletBalanceChanged, object: nil, queue: nil) { (note) in
+        noteCenter.addObserver(forName: NSNotification.Name.BRWalletBalanceChanged,
+                               object: nil, queue: nil) { (note) in
             if let wallet = self.manager.wallet {
-                self.announce(["type": "balance_changed" as AnyObject, "balance": NSNumber(value: wallet.balance as UInt64)])
+                self.announce(["type": "balance_changed", "balance": wallet.balance])
             }
         }
  
         router.get("/_wallet/info") { (request, match) -> BRHTTPResponse in
-            return try BRHTTPResponse(request: request, code: 200, json: self.walletInfo() as AnyObject)
+            return try BRHTTPResponse(request: request, code: 200, json: self.walletInfo())
         }
  
         router.get("/_wallet/format") { (request, match) -> BRHTTPResponse in
@@ -86,7 +92,7 @@ import Foundation
                         intAmount = x
                     }
                 }
-                return try BRHTTPResponse(request: request, code: 200, json: self.currencyFormat(intAmount) as AnyObject)
+                return try BRHTTPResponse(request: request, code: 200, json: self.currencyFormat(intAmount))
             } else {
                 return BRHTTPResponse(request: request, code: 400)
             }
@@ -152,18 +158,18 @@ import Foundation
     
     // MARK: - basic wallet functions
     
-    func walletInfo() -> [String: AnyObject] {
-        var d = [String: AnyObject]()
-        d["no_wallet"] = manager.noWallet as AnyObject?
-        d["watch_only"] = manager.watchOnly as AnyObject?
-        d["receive_address"] = manager.wallet?.receiveAddress as AnyObject?
+    func walletInfo() -> [String: Any] {
+        var d = [String: Any]()
+        d["no_wallet"] = manager.noWallet
+        d["watch_only"] = manager.watchOnly
+        d["receive_address"] = manager.wallet?.receiveAddress
         return d
     }
     
-    func currencyFormat(_ amount: Int64) -> [String: AnyObject] {
-        var d = [String: AnyObject]()
-        d["local_currency_amount"] = manager.localCurrencyString(forAmount: Int64(amount)) as AnyObject?
-        d["currency_amount"] = manager.string(forAmount: amount) as AnyObject?
+    func currencyFormat(_ amount: Int64) -> [String: Any] {
+        var d = [String: Any]()
+        d["local_currency_amount"] = manager.localCurrencyString(forAmount: Int64(amount))
+        d["currency_amount"] = manager.string(forAmount: amount)
         return d
     }
     
@@ -171,7 +177,7 @@ import Foundation
     
     func sendWalletInfo(_ socket: BRWebSocket) {
         var d = self.walletInfo()
-        d["type"] = "wallet" as AnyObject?
+        d["type"] = "wallet"
         if let jdata = try? JSONSerialization.data(withJSONObject: d, options: []),
             let jstring = NSString(data: jdata, encoding: String.Encoding.utf8.rawValue) {
             socket.send(String(jstring))

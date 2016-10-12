@@ -662,12 +662,9 @@ extension UInt16 {
     func toNetwork() -> [UInt8] {
         var selfBig = CFSwapInt16HostToBig(self)
         let size = MemoryLayout<UInt16>.size
-//        let dat = Data(bytes: &selfBig, count: size).bytes.bindMemory(to: UInt8.self, capacity: Data(bytes: &selfBig, count: size).count)
         return Data(bytes: &selfBig, count: size).withUnsafeBytes({ (p: UnsafePointer<UInt8>) -> [UInt8] in
             return Array(UnsafeBufferPointer(start: p, count: size))
         })
-//        let buf = UnsafeBufferPointer(start: dat, count: size)
-//        return Array(buf)
     }
 }
 
@@ -675,9 +672,6 @@ extension UInt64 {
     func toNetwork() -> [UInt8] {
         var selfBig = CFSwapInt64HostToBig(self)
         let size = MemoryLayout<UInt64>.size
-//        let dat = Data(bytes: &selfBig, count: size).bytes.bindMemory(to: UInt8.self, capacity: Data(bytes: &selfBig, count: size).count)
-//        let buf = UnsafeBufferPointer(start: dat, count: size)
-//        return Array(buf)
         return Data(bytes: &selfBig, count: size).withUnsafeBytes({ (p: UnsafePointer<UInt8>) -> [UInt8] in
             return Array(UnsafeBufferPointer(start: p, count: size))
         })

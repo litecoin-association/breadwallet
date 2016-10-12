@@ -115,7 +115,8 @@ import Foundation
         resp.provide(204, json: nil)
     }
     
-    open func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
+    open func imagePickerController(_ picker: UIImagePickerController,
+                                    didFinishPickingMediaWithInfo info: [String : Any]) {
         defer {
             DispatchQueue.main.async {
                 picker.dismiss(animated: true, completion: nil)
@@ -168,7 +169,8 @@ import Foundation
         guard let dat = try? Data(contentsOf: picUrl) else {
             throw ImageError.couldntRead
         }
-        return Array(UnsafeBufferPointer(start: (dat as NSData).bytes.bindMemory(to: UInt8.self, capacity: dat.count), count: dat.count))
+        let bp = (dat as NSData).bytes.bindMemory(to: UInt8.self, capacity: dat.count)
+        return Array(UnsafeBufferPointer(start: bp, count: dat.count))
     }
     
     func writeImage(_ image: UIImage) throws -> String {
@@ -304,7 +306,8 @@ class IDCameraOverlay: UIView, CameraOverlay {
         case .right:
             transform = CGAffineTransform(rotationAngle: rad(-90)).translatedBy(x: -image.size.width, y: 0)
         case .down:
-            transform = CGAffineTransform(rotationAngle: rad(-180)).translatedBy(x: -image.size.width, y: -image.size.height)
+            transform = CGAffineTransform(rotationAngle: rad(-180)).translatedBy(x: -image.size.width,
+                                                                                 y: -image.size.height)
         default:
             transform = CGAffineTransform.identity
         }
