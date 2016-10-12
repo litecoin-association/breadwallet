@@ -68,19 +68,17 @@ extension String {
     }
 }
 
-func getHeaderValue(_ k: String, d: Dictionary<NSObject, Any>) -> String? {
-//    if let v = d[k] as? String { // short path: attempt to get the header directly
-//        return v
-//    }
+func getHeaderValue(_ k: String, d: [String: String]?) -> String? {
+    guard let d = d else {
+        return nil
+    }
+    if let v = d[k] { // short path: attempt to get the header directly
+        return v
+    }
     let lkKey = k.lowercased() // long path: compare lowercase keys
     for (lk, lv) in d {
-        if lk is String {
-            let lks = lk as! String
-            if lks.lowercased() == lkKey {
-                if let lvs = lv as? String {
-                    return lvs
-                }
-            }
+        if lk.lowercased() == lkKey {
+            return lv
         }
     }
     return nil
@@ -105,7 +103,8 @@ func getDeviceId() -> String {
 }
 
 func isBreadChallenge(_ r: HTTPURLResponse) -> Bool {
-    if let challenge = getHeaderValue("www-authenticate", d: r.allHeaderFields as Dictionary<NSObject, AnyObject>) {
+    if let headers = r.allHeaderFields as? [String: String],
+       let challenge = getHeaderValue("www-authenticate", d: headers) {
         if challenge.lowercased().hasPrefix("bread") {
             return true
         }
@@ -126,22 +125,23 @@ func buildURLResourceString(_ url: URL?) -> String {
     return urlStr
 }
 
-func buildRequestSigningString(_ r: NSMutableURLRequest) -> String {
-    let headers = r.allHTTPHeaderFields ?? Dictionary<String, String>()
+func buildRequestSigningString(_ r: URLRequest) -> String {
     var parts = [
-        r.httpMethod,
+        r.httpMethod ?? "",
         "",
-        getHeaderValue("content-type", d: headers as Dictionary<NSObject, AnyObject>) ?? "",
-        getHeaderValue("date", d: headers as Dictionary<NSObject, AnyObject>) ?? "",
+        getHeaderValue("content-type", d: r.allHTTPHeaderFields) ?? "",
+        getHeaderValue("date", d: r.allHTTPHeaderFields) ?? "",
         buildURLResourceString(r.url)
     ]
-    switch r.httpMethod {
-    case "POST", "PUT", "PATCH":
-        if let d = r.httpBody , d.count > 0 {
-            let sha = (d as NSData).sha256()
-            parts[1] = (NSData(uInt256: sha) as NSData).base58String()
+    if let meth = r.httpMethod {
+        switch meth {
+        case "POST", "PUT", "PATCH":
+            if let d = r.httpBody , d.count > 0 {
+                let sha = (d as NSData).sha256()
+                parts[1] = (NSData(uInt256: sha) as NSData).base58String()
+            }
+        default: break
         }
-    default: break
     }
     return parts.joined(separator: "\n")
 }
@@ -209,8 +209,8 @@ func buildRequestSigningString(_ r: NSMutableURLRequest) -> String {
         }
         
         if let args = args {
-            return joinPath(path + "?" + args.map({ (elem) -> String in
-                return "\(elem.0.urlEscapedString)=\(elem.1.urlEscapedString)"
+            return joinPath(path + "?" + args.map({
+                "\($0.0.urlEscapedString)=\($0.1.urlEscapedString)"
             }).joined(separator: "&"))
         } else {
             return joinPath(path)
@@ -218,8 +218,8 @@ func buildRequestSigningString(_ r: NSMutableURLRequest) -> String {
     }
     
     func signRequest(_ request: URLRequest) -> URLRequest {
-        let mutableRequest = (request as NSURLRequest).mutableCopy() as! NSMutableURLRequest
-        let dateHeader = getHeaderValue("date", d: mutableRequest.allHTTPHeaderFields as [NSObject : AnyObject]? ?? Dictionary<String, String>() as [NSObject : AnyObject])
+        var mutableRequest = request
+        let dateHeader = getHeaderValue("date", d: mutableRequest.allHTTPHeaderFields)
         if dateHeader == nil {
             // add Date header if necessary
             mutableRequest.setValue(Date().RFC1123String(), forHTTPHeaderField: "Date")
@@ -230,9 +230,10 @@ func buildRequestSigningString(_ r: NSMutableURLRequest) -> String {
             let authKey = getAuthKey(),
             let signingData = buildRequestSigningString(mutableRequest).data(using: String.Encoding.utf8),
             let sig = authKey.compactSign((signingData as NSData).sha256_2()) {
-            mutableRequest.setValue("bread \(token):\((sig as NSData).base58String())", forHTTPHeaderField: "Authorization")
+            let hval = "bread \(token):\((sig as NSData).base58String())"
+            mutableRequest.setValue(hval, forHTTPHeaderField: "Authorization")
         }
-        return mutableRequest.copy() as! URLRequest
+        return mutableRequest as URLRequest
     }
     
     open func dataTaskWithRequest(_ request: URLRequest, authenticated: Bool = false,
@@ -312,7 +313,7 @@ func buildRequestSigningString(_ r: NSMutableURLRequest) -> String {
             return handler(NSError(domain: BRAPIClientErrorDomain, code: 500, userInfo: [
                 NSLocalizedDescriptionKey: NSLocalizedString("Wallet not ready", comment: "")]))
         }
-        let req = NSMutableURLRequest(url: url("/token"))
+        var req = URLRequest(url: url("/token"))
         req.httpMethod = "POST"
         req.setValue("application/json", forHTTPHeaderField: "Content-Type")
         req.setValue("application/json", forHTTPHeaderField: "Accept")
@@ -330,7 +331,7 @@ func buildRequestSigningString(_ r: NSMutableURLRequest) -> String {
             return handler(NSError(domain: BRAPIClientErrorDomain, code: 500, userInfo: [
                 NSLocalizedDescriptionKey: NSLocalizedString("JSON Serialization Error", comment: "")]))
         }
-        session.dataTask(with: req as URLRequest, completionHandler: { (data, resp, err) in
+        session.dataTask(with: req, completionHandler: { (data, resp, err) in
             DispatchQueue.main.async {
                 if let httpResp = resp as? HTTPURLResponse {
                     // unsuccessful response from the server
@@ -368,35 +369,7 @@ func buildRequestSigningString(_ r: NSMutableURLRequest) -> String {
     }
     
     // MARK: URLSession Delegate
-    
-//    open func urlSession(_ session: URLSession, didBecomeInvalidWithError error: Error?) {
-//        log("URLSession didBecomeInvalidWithError: \(error)")
-//    }
-//    
-//    open func urlSession(_ session: URLSession, task: URLSessionTask,
-//                           didReceive didReceiveChallenge: URLAuthenticationChallenge,
-//                           completionHandler: URLSessionChallengeHandler) {
-//            log("URLSession task \(task) didReceivechallenge \(didReceiveChallenge.protectionSpace)")
-//            
-//    }
-//    
-//    open func urlSession(_ session: URLSession, didReceive didReceiveChallenge: URLAuthenticationChallenge,
-//                           completionHandler: URLSessionChallengeHandler) {
-//        log("URLSession didReceiveChallenge \(didReceiveChallenge) \(didReceiveChallenge.protectionSpace)")
-//        // handle HTTPS authentication
-//        if didReceiveChallenge.protectionSpace.authenticationMethod == NSURLAuthenticationMethodServerTrust {
-//            if (didReceiveChallenge.protectionSpace.host == host
-//                && didReceiveChallenge.protectionSpace.serverTrust != nil) {
-//                log("URLSession challenge accepted!")
-//                completionHandler(.useCredential,
-//                    URLCredential(trust: didReceiveChallenge.protectionSpace.serverTrust!))
-//            } else {
-//                log("URLSession challenge rejected")
-//                completionHandler(.rejectProtectionSpace, nil)
-//            }
-//        }
-//    }
-    
+
     public func urlSession(_ session: URLSession, task: URLSessionTask, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
         if challenge.protectionSpace.authenticationMethod == NSURLAuthenticationMethodServerTrust {
             if (challenge.protectionSpace.host == host && challenge.protectionSpace.serverTrust != nil) {
@@ -414,7 +387,7 @@ func buildRequestSigningString(_ r: NSMutableURLRequest) -> String {
     
     // Fetches the /v1/fee-per-kb endpoint
     open func feePerKb(_ handler: @escaping (_ feePerKb: uint_fast64_t, _ error: String?) -> Void) {
-        let req = URLRequest(url: url("/v1/fee-per-kb"))
+        let req = URLRequest(url: url("/fee-per-kb"))
         let task = self.dataTaskWithRequest(req) { (data, response, err) -> Void in
             var feePerKb: uint_fast64_t = 0
             var errStr: String? = nil
@@ -443,7 +416,7 @@ func buildRequestSigningString(_ r: NSMutableURLRequest) -> String {
     // MARK: push notifications
     
     open func savePushNotificationToken(_ token: Data, pushNotificationType: String = "d") {
-        let req = NSMutableURLRequest(url: url("/me/push-devices"))
+        var req = URLRequest(url: url("/me/push-devices"))
         req.httpMethod = "POST"
         req.setValue("application/json", forHTTPHeaderField: "Content-Type")
         req.setValue("application/json", forHTTPHeaderField: "Accept")
@@ -489,7 +462,8 @@ func buildRequestSigningString(_ r: NSMutableURLRequest) -> String {
                         let j = try JSONSerialization.jsonObject(with: data, options: [])
                         let features = j as! [[String: AnyObject]]
                         for feat in features {
-                            if let fn = feat["name"], let fname = fn as? String, let fe = feat["enabled"], let fenabled = fe as? Bool {
+                            if let fn = feat["name"], let fname = fn as? String,
+                                let fe = feat["enabled"], let fenabled = fe as? Bool {
                                 self.log("feature \(fname) enabled: \(fenabled)")
                                 defaults.set(fenabled, forKey: self.defaultsKeyForFeatureFlag(fname))
                             } else {
@@ -521,9 +495,9 @@ func buildRequestSigningString(_ r: NSMutableURLRequest) -> String {
         }
         
         func ver(key: String, completionFunc: @escaping (UInt64, Date, BRRemoteKVStoreError?) -> ()) {
-            let req = NSMutableURLRequest(url: client.url("/kv/1/\(key)"))
+            var req = URLRequest(url: client.url("/kv/1/\(key)"))
             req.httpMethod = "HEAD"
-            client.dataTaskWithRequest(req as URLRequest, authenticated: true, retryCount: 0) { (dat, resp, err) in
+            client.dataTaskWithRequest(req, authenticated: true, retryCount: 0) { (dat, resp, err) in
                 if let err = err {
                     self.client.log("[KV] HEAD key=\(key) err=\(err)")
                     return completionFunc(0, Date(timeIntervalSince1970: 0), .unknown)
@@ -537,14 +511,14 @@ func buildRequestSigningString(_ r: NSMutableURLRequest) -> String {
         
         func put(_ key: String, value: [UInt8], version: UInt64,
                  completionFunc: @escaping (UInt64, Date, BRRemoteKVStoreError?) -> ()) {
-            let req = NSMutableURLRequest(url: client.url("/kv/1/\(key)"))
+            var req = URLRequest(url: client.url("/kv/1/\(key)"))
             req.httpMethod = "PUT"
             req.addValue("\(version)", forHTTPHeaderField: "If-None-Match")
             req.addValue("application/octet-stream", forHTTPHeaderField: "Content-Type")
             req.addValue("\(value.count)", forHTTPHeaderField: "Content-Length")
             var val = value
             req.httpBody = Data(bytes: &val, count: value.count)
-            client.dataTaskWithRequest(req as URLRequest, authenticated: true, retryCount: 0) { (dat, resp, err) in
+            client.dataTaskWithRequest(req, authenticated: true, retryCount: 0) { (dat, resp, err) in
                 if let err = err {
                     self.client.log("[KV] PUT key=\(key) err=\(err)")
                     return completionFunc(0, Date(timeIntervalSince1970: 0), .unknown)
@@ -556,11 +530,12 @@ func buildRequestSigningString(_ r: NSMutableURLRequest) -> String {
             }.resume()
         }
         
-        func del(_ key: String, version: UInt64, completionFunc: @escaping (UInt64, Date, BRRemoteKVStoreError?) -> ()) {
-            let req = NSMutableURLRequest(url: client.url("/kv/1/\(key)"))
+        func del(_ key: String, version: UInt64,
+                 completionFunc: @escaping (UInt64, Date, BRRemoteKVStoreError?) -> ()) {
+            var req = URLRequest(url: client.url("/kv/1/\(key)"))
             req.httpMethod = "DELETE"
             req.addValue("\(version)", forHTTPHeaderField: "If-None-Match")
-            client.dataTaskWithRequest(req as URLRequest, authenticated: true, retryCount: 0) { (dat, resp, err) in
+            client.dataTaskWithRequest(req, authenticated: true, retryCount: 0) { (dat, resp, err) in
                 if let err = err {
                     self.client.log("[KV] DELETE key=\(key) err=\(err)")
                     return completionFunc(0, Date(timeIntervalSince1970: 0), .unknown)
@@ -572,8 +547,9 @@ func buildRequestSigningString(_ r: NSMutableURLRequest) -> String {
             }.resume()
         }
         
-        func get(_ key: String, version: UInt64, completionFunc: @escaping (UInt64, Date, [UInt8], BRRemoteKVStoreError?) -> ()) {
-            let req = NSMutableURLRequest(url: client.url("/kv/1/\(key)"))
+        func get(_ key: String, version: UInt64,
+                 completionFunc: @escaping (UInt64, Date, [UInt8], BRRemoteKVStoreError?) -> ()) {
+            var req = URLRequest(url: client.url("/kv/1/\(key)"))
             req.httpMethod = "GET"
             req.addValue("\(version)", forHTTPHeaderField: "If-None-Match")
             client.dataTaskWithRequest(req as URLRequest, authenticated: true, retryCount: 0) { (dat, resp, err) in
@@ -581,7 +557,8 @@ func buildRequestSigningString(_ r: NSMutableURLRequest) -> String {
                     self.client.log("[KV] PUT key=\(key) err=\(err)")
                     return completionFunc(0, Date(timeIntervalSince1970: 0), [], .unknown)
                 }
-                guard let resp = resp, let v = self._extractVersion(resp), let d = self._extractDate(resp), let dat = dat else {
+                guard let resp = resp, let v = self._extractVersion(resp),
+                    let d = self._extractDate(resp), let dat = dat else {
                     return completionFunc(0, Date(timeIntervalSince1970: 0), [], .unknown)
                 }
                 let ud = (dat as NSData).bytes.bindMemory(to: UInt8.self, capacity: dat.count)
@@ -590,8 +567,9 @@ func buildRequestSigningString(_ r: NSMutableURLRequest) -> String {
             }.resume()
         }
         
-        func keys(_ completionFunc: @escaping ([(String, UInt64, Date, BRRemoteKVStoreError?)], BRRemoteKVStoreError?) -> ()) {
-            let req = NSMutableURLRequest(url: client.url("/kv/_all_keys"))
+        func keys(_ completionFunc:
+                  @escaping ([(String, UInt64, Date, BRRemoteKVStoreError?)], BRRemoteKVStoreError?) -> ()) {
+            var req = URLRequest(url: client.url("/kv/_all_keys"))
             req.httpMethod = "GET"
             client.dataTaskWithRequest(req as URLRequest, authenticated: true, retryCount: 0) { (dat, resp, err) in
                 if let err = err {
@@ -758,7 +736,8 @@ func buildRequestSigningString(_ r: NSMutableURLRequest) -> String {
                         let top = parsed as? NSDictionary,
                         let versions = top["versions"] as? [String]
                         , err == nil {
-                            if versions.index(of: curBundleSha) == (versions.count - 1) { // have the most recent version
+                            if versions.index(of: curBundleSha) == (versions.count - 1) {
+                                // have the most recent version
                                 self.log("already at most recent version of bundle \(bundleName)")
                                 do {
                                     try extract()
@@ -790,11 +769,13 @@ func buildRequestSigningString(_ r: NSMutableURLRequest) -> String {
                                             try extract()
                                             return handler(nil)
                                         } catch let e {
-                                            // something failed, clean up whatever we can, next attempt will download fresh
+                                            // something failed, clean up whatever we can, next attempt 
+                                            // will download fresh
                                             _ = try? fm.removeItem(atPath: diffPath)
                                             _ = try? fm.removeItem(atPath: oldBundlePath)
                                             _ = try? fm.removeItem(atPath: bundlePath)
-                                            return handler(NSLocalizedString("error downloading diff: " + "\(e)", comment: ""))
+                                            return handler(
+                                                NSLocalizedString("error downloading diff: " + "\(e)", comment: ""))
                                         }
                                     }
                                 }).resume()
