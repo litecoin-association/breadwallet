@@ -71,7 +71,7 @@ import Foundation
         noteCenter.addObserver(forName: NSNotification.Name.BRWalletBalanceChanged,
                                object: nil, queue: nil) { (note) in
             if let wallet = self.manager.wallet {
-                self.announce(["type": "balance_changed", "balance": wallet.balance])
+                self.announce(["type": "balance_changed", "balance": Int(wallet.balance)])
             }
         }
  

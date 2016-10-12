@@ -86,7 +86,7 @@ import Foundation
                 }
                 if let dat = dat, let resp = resp as? HTTPURLResponse {
                     body = dat
-                    contentTypeHint = resp.allHeaderFields["content-type"] as? String
+                    contentTypeHint = resp.allHeaderFields["Content-Type"] as? String
                 } else {
                     
                 }
