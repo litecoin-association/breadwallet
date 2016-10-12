@@ -176,12 +176,12 @@ class BRTar {
     
     static fileprivate func readNameAtLocation(_ location: UInt64, fromHandle handle: FileHandle) throws -> String {
         handle.seek(toFileOffset: location + tarNamePosition)
-        guard let ret = NSString(data: handle.readData(ofLength: Int(tarNameSize)), encoding: String.Encoding.ascii.rawValue)
-            else {
-                log("unable to read name")
-                throw BRTarError.unknown
+        let dat = handle.readData(ofLength: Int(tarNameSize))
+        guard let ret = String(bytes: dat, encoding: String.Encoding.ascii) else {
+            log("unable to read name")
+            throw BRTarError.unknown
         }
-        return ret as String
+        return ret
     }
     
     static fileprivate func readSizeAtLocation(_ location: UInt64, fromHandle handle: FileHandle) -> UInt64 {

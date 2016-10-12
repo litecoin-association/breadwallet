@@ -99,33 +99,45 @@ public extension Data {
             if self.count == 0 {
                 return self
             }
+            var compressed = [UInt8]()
             var stream = bz_stream()
-            stream.next_in = UnsafeMutablePointer<Int8>(
-                mutating: (self as NSData).bytes.bindMemory(to: Int8.self, capacity: self.count))
-            stream.avail_in = UInt32(self.count)
-            let buffer = NSMutableData(length: Int(BZCompressionBufferSize))!
-            stream.next_out = UnsafeMutablePointer<Int8>(
-                mutating: buffer.bytes.bindMemory(to: Int8.self, capacity: buffer.length))
-            stream.avail_out = BZCompressionBufferSize
-            var bzret = BZ2_bzCompressInit(&stream, BZDefaultBlockSize, 0, BZDefaultWorkFactor)
-            if bzret != BZ_OK {
-                print("failed compression init")
+            var mself = self
+            var success = true
+            mself.withUnsafeMutableBytes { (selfBuff: UnsafeMutablePointer<Int8>) -> Void in
+                stream.next_in = selfBuff
+                stream.avail_in = UInt32(self.count)
+                var buff = Data(capacity: Int(BZCompressionBufferSize))
+                buff.withUnsafeMutableBytes({ (outBuff: UnsafeMutablePointer<Int8>) -> Void in
+                    stream.next_out = outBuff
+                    stream.avail_out = BZCompressionBufferSize
+                    var bzret = BZ2_bzCompressInit(&stream, BZDefaultBlockSize, 0, BZDefaultWorkFactor)
+                    if bzret != BZ_OK {
+                        print("failed compression init")
+                        success = false
+                        return
+                    }
+                    repeat {
+                        bzret = BZ2_bzCompress(&stream, stream.avail_in > 0 ? BZ_RUN : BZ_FINISH)
+                        if bzret < BZ_OK {
+                            print("failed compress")
+                            success = false
+                            return
+                        }
+                        buff.withUnsafeBytes({ (bp: UnsafePointer<UInt8>) -> Void in
+                            let bpp = UnsafeBufferPointer(
+                                start: bp, count: (Int(BZCompressionBufferSize) - Int(stream.avail_out)))
+                            compressed.append(contentsOf: bpp)
+                        })
+                        stream.next_out = outBuff
+                        stream.avail_out = BZCompressionBufferSize
+                    } while bzret != BZ_STREAM_END
+                })
+            }
+            BZ2_bzCompressEnd(&stream)
+            if !success {
                 return nil
             }
-            let compressed = NSMutableData()
-            repeat {
-                bzret = BZ2_bzCompress(&stream, stream.avail_in > 0 ? BZ_RUN : BZ_FINISH)
-                if bzret < BZ_OK {
-                    print("failed compress")
-                    return nil
-                }
-                compressed.append(buffer.bytes, length: (Int(BZCompressionBufferSize) - Int(stream.avail_out)))
-                stream.next_out = UnsafeMutablePointer<Int8>(
-                    mutating: buffer.bytes.bindMemory(to: Int8.self, capacity: buffer.length))
-                stream.avail_out = BZCompressionBufferSize
-            } while bzret != BZ_STREAM_END
-            BZ2_bzCompressEnd(&stream)
-            return compressed as Data
+            return Data(bytes: compressed)
         }
     }
 
@@ -136,6 +148,7 @@ public extension Data {
         var stream = bz_stream()
         var decompressed = [UInt8]()
         var myDat = data
+        var success = true
         myDat.withUnsafeMutableBytes { (datBuff: UnsafeMutablePointer<Int8>) -> Void in
             stream.next_in = datBuff
             stream.avail_in = UInt32(data.count)
@@ -146,16 +159,19 @@ public extension Data {
                 var bzret = BZ2_bzDecompressInit(&stream, 0, 0)
                 if bzret != BZ_OK {
                     print("failed decompress init")
+                    success = false
                     return
                 }
                 repeat {
                     bzret = BZ2_bzDecompress(&stream)
                     if bzret < BZ_OK {
                         print("failed decompress")
+                        success = false
                         return
                     }
                     buff.withUnsafeBytes({ (bp: UnsafePointer<UInt8>) -> Void in
-                        let bpp = UnsafeBufferPointer(start: bp, count: (Int(BZCompressionBufferSize) - Int(stream.avail_out)))
+                        let bpp = UnsafeBufferPointer(
+                            start: bp, count: (Int(BZCompressionBufferSize) - Int(stream.avail_out)))
                         decompressed.append(contentsOf: bpp)
                     })
                     stream.next_out = outBuff
@@ -164,7 +180,9 @@ public extension Data {
             }
         }
         BZ2_bzDecompressEnd(&stream)
-        
+        if !success {
+            return nil
+        }
         self.init(bytes: decompressed)
     }
 }

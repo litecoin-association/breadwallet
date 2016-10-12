@@ -38,7 +38,8 @@ enum BRBSPatchError: Error {
 class BRBSPatch {
     static let patchLogEnabled = true
     
-    static func patch(_ oldFilePath: String, newFilePath: String, patchFilePath: String) throws -> UnsafeMutablePointer<CUnsignedChar> {
+    static func patch(_ oldFilePath: String, newFilePath: String, patchFilePath: String)
+                      throws -> UnsafeMutablePointer<CUnsignedChar> {
         func offtin(_ b: UnsafePointer<CUnsignedChar>) -> off_t {
             var y = off_t(b[0])
             y |= off_t(b[1]) << 8
@@ -72,10 +73,9 @@ class BRBSPatch {
         
         // check for appropriate magic
         let magicData = headerData.subdata(in: 0..<8)
-        if let magic = NSString(data: magicData, encoding: String.Encoding.ascii.rawValue)
-            , magic != "BSDIFF40" {
-                log("incorrect magic: \(magic)")
-                throw BRBSPatchError.corruptPatch
+        if let magic = String(bytes: magicData, encoding: String.Encoding.ascii), magic != "BSDIFF40" {
+            log("incorrect magic: \(magic)")
+            throw BRBSPatchError.corruptPatch
         }
         
         // read lengths from header
