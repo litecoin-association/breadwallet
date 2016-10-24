@@ -1556,18 +1556,18 @@ static const char *dns_seeds[] = {
 
 - (void)peer:(BRPeer *)peer setFeePerKb:(uint64_t)feePerKb
 {
-    BRWalletManager *manager = [BRWalletManager sharedInstance];
-    uint64_t maxFeePerKb = 0, secondFeePerKb = 0;
-    
-    for (BRPeer *p in self.connectedPeers) { // find second highest fee rate
-        if (p.feePerKb > maxFeePerKb) secondFeePerKb = maxFeePerKb, maxFeePerKb = p.feePerKb;
-    }
-    
-    if (secondFeePerKb*3/2 > MIN_FEE_PER_KB && secondFeePerKb*3/2 <= MAX_FEE_PER_KB &&
-        secondFeePerKb*3/2 > manager.wallet.feePerKb) {
-        NSLog(@"increasing feePerKb to %llu based on feefilter messages from peers", secondFeePerKb*3/2);
-        manager.wallet.feePerKb = secondFeePerKb*3/2;
-    }
+//    BRWalletManager *manager = [BRWalletManager sharedInstance];
+//    uint64_t maxFeePerKb = 0, secondFeePerKb = 0;
+//    
+//    for (BRPeer *p in self.connectedPeers) { // find second highest fee rate
+//        if (p.feePerKb > maxFeePerKb) secondFeePerKb = maxFeePerKb, maxFeePerKb = p.feePerKb;
+//    }
+//    
+//    if (secondFeePerKb*3/2 > MIN_FEE_PER_KB && secondFeePerKb*3/2 <= MAX_FEE_PER_KB &&
+//        secondFeePerKb*3/2 > manager.wallet.feePerKb) {
+//        NSLog(@"increasing feePerKb to %llu based on feefilter messages from peers", secondFeePerKb*3/2);
+//        manager.wallet.feePerKb = secondFeePerKb*3/2;
+//    }
 }
 
 - (BRTransaction *)peer:(BRPeer *)peer requestedTransaction:(UInt256)txHash
