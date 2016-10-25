@@ -31,7 +31,11 @@ import Foundation
     init(message: String) {
         super.init(nibName: nil, bundle: nil)
         modalTransitionStyle = .crossDissolve
-        modalPresentationStyle = .overFullScreen
+
+        if #available(iOS 8.0, *) {
+            modalPresentationStyle = .overFullScreen
+        }
+
         activityView.messageLabel.text = message
         view = activityView
     }

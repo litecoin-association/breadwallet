@@ -30,7 +30,7 @@
                                         <rect key="frame" x="0.0" y="0.0" width="124" height="240"/>
                                         <subviews>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="send" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="QMM-JV-cTG">
-                                                <rect key="frame" x="45" y="79" width="34" height="18"/>
+                                                <rect key="frame" x="45.5" y="78.5" width="33.5" height="18"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="15"/>
                                                 <color key="textColor" red="1" green="1" blue="1" alpha="0.70000000000000007" colorSpace="custom" customColorSpace="sRGB"/>
                                                 <nil key="highlightedColor"/>
@@ -71,7 +71,7 @@
                                                 <nil key="highlightedColor"/>
                                             </label>
                                             <view alpha="0.5" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="RCb-0D-Tux" userLabel="Seperator">
-                                                <rect key="frame" x="123" y="79" width="1" height="80"/>
+                                                <rect key="frame" x="123" y="78.5" width="1" height="79.5"/>
                                                 <color key="backgroundColor" red="1" green="1" blue="1" alpha="0.5" colorSpace="custom" customColorSpace="sRGB"/>
                                                 <constraints>
                                                     <constraint firstAttribute="width" constant="1" id="LFI-bc-fyP"/>
@@ -94,13 +94,13 @@
                                         <rect key="frame" x="124" y="0.0" width="196" height="240"/>
                                         <subviews>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="receive" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="KJN-zr-IQB">
-                                                <rect key="frame" x="73" y="79" width="50" height="18"/>
+                                                <rect key="frame" x="73.5" y="78.5" width="49.5" height="18"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="15"/>
                                                 <color key="textColor" red="1" green="1" blue="1" alpha="0.69999999999999996" colorSpace="custom" customColorSpace="sRGB"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
                                             <visualEffectView opaque="NO" userInteractionEnabled="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="HLv-lr-Rge">
-                                                <rect key="frame" x="16" y="105" width="31" height="31"/>
+                                                <rect key="frame" x="16" y="104.5" width="31" height="31"/>
                                                 <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" id="fJl-mG-4xa">
                                                     <rect key="frame" x="0.0" y="0.0" width="31" height="31"/>
                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -123,13 +123,13 @@
                                                 </vibrancyEffect>
                                             </visualEffectView>
                                             <imageView userInteractionEnabled="NO" alpha="0.59999999999999998" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="IcB-mX-B8K">
-                                                <rect key="frame" x="16" y="105" width="31" height="31"/>
+                                                <rect key="frame" x="16" y="104.5" width="31" height="31"/>
                                                 <constraints>
                                                     <constraint firstAttribute="width" secondItem="IcB-mX-B8K" secondAttribute="height" multiplier="1:1" id="LXu-lE-GzZ"/>
                                                 </constraints>
                                             </imageView>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" lineBreakMode="characterWrap" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsLetterSpacingToFitWidth="YES" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="gQm-B2-ZXE" userLabel="Hash Label">
-                                                <rect key="frame" x="16" y="144" width="31" height="15"/>
+                                                <rect key="frame" x="16" y="143.5" width="31" height="14.5"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="12"/>
                                                 <color key="textColor" red="1" green="1" blue="1" alpha="0.70000000000000007" colorSpace="custom" customColorSpace="sRGB"/>
                                                 <nil key="highlightedColor"/>
@@ -179,6 +179,9 @@
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="jeJ-XT-nMj" userLabel="No data view container">
                                 <rect key="frame" x="0.0" y="0.0" width="320" height="240"/>
                                 <subviews>
+                                    <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="breadwallet-wide" translatesAutoresizingMaskIntoConstraints="NO" id="0me-bY-8oC">
+                                        <rect key="frame" x="90" y="47" width="140" height="55"/>
+                                    </imageView>
                                     <visualEffectView opaque="NO" userInteractionEnabled="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="6Cd-bh-0CQ">
                                         <rect key="frame" x="80" y="154" width="160" height="30"/>
                                         <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" id="QD5-dm-lVX">

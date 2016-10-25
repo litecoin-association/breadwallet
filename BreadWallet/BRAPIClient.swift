@@ -588,7 +588,7 @@ func buildRequestSigningString(_ r: URLRequest) -> String {
                 for _ in 0..<c {
                     let keyLen = UInt((dat as NSData).uInt32(atOffset: i))
                     i += UInt(MemoryLayout<UInt32>.size)
-                    let range: Range<Int> = Int(i)..<Int(keyLen)
+                    let range: Range<Int> = Int(i)..<Int(i + keyLen)
                     guard let key = NSString(data: dat.subdata(in: range),
                                              encoding: String.Encoding.utf8.rawValue) as? String else {
                         self.client.log("Well crap. Failed to decode a string.")
