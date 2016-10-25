@@ -121,17 +121,17 @@
         if ([[self.extensionContext class] instancesRespondToSelector:@selector(widgetLargestAvailableDisplayMode)]) {
             self.qrOverlay.image = [[UIImage imageWithQRCodeData:self.qrCodeData
                                     color:[CIColor colorWithRed:1.0 green:1.0 blue:1.0 alpha:1.0]]
-                                    resize:self.qrImage.bounds.size
+                                    resize:CGSizeMake(240, 240)
                                     withInterpolationQuality:kCGInterpolationNone];
             self.qrImage.image = [[UIImage imageWithQRCodeData:self.qrCodeData
                                   color:[CIColor colorWithRed:0.0 green:0.0 blue:0.0 alpha:0.3]]
-                                  resize:self.qrImage.bounds.size
+                                  resize:CGSizeMake(240, 240)
                                   withInterpolationQuality:kCGInterpolationNone];
         }
         else {
             self.qrImage.image = self.qrOverlay.image = [[UIImage imageWithQRCodeData:self.qrCodeData
                                                          color:[CIColor colorWithRed:1.0 green:1.0 blue:1.0 alpha:0.0]]
-                                                         resize:self.qrImage.bounds.size
+                                                         resize:CGSizeMake(240, 240)
                                                          withInterpolationQuality:kCGInterpolationNone];
         }
     }
