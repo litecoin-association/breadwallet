@@ -113,7 +113,7 @@ import Foundation
                         headers: nil, body: nil)
                     return next(BRHTTPMiddlewareResponse(request: request, response: r))
                 }
-                let subDat = body.subdata(in: start..<range.length)
+                let subDat = body.subdata(in: start..<(start + range.length))
                 let headers = [
                     "Content-Range": ["bytes \(start)-\(end)/\(body.count)"],
                     "Content-Type": [detectContentType(URL: fileURL)]
