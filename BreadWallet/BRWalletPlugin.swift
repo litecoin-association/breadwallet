@@ -126,33 +126,38 @@ import Foundation
                       let bii = json["bitid_index"], let bitidIndex = Int(bii) else {
                 return BRHTTPResponse(request: request, code: 400)
             }
+            let asyncResp = BRHTTPResponse(async: request)
             var maybeSeed: Data?
             DispatchQueue.main.sync {
-                maybeSeed = self.manager.seed(withPrompt: (bitidUrl.host ?? bitidUrl.description), forAmount: 0)
+                if #available(iOS 10.0, *) {
+                    RunLoop.main.perform(inModes: [RunLoopMode.commonModes], block: {
+                        maybeSeed = self.manager.seed(withPrompt: (bitidUrl.host ?? bitidUrl.description), forAmount: 0)
+                        guard let seed = maybeSeed else {
+                            request.queue.async {
+                                asyncResp.provide(401)
+                            }
+                            return
+                        }
+                        let seq = BRBIP32Sequence()
+                        guard let kd = seq.bitIdPrivateKey(UInt32(bitidIndex), forURI: bitidUrl.description, fromSeed: seed),
+                            let key = BRKey(privateKey: kd) else {
+                                request.queue.async {
+                                    asyncResp.provide(500)
+                                }
+                                return
+                        }
+                        let sig = BRBitID.signMessage(stringToSign, usingKey: key)
+                        let ret: [String: Any] = [
+                            "signature": sig
+                        ]
+                        request.queue.async {
+                            asyncResp.provide(200, json: ret)
+                        }
+
+                    })
+                }
             }
-            guard let seed = maybeSeed else {
-                return BRHTTPResponse(request: request, code: 401)
-            }
-            let seq = BRBIP32Sequence()
-            guard let kd = seq.bitIdPrivateKey(UInt32(bitidIndex), forURI: bitidUrl.description, fromSeed: seed),
-                      let key = BRKey(privateKey: kd) else {
-                return BRHTTPResponse(request: request, code: 500)
-            }
-            let sig = BRBitID.signMessage(stringToSign, usingKey: key)
-            let ret: [String: Any] = [
-                "signature": sig
-            ]
-            guard let jsonData = try? JSONSerialization.data(withJSONObject: ret, options: []) else {
-                return BRHTTPResponse(request: request, code: 500)
-            }
-            var jsonBytes = [UInt8](repeating: 0, count: jsonData.count)
-            (jsonData as NSData).getBytes(&jsonBytes, length: jsonData.count)
-            let headers: [String: [String]] = [
-                "Content-Type": ["application/json"]
-            ]
-            return BRHTTPResponse(
-                request: request, statusCode: 200, statusReason: "OK", headers: headers, body: jsonBytes
-            )
+            return asyncResp
         }
     }
     
