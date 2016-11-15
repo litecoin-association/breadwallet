@@ -554,7 +554,7 @@ func buildRequestSigningString(_ r: URLRequest) -> String {
             req.addValue("\(version)", forHTTPHeaderField: "If-None-Match")
             client.dataTaskWithRequest(req as URLRequest, authenticated: true, retryCount: 0) { (dat, resp, err) in
                 if let err = err {
-                    self.client.log("[KV] PUT key=\(key) err=\(err)")
+                    self.client.log("[KV] GET key=\(key) err=\(err)")
                     return completionFunc(0, Date(timeIntervalSince1970: 0), [], .unknown)
                 }
                 guard let resp = resp, let v = self._extractVersion(resp),
@@ -616,7 +616,7 @@ func buildRequestSigningString(_ r: URLRequest) -> String {
         }
         
         func _extractVersion(_ r: HTTPURLResponse) -> UInt64? {
-            if let remVer = r.allHeaderFields["ETag"] as? String, let verInt = UInt64(remVer) {
+            if let remVer = r.allHeaderFields["Etag"] as? String, let verInt = UInt64(remVer) {
                 return verInt
             }
             return nil
