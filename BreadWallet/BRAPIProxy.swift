@@ -83,7 +83,7 @@ import Foundation
             
             var auth = false
             if let authHeader = request.headers[shouldAuthHeader] , authHeader.count > 0 {
-                if authHeader[0].lowercased() == "yes" {
+                if authHeader[0].lowercased() == "yes" || authHeader[0].lowercased() == "true" {
                     auth = true
                 }
             }
