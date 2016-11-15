@@ -122,39 +122,41 @@ import Foundation
                       let j = try? JSONSerialization.jsonObject(with: data, options: []),
                       let json = j as? [String: String],
                       let stringToSign = json["string_to_sign"],
-                      let bitidUrlString = json["bitid_url"], let bitidUrl = URL(string: bitidUrlString),
-                      let bii = json["bitid_index"], let bitidIndex = Int(bii) else {
+                      let bitidUrlString = json["bitid_url"],
+                      let bitidUrl = URL(string: bitidUrlString),
+                      let bii = json["bitid_index"],
+                      let bitidIndex = Int(bii) else {
                 return BRHTTPResponse(request: request, code: 400)
             }
             let asyncResp = BRHTTPResponse(async: request)
             var maybeSeed: Data?
             DispatchQueue.main.sync {
-                if #available(iOS 10.0, *) {
-                    RunLoop.main.perform(inModes: [RunLoopMode.commonModes], block: {
-                        maybeSeed = self.manager.seed(withPrompt: (bitidUrl.host ?? bitidUrl.description), forAmount: 0)
-                        guard let seed = maybeSeed else {
+                CFRunLoopPerformBlock(RunLoop.main.getCFRunLoop(), CFRunLoopMode.commonModes.rawValue) {
+                    maybeSeed = self.manager.seed(withPrompt: (bitidUrl.host ?? bitidUrl.description), forAmount: 0)
+                    guard let seed = maybeSeed else {
+                        request.queue.async {
+                            asyncResp.provide(401)
+                        }
+                        return
+                    }
+                    let seq = BRBIP32Sequence()
+                    let biuri = bitidUrl.host ?? bitidUrl.absoluteString
+                    guard let kd = seq.bitIdPrivateKey(UInt32(bitidIndex), forURI: biuri, fromSeed: seed),
+                        let key = BRKey(privateKey: kd) else {
                             request.queue.async {
-                                asyncResp.provide(401)
+                                asyncResp.provide(500)
                             }
                             return
-                        }
-                        let seq = BRBIP32Sequence()
-                        guard let kd = seq.bitIdPrivateKey(UInt32(bitidIndex), forURI: bitidUrl.description, fromSeed: seed),
-                            let key = BRKey(privateKey: kd) else {
-                                request.queue.async {
-                                    asyncResp.provide(500)
-                                }
-                                return
-                        }
-                        let sig = BRBitID.signMessage(stringToSign, usingKey: key)
-                        let ret: [String: Any] = [
-                            "signature": sig
-                        ]
-                        request.queue.async {
-                            asyncResp.provide(200, json: ret)
-                        }
+                    }
+                    let sig = BRBitID.signMessage(stringToSign, usingKey: key)
+                    let ret: [String: Any] = [
+                        "signature": sig,
+                        "address": key.address ?? ""
+                    ]
+                    request.queue.async {
+                        asyncResp.provide(200, json: ret)
+                    }
 
-                    })
                 }
             }
             return asyncResp
