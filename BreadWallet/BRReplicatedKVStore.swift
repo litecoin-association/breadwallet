@@ -625,11 +625,14 @@ open class BRReplicatedKVStore: NSObject {
                         completionHandler(nil)
                     })
                 } else {
-                    log("Local key \(key) is newer, updating remotely...")
-                    self.remote.put(key, value: localValue, version: remoteVer,
-                                    completionFunc: { (newRemoteVer, _, putErr) in
+                    log("Local key \(key) is newer remoteVer=\(remoteVer), updating remotely...")
+                    // if the remote version is zero it means it doesnt yet exist on the server. set the remote version 
+                    // to "1" to create the key on the server
+                    let useRemoteVer = remoteVer == 0 || remoteVer < recordedRemoteVersion ? 1 : remoteVer
+                    self.remote.put(key, value: localValue, version: useRemoteVer,
+                                    completionFunc: { (newRemoteVer, remoteDate, putErr) in
                         if let putErr = putErr {
-                            self.log("Error updating remote version for key \(key), error: \(putErr)")
+                            self.log("Error updating remote version for key \(key), newRemoteVer=\(newRemoteVer) error: \(putErr)")
                             return completionHandler(.replicationError)
                         }
                         do {
