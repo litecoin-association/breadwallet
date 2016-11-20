@@ -50,7 +50,11 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
+<<<<<<< HEAD
 	<string>1.0.0</string>
+=======
+	<string>0.6.5</string>
+>>>>>>> efd497f... qr scan crash, fixes #401
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleURLTypes</key>

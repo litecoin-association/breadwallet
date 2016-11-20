@@ -1105,14 +1105,14 @@ fromConnection:(AVCaptureConnection *)connection
         NSString *addr = [codeObject.stringValue stringByTrimmingCharactersInSet:
                           [NSCharacterSet whitespaceAndNewlineCharacterSet]];
         BRPaymentRequest *request = [BRPaymentRequest requestWithString:addr];
-        if ([BRBitID isBitIDURL:request.url]) {
+        if (request.url && [BRBitID isBitIDURL:request.url]) {
             [self.scanController stop];
             [self.navigationController dismissViewControllerAnimated:YES completion:^{
                 [self handleBitIDURL:request.url];
                 [self resetQRGuide];
             }];
-        } else if (request.isValid || [addr isValidBitcoinPrivateKey] || [addr isValidBitcoinBIP38Key] ||
-            (request.r.length > 0 && [request.scheme isEqual:@"litecoin"])) {
+        } else if ((request.isValid && [request.scheme isEqual:@"litecoin"]) || [addr isValidBitcoinPrivateKey] ||
+                   [addr isValidBitcoinBIP38Key]) {
             self.scanController.cameraGuide.image = [UIImage imageNamed:@"cameraguide-green"];
             [self.scanController stop];
             [BREventManager saveEvent:@"send:valid_qr_scan"];
