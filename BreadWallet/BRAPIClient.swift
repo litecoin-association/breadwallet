@@ -306,13 +306,13 @@ func buildRequestSigningString(_ r: URLRequest) -> String {
             }
             return
         }
-        isFetchingAuth = true
-        log("auth: entering group")
-        authFetchGroup.enter()
         guard let authKey = getAuthKey(), let authPubKey = authKey.publicKey else {
             return handler(NSError(domain: BRAPIClientErrorDomain, code: 500, userInfo: [
                 NSLocalizedDescriptionKey: NSLocalizedString("Wallet not ready", comment: "")]))
         }
+        isFetchingAuth = true
+        log("auth: entering group")
+        authFetchGroup.enter()
         var req = URLRequest(url: url("/token"))
         req.httpMethod = "POST"
         req.setValue("application/json", forHTTPHeaderField: "Content-Type")
