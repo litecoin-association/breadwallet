@@ -363,9 +363,6 @@
 		752E28EF19234E8100DB5A3C /* Reachability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Reachability.h; sourceTree = SOURCE_ROOT; };
 		752E28F019234E8100DB5A3C /* Reachability.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Reachability.m; sourceTree = SOURCE_ROOT; };
 		752E28F519235B3000DB5A3C /* FixedPeers.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = FixedPeers.plist; sourceTree = "<group>"; };
-		754119E21CDA97820042DC51 /* main_impl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = main_impl.h; sourceTree = "<group>"; };
-		754119E41CDA97820042DC51 /* schnorr.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = schnorr.h; sourceTree = "<group>"; };
-		754119E51CDA97820042DC51 /* schnorr_impl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = schnorr_impl.h; sourceTree = "<group>"; };
 		7548CF3519556FD700EF827F /* BRCopyLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BRCopyLabel.h; sourceTree = "<group>"; };
 		7548CF3619556FD700EF827F /* BRCopyLabel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BRCopyLabel.m; sourceTree = "<group>"; };
 		756A8F131CE566F6007893E2 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Interface.strings; sourceTree = "<group>"; };
@@ -378,6 +375,8 @@
 		757C89501A2FCE420076B373 /* BRSettingsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BRSettingsViewController.h; sourceTree = "<group>"; };
 		757C89511A2FCE420076B373 /* BRSettingsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BRSettingsViewController.m; sourceTree = "<group>"; };
 		757E09981ADB8EEB006FD352 /* en */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
+		757E40C41DEBDD6B00D1CE57 /* scalar_low_impl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = scalar_low_impl.h; sourceTree = "<group>"; };
+		757E40C51DEBDD6B00D1CE57 /* scalar_low.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = scalar_low.h; sourceTree = "<group>"; };
 		75878BBD192ACD46002505AB /* BRAmountViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BRAmountViewController.h; sourceTree = "<group>"; };
 		75878BBE192ACD46002505AB /* BRAmountViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = BRAmountViewController.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		75878BC0192AEC3F002505AB /* BRReceiveViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = BRReceiveViewController.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
@@ -474,7 +473,6 @@
 		75F2E0B61BE2D5F000EAE861 /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
 		75F2E0B81BE5596200EAE861 /* secp256k1_ecdh.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = secp256k1_ecdh.h; sourceTree = "<group>"; };
 		75F2E0B91BE5596200EAE861 /* secp256k1_recovery.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = secp256k1_recovery.h; sourceTree = "<group>"; };
-		75F2E0BA1BE5596200EAE861 /* secp256k1_schnorr.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = secp256k1_schnorr.h; sourceTree = "<group>"; };
 		75F2E0BB1BE5599100EAE861 /* basic-config.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "basic-config.h"; sourceTree = "<group>"; };
 		75F2E0BC1BE559AE00EAE861 /* ecmult_const_impl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ecmult_const_impl.h; sourceTree = "<group>"; };
 		75F2E0BD1BE559AE00EAE861 /* ecmult_const.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ecmult_const.h; sourceTree = "<group>"; };
@@ -747,16 +745,6 @@
 			name = Categories;
 			sourceTree = "<group>";
 		};
-		754119E11CDA97820042DC51 /* schnorr */ = {
-			isa = PBXGroup;
-			children = (
-				754119E21CDA97820042DC51 /* main_impl.h */,
-				754119E41CDA97820042DC51 /* schnorr.h */,
-				754119E51CDA97820042DC51 /* schnorr_impl.h */,
-			);
-			path = schnorr;
-			sourceTree = "<group>";
-		};
 		7579F7FE19231D4600CA56F4 /* ThirdParty */ = {
 			isa = PBXGroup;
 			children = (
@@ -782,7 +770,6 @@
 				758B16241AA9ADC4002C65DD /* secp256k1.h */,
 				75F2E0B81BE5596200EAE861 /* secp256k1_ecdh.h */,
 				75F2E0B91BE5596200EAE861 /* secp256k1_recovery.h */,
-				75F2E0BA1BE5596200EAE861 /* secp256k1_schnorr.h */,
 			);
 			path = include;
 			sourceTree = "<group>";
@@ -816,6 +803,8 @@
 				758B16511AA9ADC4002C65DD /* scalar_8x32.h */,
 				758B16521AA9ADC4002C65DD /* scalar_8x32_impl.h */,
 				758B16531AA9ADC4002C65DD /* scalar_impl.h */,
+				757E40C41DEBDD6B00D1CE57 /* scalar_low_impl.h */,
+				757E40C51DEBDD6B00D1CE57 /* scalar_low.h */,
 				758B16541AA9ADC4002C65DD /* secp256k1.c */,
 				758B16581AA9ADC4002C65DD /* util.h */,
 			);
@@ -964,7 +953,6 @@
 			children = (
 				75F2E0BF1BE559F200EAE861 /* ecdh */,
 				75F2E0C31BE559F200EAE861 /* recovery */,
-				754119E11CDA97820042DC51 /* schnorr */,
 			);
 			path = modules;
 			sourceTree = "<group>";
