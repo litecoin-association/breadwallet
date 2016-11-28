@@ -478,6 +478,7 @@ static const char *dns_seeds[] = {
     NSMutableArray *inputs = [NSMutableArray new];
 
     for (BRTransaction *tx in manager.wallet.allTransactions) { // find TXOs spent within the last 100 blocks
+        [self addTransactionToPublishList:tx]; // also populate the tx publish list
         if (tx.blockHeight != TX_UNCONFIRMED && tx.blockHeight + 100 < self.lastBlockHeight) break;
         i = 0;
         
@@ -623,8 +624,8 @@ static const char *dns_seeds[] = {
 // adds transaction to list of tx to be published, along with any unconfirmed inputs
 - (void)addTransactionToPublishList:(BRTransaction *)transaction
 {
-    NSLog(@"[BRPeerManager] add transaction to publish list %@", transaction);
     if (transaction.blockHeight == TX_UNCONFIRMED) {
+        NSLog(@"[BRPeerManager] add transaction to publish list %@", transaction);
         self.publishedTx[uint256_obj(transaction.txHash)] = transaction;
     
         for (NSValue *hash in transaction.inputHashes) {
@@ -674,6 +675,7 @@ static const char *dns_seeds[] = {
         [self performSelector:@selector(txTimeout:) withObject:hash afterDelay:PROTOCOL_TIMEOUT];
 
         for (BRPeer *p in peers) {
+            if (p.status != BRPeerStatusConnected) continue;
             [p sendInvMessageWithTxHashes:txHashes];
             [p sendPingMessageWithPongHandler:^(BOOL success) {
                 if (! success) return;
@@ -802,22 +804,25 @@ static const char *dns_seeds[] = {
 
 - (void)loadMempools
 {
-    NSArray *txHashes = self.publishedTx.allKeys;
-    
     for (BRPeer *p in self.connectedPeers) { // after syncing, load filters and get mempools from other peers
+        if (p.status != BRPeerStatusConnected) continue;
+        
         if (p != self.downloadPeer || self.fpRate > BLOOM_REDUCED_FALSEPOSITIVE_RATE*5.0) {
             [p sendFilterloadMessage:[self bloomFilterForPeer:p].data];
         }
         
-        [p sendInvMessageWithTxHashes:txHashes]; // publish unconfirmed tx
         [p sendPingMessageWithPongHandler:^(BOOL success) {
             if (success) {
-                [p sendMempoolMessage];
-                [p sendPingMessageWithPongHandler:^(BOOL success) {
+                [p sendMempoolMessage:self.publishedTx.allKeys completion:^(BOOL success) {
                     if (success) {
                         p.synced = YES;
                         [self removeUnrelayedTransactions];
                         [p sendGetaddrMessage]; // request a list of other bitcoin peers
+                        
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            [[NSNotificationCenter defaultCenter]
+                             postNotificationName:BRPeerManagerTxStatusNotification object:nil];
+                        });
                     }
                     
                     if (p == self.downloadPeer) {
@@ -851,7 +856,7 @@ static const char *dns_seeds[] = {
     UInt256 h;
 
     // don't remove transactions until we're connected to PEER_MAX_CONNECTION peers
-    if (self.connectedPeers.count < PEER_MAX_CONNECTIONS) return;
+    if (self.peerCount < PEER_MAX_CONNECTIONS) return;
     
     for (BRPeer *p in self.connectedPeers) { // don't remove tx until all peers have finished relaying their mempools
         if (! p.synced) return;
@@ -929,11 +934,12 @@ static const char *dns_seeds[] = {
         }
         else {
             for (BRPeer *p in self.connectedPeers) {
+                if (p.status != BRPeerStatusConnected) continue;
                 [p sendFilterloadMessage:[self bloomFilterForPeer:p].data];
                 [p sendPingMessageWithPongHandler:^(BOOL success) { // wait for pong so we know filter is loaded
                     if (! success) return;
                     p.needsFilterUpdate = NO;
-                    [p sendMempoolMessage];
+                    [p sendMempoolMessage:self.publishedTx.allKeys completion:nil];
                 }];
             }
         }
@@ -1038,7 +1044,6 @@ static const char *dns_seeds[] = {
 
 - (void)peerConnected:(BRPeer *)peer
 {
-    BRWalletManager *manager = [BRWalletManager sharedInstance];
     NSTimeInterval now = [NSDate timeIntervalSinceReferenceDate];
     
     if (peer.timestamp > now + 2*60*60 || peer.timestamp < now - 2*60*60) peer.timestamp = now; //timestamp sanity check
@@ -1058,29 +1063,21 @@ static const char *dns_seeds[] = {
         return;
     }
 
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [[NSNotificationCenter defaultCenter] postNotificationName:BRPeerManagerTxStatusNotification object:nil];
-    });
-
-    for (BRTransaction *tx in manager.wallet.allTransactions) {
-        if (tx.blockHeight != TX_UNCONFIRMED) break;
-
-        if ([manager.wallet amountSentByTransaction:tx] > 0 && [manager.wallet transactionIsValid:tx]) {
-            [self addTransactionToPublishList:tx]; // add unconfirmed valid send tx to mempool
-        }
-    }
-
     if (self.connected && (self.estimatedBlockHeight >= peer.lastblock || self.lastBlockHeight >= peer.lastblock)) {
         if (self.lastBlockHeight < self.estimatedBlockHeight) return; // don't load bloom filter yet if we're syncing
         [peer sendFilterloadMessage:[self bloomFilterForPeer:peer].data];
-        [peer sendInvMessageWithTxHashes:self.publishedTx.allKeys]; // publish unconfirmed tx
         [peer sendPingMessageWithPongHandler:^(BOOL success) {
-            [peer sendMempoolMessage];
-            [peer sendPingMessageWithPongHandler:^(BOOL success) {
+            if (! success) return;
+            [peer sendMempoolMessage:self.publishedTx.allKeys completion:^(BOOL success) {
                 if (! success) return;
                 peer.synced = YES;
                 [self removeUnrelayedTransactions];
                 [peer sendGetaddrMessage]; // request a list of other bitcoin peers
+                
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [[NSNotificationCenter defaultCenter] postNotificationName:BRPeerManagerTxStatusNotification
+                     object:nil];
+                });
             }];
         }];
 
@@ -1091,6 +1088,7 @@ static const char *dns_seeds[] = {
     // BUG: XXX a malicious peer can report a higher lastblock to make us select them as the download peer, if two
     // peers agree on lastblock, use one of them instead
     for (BRPeer *p in self.connectedPeers) {
+        if (p.status != BRPeerStatusConnected) continue;
         if ((p.pingTime < peer.pingTime && p.lastblock >= peer.lastblock) || p.lastblock > peer.lastblock) peer = p;
     }
 
@@ -1198,7 +1196,7 @@ static const char *dns_seeds[] = {
     void (^callback)(NSError *error) = self.publishedCallback[hash];
 
     NSLog(@"%@:%d relayed transaction %@", peer.host, peer.port, hash);
-
+    
     transaction.timestamp = [NSDate timeIntervalSinceReferenceDate];
     if (syncing && ! [manager.wallet containsTransaction:transaction]) return;
     if (! [manager.wallet registerTransaction:transaction]) return;
@@ -1560,6 +1558,7 @@ static const char *dns_seeds[] = {
     uint64_t maxFeePerKb = 0, secondFeePerKb = 0;
     
     for (BRPeer *p in self.connectedPeers) { // find second highest fee rate
+        if (p.status != BRPeerStatusConnected) continue;
         if (p.feePerKb > maxFeePerKb) secondFeePerKb = maxFeePerKb, maxFeePerKb = p.feePerKb;
     }
     

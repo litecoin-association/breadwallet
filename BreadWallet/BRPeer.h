@@ -138,7 +138,7 @@ services:(uint64_t)services;
 - (void)disconnect;
 - (void)sendMessage:(NSData *)message type:(NSString *)type;
 - (void)sendFilterloadMessage:(NSData *)filter;
-- (void)sendMempoolMessage;
+- (void)sendMempoolMessage:(NSArray *)publishedTxHashes completion:(void (^)(BOOL success))completion;
 - (void)sendGetheadersMessageWithLocators:(NSArray *)locators andHashStop:(UInt256)hashStop;
 - (void)sendGetblocksMessageWithLocators:(NSArray *)locators andHashStop:(UInt256)hashStop;
 - (void)sendInvMessageWithTxHashes:(NSArray *)txHashes;

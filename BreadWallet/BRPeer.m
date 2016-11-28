@@ -69,6 +69,7 @@ typedef enum : uint32_t {
 @property (nonatomic, strong) NSMutableOrderedSet *knownBlockHashes, *knownTxHashes, *currentBlockTxHashes;
 @property (nonatomic, strong) NSData *lastBlockHash;
 @property (nonatomic, strong) NSMutableArray *pongHandlers;
+@property (nonatomic, strong) void (^mempoolCompletion)(BOOL);
 @property (nonatomic, strong) NSRunLoop *runLoop;
 
 @end
@@ -230,6 +231,8 @@ services:(uint64_t)services
             [self.pongHandlers removeObjectAtIndex:0];
         }
         
+        if (self.mempoolCompletion) self.mempoolCompletion(NO);
+        self.mempoolCompletion = nil;
         [self.delegate peer:self disconnectedWithError:error];
     });
 }
@@ -320,9 +323,20 @@ services:(uint64_t)services
     [self sendMessage:filter type:MSG_FILTERLOAD];
 }
 
-- (void)sendMempoolMessage
+- (void)sendMempoolMessage:(NSArray *)publishedTxHashes completion:(void (^)(BOOL))completion
 {
+    [self.knownTxHashes addObjectsFromArray:publishedTxHashes];
     self.sentMempool = YES;
+    
+    if (completion) {
+        if (self.mempoolCompletion) {
+            dispatch_async(self.delegateQueue, ^{
+                if (_status == BRPeerStatusConnected) completion(NO);
+            });
+        }
+        else self.mempoolCompletion = completion;
+    }
+        
     [self sendMessage:[NSData data] type:MSG_MEMPOOL];
 }
 
@@ -684,7 +698,7 @@ services:(uint64_t)services
     
     [self.knownTxHashes unionOrderedSet:txHashes];
     
-    if (txHashes.count || (! self.needsFilterUpdate && blockHashes.count)) {
+    if (txHashes.count > 0 || (! self.needsFilterUpdate && blockHashes.count > 0)) {
         [self sendGetdataMessageWithTxHashes:txHashes.array
          andBlockHashes:(self.needsFilterUpdate) ? nil : blockHashes.array];
     }
@@ -693,6 +707,11 @@ services:(uint64_t)services
     if (blockHashes.count >= 500 && ! self.needsFilterUpdate) {
         [self sendGetblocksMessageWithLocators:@[blockHashes.lastObject, blockHashes.firstObject]
          andHashStop:UINT256_ZERO];
+    }
+    
+    if (self.mempoolCompletion && (txHashes.count > 0 || blockHashes.count == 0)) {
+        [self sendPingMessageWithPongHandler:self.mempoolCompletion];
+        self.mempoolCompletion = nil;
     }
 }
 
