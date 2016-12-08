@@ -3,7 +3,7 @@
 //  LoafWallet
 //
 //  Created by Yifei Zhou on 7/21/16.
-//  Copyright © 2016 Aaron Voisine. All rights reserved.
+//  Copyright © 2016 Litecoin Association <loshan1212@gmail.com>
 //
 
 #import <UIKit/UIKit.h>

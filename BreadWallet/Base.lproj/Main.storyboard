@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="11542" systemVersion="16B2657" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="BeO-Yt-c4D">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="11542" systemVersion="16B2555" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="BeO-Yt-c4D">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
@@ -2868,8 +2868,8 @@ Other devices may be infected.
                                     <constraint firstAttribute="width" constant="240" id="YJb-Kk-xrx"/>
                                 </constraints>
                             </view>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Exhange rate" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="bSg-hf-59a">
-                                <rect key="frame" x="20" y="398" width="101" height="21"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Exchange Rate" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="bSg-hf-59a">
+                                <rect key="frame" x="16" y="398" width="114" height="21"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <nil key="highlightedColor"/>
@@ -2878,7 +2878,7 @@ Other devices may be infected.
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
                             <constraint firstItem="3IJ-Fc-WbW" firstAttribute="leading" secondItem="9mE-cq-YAc" secondAttribute="leading" id="34z-1J-Xtv"/>
-                            <constraint firstItem="bSg-hf-59a" firstAttribute="leading" secondItem="9mE-cq-YAc" secondAttribute="leading" constant="20" id="4i0-Z9-DXn"/>
+                            <constraint firstItem="bSg-hf-59a" firstAttribute="leading" secondItem="9mE-cq-YAc" secondAttribute="leading" constant="16" id="4i0-Z9-DXn"/>
                             <constraint firstItem="jdL-gB-uAO" firstAttribute="leading" secondItem="9mE-cq-YAc" secondAttribute="leading" constant="20" id="758-ss-n7v"/>
                             <constraint firstItem="GqE-da-3dc" firstAttribute="leading" secondItem="9mE-cq-YAc" secondAttribute="leading" id="7zS-tw-dyt"/>
                             <constraint firstItem="GqE-da-3dc" firstAttribute="top" secondItem="3IJ-Fc-WbW" secondAttribute="bottom" constant="8" id="ImQ-h9-V6C"/>
@@ -2902,7 +2902,7 @@ Other devices may be infected.
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="JSI-hs-D6D" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-228" y="704"/>
+            <point key="canvasLocation" x="-236" y="703"/>
         </scene>
     </scenes>
     <resources>
