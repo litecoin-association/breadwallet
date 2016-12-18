@@ -10,6 +10,8 @@
 #import "BREventManager.h"
 #import "BRWalletManager.h"
 #import "BRPeerManager.h"
+#import "BRRootViewController.h"
+#import "UIViewController+BRDrawerViewController.h"
 
 @interface BRMenuViewController () <UITableViewDelegate, UITableViewDataSource>
 
@@ -65,12 +67,14 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    [self.drawerViewController setPanelShowing:NO animated:YES];
+    
     BRWalletManager *manager = [BRWalletManager sharedInstance];
     
     switch (indexPath.row) {
         case 0:
             [BREventManager saveEvent:@"settings:import_priv_key"];
-//            [self scanQR:nil];
+            [self scanQR:nil];
             break;
         case 1:
             NSLog(@"row2");
@@ -118,5 +122,25 @@
 }
 
 // MARK: - IBAction
+
+- (IBAction)scanQR:(id)sender {
+    //TODO: show scanner in settings rather than dismissing
+    [BREventManager saveEvent:@"tx_history:scan_qr"];
+    
+    UINavigationController *nav = nil;
+    UIViewController *mainViewController = self.drawerViewController.mainViewController;
+    if ([mainViewController isKindOfClass:[UINavigationController class]]) {
+        nav = (id)mainViewController;
+    } else {
+        nav = (id)self.navigationController.presentingViewController;
+    }
+    
+    nav.view.alpha = 0.0;
+    
+    [nav dismissViewControllerAnimated:NO completion:^{
+        [(id)((BRRootViewController *)nav.viewControllers.firstObject).sendViewController scanQR:nil];
+        [UIView animateWithDuration:0.1 delay:1.5 options:0 animations:^{ nav.view.alpha = 1.0; } completion:nil];
+    }];
+}
 
 @end
