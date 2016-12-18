@@ -998,7 +998,6 @@ memo:(NSString *)memo isSecure:(BOOL)isSecure
 
 - (IBAction)scanQR:(id)sender
 {
-    if ([self nextTip]) return;
     [BREventManager saveEvent:@"send:scan_qr"];
     if (! [sender isEqual:self.scanButton]) self.showBalance = YES;
     [sender setEnabled:NO];

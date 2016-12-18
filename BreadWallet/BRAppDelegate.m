@@ -32,6 +32,9 @@
 #import "BRPhoneWCSessionManager.h"
 #import <WebKit/WebKit.h>
 #import <PushKit/PushKit.h>
+#import "BRMenuViewController.h"
+#import "BRRootViewController.h"
+#import "BRDrawerViewController.h"
 
 #if BITCOIN_TESTNET
 #pragma message "testnet build"
@@ -50,6 +53,9 @@
 @property uint64_t balance;
 
 @property PKPushRegistry *pushRegistry;
+
+@property (nonatomic, strong) BRDrawerViewController *drawerViewController;
+
 
 @end
 
@@ -99,6 +105,22 @@
     // observe balance and create notifications
     [self setupBalanceNotification:application];
     [self setupPreferenceDefaults];
+    
+    // drawer
+    UIViewController *menuViewController = [[UIStoryboard storyboardWithName:@"Main" bundle:nil] instantiateViewControllerWithIdentifier:@"MenuViewController"];
+    UINavigationController *navigationController = [[UIStoryboard storyboardWithName:@"Main" bundle:nil] instantiateViewControllerWithIdentifier:@"Initial"];
+    
+    BRDrawerViewController *drawerViewController = [BRDrawerViewController new];
+    drawerViewController.drawerWidth = 250.0f;
+    
+    drawerViewController.mainViewController = navigationController;
+    drawerViewController.leftDrawerViewController = menuViewController;
+    
+    self.drawerViewController = drawerViewController;
+    
+    self.window.rootViewController = self.drawerViewController;
+    [self.window makeKeyAndVisible];
+
     return YES;
 }
 

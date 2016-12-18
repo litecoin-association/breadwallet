@@ -39,6 +39,7 @@
 #import "UIImage+Utils.h"
 #import "BREventManager.h"
 #import "Reachability.h"
+#import "UIViewController+BRDrawerViewController.h"
 #import <LocalAuthentication/LocalAuthentication.h>
 #import <sys/stat.h>
 #import <mach-o/dyld.h>
@@ -891,6 +892,15 @@
         [self unlock:sender];
     }
     else [self tip:sender];
+}
+
+- (IBAction)menuTap:(id)sender
+{
+    if (self.drawerViewController.isPanelShowing) {
+        [self.drawerViewController setPanelShowing:NO animated:YES];
+    } else {
+        [self.drawerViewController setPanelShowing:YES animated:YES];
+    }
 }
 
 #if SNAPSHOT
