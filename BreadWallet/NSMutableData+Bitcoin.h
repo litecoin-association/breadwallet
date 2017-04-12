@@ -27,7 +27,7 @@
 #import <Foundation/Foundation.h>
 
 #if BITCOIN_TESTNET
-#define BITCOIN_MAGIC_NUMBER 0xdcb7c1fcu
+#define BITCOIN_MAGIC_NUMBER 0xf1c8d2fdu
 #else
 #define BITCOIN_MAGIC_NUMBER 0xdbb6c0fbu
 #endif
