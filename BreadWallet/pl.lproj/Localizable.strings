@@ -44,11 +44,7 @@
 "\nallow camera access in\nSettings->Privacy->Camera->%@" = "\nzezwalaj na dostęp do kamery w\nUstawienia->Prywatność->Kamera->%@";
 
 /* No comment provided by engineer. */
-<<<<<<< HEAD
 "\nDO NOT let anyone see your recovery\nphrase or they can spend your bitcoins.\n" = "\nNIE pozwól nikomu zobaczyć twoją frazę odzyskiwania danych\nalbo ta osoba będzie mogła wydać twoje Litecoiny.\n";
-=======
-"\nDO NOT let anyone see your recovery\nphrase or they can spend your bitcoins.\n" = "\nNIE pozwól nikomu zobaczyć twoją frazę odzyskiwania danych\nalbo ta osoba będzie mogła wydać twoje bitcoiny.\n";
->>>>>>> upstream/master
 
 /* No comment provided by engineer. */
 "\nDO NOT take a screenshot.\nScreenshots are visible to other apps\nand devices.\n" = "\nNIE rób zrzutu ekranu.\nScreeny są widoczne dla innych aplikacji\ni urządzeń.\n";

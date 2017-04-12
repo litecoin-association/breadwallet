@@ -44,11 +44,7 @@
 "\nallow camera access in\nSettings->Privacy->Camera->%@" = "\n允许摄像机访问\n设置->隐私->摄像机->%@";
 
 /* No comment provided by engineer. */
-<<<<<<< HEAD
 "\nDO NOT let anyone see your recovery\nphrase or they can spend your bitcoins.\n" = "\n不要让任何人看到你的恢复密语，\n否则他们就可以使用您的莱特币。\n";
-=======
-"\nDO NOT let anyone see your recovery\nphrase or they can spend your bitcoins.\n" = "\n不要让任何人看到你的恢复密语，\n否则他们就可以使用您的比特币。\n";
->>>>>>> upstream/master
 
 /* No comment provided by engineer. */
 "\nDO NOT take a screenshot.\nScreenshots are visible to other apps\nand devices.\n" = "\n不要截图。\n截图是对其他应用可见的。\n";

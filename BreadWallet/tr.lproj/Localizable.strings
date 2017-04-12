@@ -44,11 +44,7 @@
 "\nallow camera access in\nSettings->Privacy->Camera->%@" = "\nAyarlar->Gizlilik->Kamera->%@ \nkısmından kamera erişimine izin verin";
 
 /* No comment provided by engineer. */
-<<<<<<< HEAD
 "\nDO NOT let anyone see your recovery\nphrase or they can spend your bitcoins.\n" = "\nkimsenin kurtarma cümlenizi görmesine İZİN VERMEYİN\n      çünkü Litecoinlerinizi harcayabilirler.\n";
-=======
-"\nDO NOT let anyone see your recovery\nphrase or they can spend your bitcoins.\n" = "\nkimsenin kurtarma cümlenizi görmesine İZİN VERMEYİN\n      çünkü bitcoinlerinizi harcayabilirler.\n";
->>>>>>> upstream/master
 
 /* No comment provided by engineer. */
 "\nDO NOT take a screenshot.\nScreenshots are visible to other apps\nand devices.\n" = "\nEkran görüntüsü ALMAYIN.\nEkran görüntüleri diğer uygulamalar ve \ncihazlar tarafından görülebilir.\n";

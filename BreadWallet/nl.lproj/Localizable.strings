@@ -38,17 +38,10 @@
 "\nallow camera access in\nSettings->Privacy->Camera->%@" = "\ngeef toegang tot de camera in\nInstellingen->Privacy->Camera->%@";
 
 /* No comment provided by engineer. */
-<<<<<<< HEAD
 "\nDO NOT let anyone see your recovery\nphrase or they can spend your bitcoins.\n" = "\nLaat je herstel zin aan NIEMAND zien,\nanders hebben zij de mogelijkheid om\njouw Litecoins uit te geven.";
 
 /* No comment provided by engineer. */
 "\nnetwork fee +%@" = "\nnetwerkvergoeding +%1$@";
-=======
-"\nDO NOT let anyone see your recovery\nphrase or they can spend your bitcoins.\n" = "\nLaat je herstel zin aan NIEMAND zien,\nanders hebben zij de mogelijkheid om\njouw bitcoins uit te geven.";
-
-/* No comment provided by engineer. */
-"\nnetwork fee +%@ (%@)" = "\nnetwerkvergoeding +%1$@ (%2$@)";
->>>>>>> upstream/master
 
 /* No comment provided by engineer. */
 "\nNEVER type your recovery phrase into\npassword managers or elsewhere.\nOther devices may be infected.\n" = "\nType je herstel zin NOOIT in bij wachtwoord\nbeheer programma's of ergens anders.\nAndere apparaten kunnen geïnfecteerd zijn.\n";

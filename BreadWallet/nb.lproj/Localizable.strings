@@ -44,11 +44,7 @@
 "\nallow camera access in\nSettings->Privacy->Camera->%@" = "\ntillat kameratilgang i\nInnstillinger->Personvern->Kamera->%@";
 
 /* No comment provided by engineer. */
-<<<<<<< HEAD
 "\nDO NOT let anyone see your recovery\nphrase or they can spend your bitcoins.\n" = "\nIKKE la noen se din gjennopprettingsfrase;\nde kan sende dine Litecoin.\n";
-=======
-"\nDO NOT let anyone see your recovery\nphrase or they can spend your bitcoins.\n" = "\nIKKE la noen se din gjennopprettingsfrase;\nde kan sende dine bitcoin.\n";
->>>>>>> upstream/master
 
 /* No comment provided by engineer. */
 "\nDO NOT take a screenshot.\nScreenshots are visible to other apps\nand devices.\n" = "\nIKKE TA et skjermbilde\nSkjermbilder er synlige for andre apper\nog enheter.\n";

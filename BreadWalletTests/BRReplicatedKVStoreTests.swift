@@ -54,11 +54,7 @@ class BRReplicatedKVStoreTestAdapter: BRRemoteKVStoreAdaptor {
         print("[TestRemoteKVStore] PUT \(key) \(version)")
         DispatchQueue.main.async { 
             guard let obj = self.db[key] else {
-<<<<<<< HEAD
-                if version != 0 {
-=======
                 if version != 1 {
->>>>>>> upstream/master
                     return completionFunc(1, Date(), .notFound)
                 }
                 let newObj = (UInt64(1), Date(), value, false)
@@ -396,8 +392,6 @@ class BRReplicatedKVStoreTest: XCTestCase {
         waitForExpectations(timeout: 1, handler: nil)
         XCTAssertNotEqual(adapter.db["derp"]!.2, [0, 1])
     }
-<<<<<<< HEAD
-=======
     
     func testEncryptedReplicationRestore() {
         adapter.db.removeAll()
@@ -421,5 +415,4 @@ class BRReplicatedKVStoreTest: XCTestCase {
         let kvobj: BRKVStoreObject = try! store.get("derp")
         XCTAssertEqual([0, 1], [UInt8](kvobj.data))
     }
->>>>>>> upstream/master
 }

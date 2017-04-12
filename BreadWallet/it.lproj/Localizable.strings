@@ -38,17 +38,10 @@
 "\nallow camera access in\nSettings->Privacy->Camera->%@" = "\nconsenti l'accesso alla fotocamera in\nImpostazioni->Privacy->Fotocamera->%@";
 
 /* No comment provided by engineer. */
-<<<<<<< HEAD
 "\nDO NOT let anyone see your recovery\nphrase or they can spend your bitcoins.\n" = "\nNON lasciare che qualcuno veda la tua\nfrase di recupero o potrà usare i tuoi Litecoin.\n";
 
 /* No comment provided by engineer. */
 "\nnetwork fee +%@" = "\ntassa di rete +%1$@";
-=======
-"\nDO NOT let anyone see your recovery\nphrase or they can spend your bitcoins.\n" = "\nNON lasciare che qualcuno veda la tua\nfrase di recupero o potrà usare i tuoi bitcoin.\n";
-
-/* No comment provided by engineer. */
-"\nnetwork fee +%@ (%@)" = "\ntassa di rete +%1$@ (%2$@)";
->>>>>>> upstream/master
 
 /* No comment provided by engineer. */
 "\nNEVER type your recovery phrase into\npassword managers or elsewhere.\nOther devices may be infected.\n" = "\nMAI scrivere la tua frase di recupero\nin qualunque altro programma.\nAltri dispositivi possono essere infetti.\n";

@@ -44,11 +44,7 @@
 "\nallow camera access in\nSettings->Privacy->Camera->%@" = "\nεπιτρέψτε στην κάμερα πρόσβαση στις\nρυθμίσεις-> απορρήτο-> κάμερα->%@";
 
 /* No comment provided by engineer. */
-<<<<<<< HEAD
 "\nDO NOT let anyone see your recovery\nphrase or they can spend your bitcoins.\n" = "\nΜΗΝ αφήσετε κανέναν να δεί την φράση\nανάκτησης σας αλλιώς μπορούν να ξοδεψουν τα Litecoins σας.\n";
-=======
-"\nDO NOT let anyone see your recovery\nphrase or they can spend your bitcoins.\n" = "\nΜΗΝ αφήσετε κανέναν να δεί την φράση\nανάκτησης σας αλλιώς μπορούν να ξοδεψουν τα bitcoins σας.\n";
->>>>>>> upstream/master
 
 /* No comment provided by engineer. */
 "\nDO NOT take a screenshot.\nScreenshots are visible to other apps\nand devices.\n" = "\nΜΗΝ πάρτε λήψη της οθόνης. Οι λήψεις οθόνης είναι ορατές σε άλλες εφαρμογές\nκαι συσκευές.\n";
