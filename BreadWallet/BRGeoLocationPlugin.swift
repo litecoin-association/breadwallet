@@ -62,7 +62,7 @@ class BRGeoLocationDelegate: NSObject, CLLocationManagerDelegate {
     }
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        if one && nResponses > 1 { return }
+        if one && nResponses > 0 { return }
         var j = [String: Any]()
         let l = locations.last!
         if (shouldCancelUpdatingAfterReceivingLocation
@@ -97,9 +97,10 @@ class BRGeoLocationDelegate: NSObject, CLLocationManagerDelegate {
 }
 
 @available(iOS 8.0, *)
-@objc open class BRGeoLocationPlugin: NSObject, BRHTTPRouterPlugin, CLLocationManagerDelegate {
+@objc open class BRGeoLocationPlugin: NSObject, BRHTTPRouterPlugin, CLLocationManagerDelegate, BRWebSocketClient {
     lazy var manager = CLLocationManager()
     var outstanding = [BRGeoLocationDelegate]()
+    var sockets = [String: BRWebSocket]()
     
     override init() {
         super.init()
@@ -180,15 +181,8 @@ class BRGeoLocationDelegate: NSObject, CLLocationManagerDelegate {
         // "timestamp" = "ISO-8601 timestamp of when this location was generated"
         // "horizontal_accuracy" = double
         router.get("/_geo") { (request, match) -> BRHTTPResponse in
-            var retJson = [String: Any]()
-            if !CLLocationManager.locationServicesEnabled() {
-                retJson["error"] = NSLocalizedString("Location services are disabled", comment: "")
-                return try BRHTTPResponse(request: request, code: 400, json: retJson as AnyObject)
-            }
-            let authzStatus = CLLocationManager.authorizationStatus()
-            if authzStatus != .authorizedWhenInUse && authzStatus != .authorizedAlways {
-                retJson["error"] = NSLocalizedString("Location services are not authorized", comment: "")
-                return try BRHTTPResponse(request: request, code: 400, json: retJson as AnyObject)
+            if let authzErr = self.getAuthorizationError() {
+                return try BRHTTPResponse(request: request, code: 400, json: authzErr)
             }
             let resp = BRHTTPResponse(async: request)
             let del = BRGeoLocationDelegate(response: resp)
@@ -210,5 +204,108 @@ class BRGeoLocationDelegate: NSObject, CLLocationManagerDelegate {
             
             return resp
         }
+        
+        // GET /_geosocket
+        //
+        // This opens up a websocket to the location manager. It will return a new location every so often (but with no
+        // predetermined interval) with the same exact structure that is sent via the GET /_geo call.
+        // 
+        // It will start the location manager when there is at least one client connected and stop the location manager
+        // when the last client disconnects.
+        router.websocket("/_geosocket", client: self)
+    }
+    
+    func getAuthorizationError() -> [String: Any]? {
+        var retJson = [String: Any]()
+        if !CLLocationManager.locationServicesEnabled() {
+            retJson["error"] = NSLocalizedString("Location services are disabled", comment: "")
+            return retJson
+        }
+        let authzStatus = CLLocationManager.authorizationStatus()
+        if authzStatus != .authorizedWhenInUse && authzStatus != .authorizedAlways {
+            retJson["error"] = NSLocalizedString("Location services are not authorized", comment: "")
+            return retJson
+        }
+        return nil
+    }
+    
+    var lastLocation: [String: Any]?
+    var isUpdatingSockets = false
+    
+    // location manager for continuous websocket clients
+    public func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        var j = [String: Any]()
+        let l = locations.last!
+        j["timestamp"] = l.timestamp.description as AnyObject?
+        j["coordinate"] = ["latitude": l.coordinate.latitude, "longitude": l.coordinate.longitude]
+        j["altitude"] = l.altitude as AnyObject?
+        j["horizontal_accuracy"] = l.horizontalAccuracy as AnyObject?
+        j["description"] = l.description as AnyObject?
+        lastLocation = j
+        sendToAllSockets(data: j)
+    }
+    
+    public func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+        var j = [String: Any]()
+        j["error"] = error.localizedDescription as AnyObject?
+        sendToAllSockets(data: j)
+    }
+    
+    func sendTo(socket: BRWebSocket, data: [String: Any]) {
+        do {
+            let j = try JSONSerialization.data(withJSONObject: data, options: [])
+            if let s = String(data: j, encoding: .utf8) {
+                socket.request.queue.async {
+                    socket.send(s)
+                }
+            }
+        } catch let e {
+            print("LOCATION SOCKET FAILED ENCODE JSON: \(e)")
+        }
+    }
+    
+    func sendToAllSockets(data: [String: Any]) {
+        for (_, s) in sockets {
+            sendTo(socket: s, data: data)
+        }
+    }
+    
+    public func socketDidConnect(_ socket: BRWebSocket) {
+        print("LOCATION SOCKET CONNECT \(socket.id)")
+        sockets[socket.id] = socket
+        // on first socket connect to the manager
+        if !isUpdatingSockets {
+            // if not authorized yet send an error
+            if let authzErr = getAuthorizationError() {
+                sendTo(socket: socket, data: authzErr)
+                return
+            }
+            // begin updating location
+            isUpdatingSockets = true
+            DispatchQueue.main.sync { () -> Void in
+                self.manager.delegate = self
+                self.manager.startUpdatingLocation()
+            }
+        }
+        if let loc = lastLocation {
+            sendTo(socket: socket, data: loc)
+        }
+    }
+    
+    public func socketDidDisconnect(_ socket: BRWebSocket) {
+        print("LOCATION SOCKET DISCONNECT \(socket.id)")
+        sockets.removeValue(forKey: socket.id)
+        // on last socket disconnect stop updating location
+        if sockets.count == 0 {
+            isUpdatingSockets = false
+            lastLocation = nil
+            self.manager.stopUpdatingLocation()
+        }
+    }
+    
+    public func socket(_ socket: BRWebSocket, didReceiveText text: String) {
+        print("LOCATION SOCKET RECV \(text)")
+        // this is unused here but just in case just echo received text back
+        socket.send(text)
     }
 }

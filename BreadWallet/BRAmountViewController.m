@@ -335,6 +335,14 @@ replacementString:(NSString *)string
     if (! textVal) textVal = @"";
     numberFormatter.minimumFractionDigits = 0;
     zeroStr = [numberFormatter stringFromNumber:@0];
+
+    // if amount is prefixed with currency symbol, then equivalent to [zeroStr stringByAppendingString:numberFormatter.currencyDecimalSeparator]
+    // otherwise, numberFormatter.currencyDecimalSeparator must be inserted exactly after 0
+    NSString *(^zeroStrByInsertingCurrencyDecimalSeparator)() = ^NSString * {
+        NSRange zeroCharacterRange = [zeroStr rangeOfCharacterFromSet:self.charset];
+        return [zeroStr stringByReplacingCharactersInRange:NSMakeRange(NSMaxRange(zeroCharacterRange), 0)
+                                                withString:numberFormatter.currencyDecimalSeparator];
+    };
     
     if (string.length == 0) { // delete button
         textVal = [textVal stringByReplacingCharactersInRange:range withString:string];
@@ -347,7 +355,7 @@ replacementString:(NSString *)string
     }
     else if ([string isEqual:numberFormatter.currencyDecimalSeparator]) { // decimal point button
         if (decimalLoc == NSNotFound && numberFormatter.maximumFractionDigits > 0) {
-            textVal = (textVal.length == 0) ? [zeroStr stringByAppendingString:string] :
+            textVal = (textVal.length == 0) ? zeroStrByInsertingCurrencyDecimalSeparator() :
                       [textVal stringByReplacingCharactersInRange:range withString:string];
         }
     }
@@ -363,7 +371,7 @@ replacementString:(NSString *)string
             if (! [numberFormatter numberFromString:textVal]) textVal = nil;
         }
         else if (textVal.length == 0 && [string isEqual:@"0"]) { // if first digit is zero, append decimal point
-            textVal = [zeroStr stringByAppendingString:numberFormatter.currencyDecimalSeparator];
+            textVal = zeroStrByInsertingCurrencyDecimalSeparator();
         }
         else if (range.location > decimalLoc && [string isEqual:@"0"]) { // handle multiple zeros after decimal point
             textVal = [textVal stringByReplacingCharactersInRange:range withString:string];

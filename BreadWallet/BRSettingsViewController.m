@@ -54,7 +54,6 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    
     self.touchId = [BRWalletManager sharedInstance].touchIdEnabled;
 }
 
@@ -81,7 +80,6 @@
                 }
             }];
     }
-
     if (! self.txStatusObserver) {
         self.txStatusObserver =
             [[NSNotificationCenter defaultCenter] addObserverForName:BRPeerManagerTxStatusNotification object:nil
@@ -122,7 +120,7 @@
     }
     // only available on iOS 8 and above
     if ([WKWebView class] && [[BRAPIClient sharedClient] featureEnabled:BRFeatureFlagsEarlyAccess]) {
-#if DEBUG
+#if DEBUG || TESTFLIGHT
         _eaController = [[BRWebViewController alloc] initWithBundleName:@"bread-buy-staging" mountPoint:@"/ea"];
         //        self.eaController.debugEndpoint = @"http://localhost:8080";
 #else
@@ -659,14 +657,6 @@ _deselect_switch:
             [self showEarlyAccess];
             break;
     }
-}
-
-// MARK: - MFMailComposeViewControllerDelegate
-
-- (void)mailComposeController:(MFMailComposeViewController *)controller didFinishWithResult:(MFMailComposeResult)result
-error:(NSError *)error
-{
-    [self.navigationController dismissViewControllerAnimated:YES completion:nil];
 }
 
 // MARK: - UIAlertViewDelegate

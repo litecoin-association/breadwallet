@@ -151,7 +151,7 @@ import Security
             session.dataTask(with: req, completionHandler: { (dat: Data?, resp: URLResponse?, err: Error?) in
                 var rerr: NSError?
                 if err != nil {
-                    rerr = NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "\(err)"])
+                    rerr = NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: String(describing: err)])
                 }
                 completionHandler(dat, resp, rerr)
             }).resume()

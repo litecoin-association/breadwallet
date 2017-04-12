@@ -32,5 +32,6 @@
 UIViewControllerTransitioningDelegate, UIViewControllerAnimatedTransitioning>
 
 @property (nonatomic, strong) BRTransaction *transaction;
+- (void)showBuy;
 
 @end

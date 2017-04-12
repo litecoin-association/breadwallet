@@ -28,9 +28,6 @@
 
 @interface BREventConfirmView ()
 
-@property (nonatomic) IBOutlet UIButton *okBtn;
-@property (nonatomic) IBOutlet UIButton *nahBtn;
-
 - (IBAction)confirm:(id)sender;
 - (IBAction)deny:(id)sender;
 

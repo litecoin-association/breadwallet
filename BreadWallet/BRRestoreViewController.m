@@ -108,8 +108,10 @@
         
         if ([phrase isEqual:@"wipe"]) phrase = manager.seedPhrase; // this triggers authentication request
         
+        NSData *mpk = manager.masterPublicKey;
+        
         if ([[manager.sequence masterPublicKeyFromSeed:[manager.mnemonic deriveKeyFromPhrase:phrase withPassphrase:nil]]
-             isEqual:manager.masterPublicKey] || [phrase isEqual:@"wipe"]) {
+             isEqual:mpk] || [phrase isEqual:@"wipe"]) {
             [BREventManager saveEvent:@"restore:wipe_good_recovery_phrase"];
             [[[UIActionSheet alloc] initWithTitle:nil delegate:self cancelButtonTitle:NSLocalizedString(@"cancel", nil)
               destructiveButtonTitle:NSLocalizedString(@"wipe", nil) otherButtonTitles:nil]

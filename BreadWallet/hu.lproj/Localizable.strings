@@ -44,7 +44,11 @@
 "\nallow camera access in\nSettings->Privacy->Camera->%@" = "\nengedélyezd a kamera használatát a\nBeállítások->Adatvédelem->Kamera->%@ menüpontban";
 
 /* No comment provided by engineer. */
+<<<<<<< HEAD
 "\nDO NOT let anyone see your recovery\nphrase or they can spend your bitcoins.\n" = "\nNE engedd, hogy más lássa a helyreállítási\nkódmondatodat, különben elköltheti a\nLitecoinjaidat.";
+=======
+"\nDO NOT let anyone see your recovery\nphrase or they can spend your bitcoins.\n" = "\nNE engedd, hogy más lássa a helyreállítási\nkódmondatodat, különben elköltheti a\nbitcoinjaidat.";
+>>>>>>> upstream/master
 
 /* No comment provided by engineer. */
 "\nDO NOT take a screenshot.\nScreenshots are visible to other apps\nand devices.\n" = "\nNE csinálj képernyőmentést!\nA képernyőmentések elérhetőek más\nalkalmazások és eszközök számára!\n";

@@ -162,7 +162,6 @@ static const struct { uint32_t height; char *hash; uint32_t timestamp; uint32_t 
     { 993888, "1d80e7793bd9e16e0ce84d93b105d6732ed63e1a6fe491c1b7ea310e75eb504e", 1463613744, 0x1b014cbd },
     { 1001952, "eccbede26ac99ea996377972d5bd05b9306bcc6ac1f4071f1587e3094a704dff", 1464900396, 0x1b01a29e },
     { 1058400, "76ce37c66d449a4ffbfc35674cf932da701066a001dc223754f9250dd2bdbc62", 1473296285, 0x1b013ca7 }
-    
 };
 
 static const char *dns_seeds[] = {

@@ -60,7 +60,7 @@ class BRAWReceiveMoneyInterfaceController: WKInterfaceController, WCSessionDeleg
     }
     
     @objc func txReceive(_ notification: Notification?) {
-        print("receive view controller received notification: \(notification)")
+        print("receive view controller received notification: \(String(describing: notification))")
         if let userData = (notification as NSNotification?)?.userInfo,
             let noteString = userData[NSLocalizedDescriptionKey] as? String {
                 self.presentAlert(
@@ -101,7 +101,7 @@ class BRAWReceiveMoneyInterfaceController: WKInterfaceController, WCSessionDeleg
                 self.customQR = qrImage
             }
             self.updateReceiveUI()
-            print("Got new qr image: \(qrImage) error: \(error)")
+            print("Got new qr image: \(String(describing: qrImage)) error: \(String(describing: error))")
         }
         self.dismiss()
     }

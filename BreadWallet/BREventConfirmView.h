@@ -28,6 +28,11 @@
 
 @interface BREventConfirmView : UIImageView
 
+@property (nonatomic) IBOutlet UILabel *titleLabel;
+@property (nonatomic) IBOutlet UILabel *descriptionLabel;
+@property (nonatomic) IBOutlet UIButton *okBtn;
+@property (nonatomic) IBOutlet UIButton *nahBtn;
+
 @property (nonatomic, copy) void(^completionHandler)(BOOL);
 
 @end

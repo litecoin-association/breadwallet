@@ -68,7 +68,7 @@ class BRAWRootInterfaceController: WKInterfaceController {
     }
     
     @objc func txReceive(_ notification: Notification?) {
-        print("root view controller received notification: \(notification)")
+        print("root view controller received notification: \(String(describing: notification))")
         if let userData = (notification as NSNotification?)?.userInfo,
             let noteString = userData[NSLocalizedDescriptionKey] as? String {
                 self.presentAlert(

@@ -509,7 +509,9 @@ masterPublicKey:(NSData *)masterPublicKey seed:(NSData *(^)(NSString *authprompt
         balance += [tx.outputAmounts[o.n] unsignedLongLongValue];
         
         // add up size of unconfirmed, non-change inputs for child-pays-for-parent fee calculation
-        if (tx.blockHeight == TX_UNCONFIRMED && [self amountSentByTransaction:tx] == 0) cpfpSize += tx.size;
+        // don't include parent tx with more than 10 inputs or 10 outputs
+        if (tx.blockHeight == TX_UNCONFIRMED && tx.inputHashes.count <= 10 && tx.outputAmounts.count <= 10 &&
+            [self amountSentByTransaction:tx] == 0) cpfpSize += tx.size;
         
         if (fee) {
             feeAmount = [self feeForTxSize:transaction.size + 34 + cpfpSize]; // assume we will add a change output
@@ -914,7 +916,9 @@ masterPublicKey:(NSData *)masterPublicKey seed:(NSData *(^)(NSString *authprompt
         amount += [tx.outputAmounts[o.n] unsignedLongLongValue];
         
         // size of unconfirmed, non-change inputs for child-pays-for-parent fee
-        if (tx.blockHeight == TX_UNCONFIRMED && [self amountSentByTransaction:tx] == 0) cpfpSize += tx.size;
+        // don't include parent tx with more than 10 inputs or 10 outputs
+        if (tx.blockHeight == TX_UNCONFIRMED && tx.inputHashes.count <= 10 && tx.outputAmounts.count <= 10 &&
+            [self amountSentByTransaction:tx] == 0) cpfpSize += tx.size;
     }
     
     

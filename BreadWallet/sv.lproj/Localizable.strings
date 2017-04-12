@@ -38,10 +38,17 @@
 "\nallow camera access in\nSettings->Privacy->Camera->%@" = "\nbevilja kameraåtkomst i Inställningar->Personligt->Kamera->%@";
 
 /* No comment provided by engineer. */
+<<<<<<< HEAD
 "\nDO NOT let anyone see your recovery\nphrase or they can spend your bitcoins.\n" = "\nLÅT INTE NÅGON se din återställningsfras – annars kan hen spendera dina Litecoin.\n";
 
 /* No comment provided by engineer. */
 "\nnetwork fee +%@" = "\nnätverksavgift +%1$@";
+=======
+"\nDO NOT let anyone see your recovery\nphrase or they can spend your bitcoins.\n" = "\nLÅT INTE NÅGON se din återställningsfras – annars kan hen spendera dina bitcoin.\n";
+
+/* No comment provided by engineer. */
+"\nnetwork fee +%@ (%@)" = "\nnätverksavgift +%1$@ (%2$@)";
+>>>>>>> upstream/master
 
 /* No comment provided by engineer. */
 "\nNEVER type your recovery phrase into\npassword managers or elsewhere.\nOther devices may be infected.\n" = "\nSKRIV ALDRIG in din återställningsfras i lösenordshanterare eller någon annanstans. \nAndra enheter kan vara infekterade.\n";

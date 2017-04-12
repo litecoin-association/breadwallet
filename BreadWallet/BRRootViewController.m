@@ -29,6 +29,7 @@
 #import "BRSendViewController.h"
 #import "BRHistoryViewController.h"
 #import "BRSettingsViewController.h"
+#import "BRTxHistoryViewController.h"
 #import "BRRestoreViewController.h"
 #import "BRAppDelegate.h"
 #import "BRBubbleView.h"
@@ -38,7 +39,10 @@
 #import "BRPaymentRequest.h"
 #import "UIImage+Utils.h"
 #import "BREventManager.h"
+#import "BREventConfirmView.h"
 #import "Reachability.h"
+#import "breadwallet-Swift.h"
+#import <WebKit/WebKit.h>
 #import <LocalAuthentication/LocalAuthentication.h>
 #import <sys/stat.h>
 #import <mach-o/dyld.h>
@@ -49,7 +53,6 @@
 
 #define BACKUP_DIALOG_TIME_KEY @"BACKUP_DIALOG_TIME"
 #define BALANCE_KEY            @"BALANCE"
-#define HAS_AUTHENTICATED_KEY  @"HAS_AUTHENTICATED"
 
 @interface BRRootViewController ()
 
@@ -191,7 +194,7 @@
                 }
             }
 
-            if (jailbroken && manager.wallet.totalReceived + manager.wallet.totalSent > 0) {
+            if (jailbroken && manager.wallet.totalReceived > 0) {
                 [[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"WARNING", nil)
                   message:NSLocalizedString(@"DEVICE SECURITY COMPROMISED\n"
                                             "Any 'jailbreak' app can access any other app's keychain data "
@@ -281,7 +284,6 @@
         queue:nil usingBlock:^(NSNotification *note) {
             [self.receiveViewController updateAddress];
             self.balance = manager.wallet.balance;
-            [[NSUserDefaults standardUserDefaults] removeObjectForKey:HAS_AUTHENTICATED_KEY];
         }];
 
     self.syncStartedObserver =
@@ -477,9 +479,8 @@
         return;
 #endif
 
-        if (! [defs boolForKey:HAS_AUTHENTICATED_KEY]) {
+        if ([defs doubleForKey:PIN_UNLOCK_TIME_KEY] + 7*24*60*60 < [NSDate timeIntervalSinceReferenceDate]) {
             while (! [manager authenticateWithPrompt:nil andTouchId:NO]) { }
-            [defs setBool:YES forKey:HAS_AUTHENTICATED_KEY];
             [self unlock:nil];
         }
 
@@ -491,8 +492,20 @@
             [[BRPeerManager sharedInstance] connect];
             [UIApplication sharedApplication].applicationIconBadgeNumber = 0; // reset app badge number
             
-            if (self.url) [self.sendViewController handleURL:self.url], self.url = nil;
-            if (self.file) [self.sendViewController handleFile:self.file], self.file = nil;
+            if (self.url) {
+                [self.sendViewController handleURL:self.url];
+                self.url = nil;
+            }
+            else if (self.file) {
+                [self.sendViewController handleFile:self.file];
+                self.file = nil;
+            }
+            else if (! self.showTips &&
+                     [[NSUserDefaults standardUserDefaults] boolForKey:@"has_alerted_buy_bitcoin"] == NO &&
+                     [WKWebView class] && [[BRAPIClient sharedClient] featureEnabled:BRFeatureFlagsBuyBitcoin]) {
+                [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"has_alerted_buy_bitcoin"];
+                [self showBuyAlert];
+            }
         }
     }
 }
@@ -538,6 +551,11 @@
             delegate:[(id)segue.destinationViewController viewControllers].firstObject
             cancelButtonTitle:NSLocalizedString(@"cancel", nil) otherButtonTitles:NSLocalizedString(@"show", nil), nil]
          show];
+    }
+    else if ([sender isEqual:@"buy alert"]) {
+        UINavigationController *nav = segue.destinationViewController;
+
+        [nav.topViewController performSelector:@selector(showBuy) withObject:nil afterDelay:1.0];
     }
 }
 
@@ -891,6 +909,45 @@
         [self unlock:sender];
     }
     else [self tip:sender];
+}
+
+- (void)showBuyAlert
+{
+    // grab a blurred image for the background
+    UIGraphicsBeginImageContext(self.navigationController.view.bounds.size);
+    [self.navigationController.view drawViewHierarchyInRect:self.navigationController.view.bounds
+                                         afterScreenUpdates:NO];
+    UIImage *bgImg = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    UIImage *blurredBgImg = [bgImg blurWithRadius:3];
+    
+    // display the popup
+    __weak BREventConfirmView *view =
+    [[NSBundle mainBundle] loadNibNamed:@"BREventConfirmView" owner:nil options:nil][0];
+    view.titleLabel.text = NSLocalizedString(@"Buy bitcoin in breadwallet!", nil);
+    view.descriptionLabel.text =
+    NSLocalizedString(@"You can now buy bitcoin in\nbreadwallet with cash or\nbank transfer.", nil);
+    [view.okBtn setTitle:NSLocalizedString(@"Try It!", nil) forState:UIControlStateNormal];
+    
+    view.image = blurredBgImg;
+    view.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
+    view.frame = self.navigationController.view.bounds;
+    view.alpha = 0;
+    [self.navigationController.view addSubview:view];
+    
+    [UIView animateWithDuration:.5 animations:^{
+        view.alpha = 1;
+    }];
+    
+    view.completionHandler = ^(BOOL didApprove) {
+        if (didApprove) [self performSegueWithIdentifier:@"SettingsSegue" sender:@"buy alert"];
+        
+        [UIView animateWithDuration:.5 animations:^{
+            view.alpha = 0;
+        } completion:^(BOOL finished) {
+            [view removeFromSuperview];
+        }];
+    };
 }
 
 #if SNAPSHOT

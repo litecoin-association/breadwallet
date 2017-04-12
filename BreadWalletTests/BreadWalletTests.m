@@ -252,6 +252,7 @@
                   @"[NSData RMD160]");
 }
 
+<<<<<<< HEAD
 // MARK: - testScrypt
 
 - (void)testScrypt
@@ -265,6 +266,8 @@
                   @"[NSData SCRYPT]");
 }
 
+=======
+>>>>>>> upstream/master
 // MARK: - testMD5
 
 - (void)testMD5
