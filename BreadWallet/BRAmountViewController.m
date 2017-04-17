@@ -65,6 +65,18 @@
                       style:UIBarButtonItemStylePlain target:self action:@selector(pay:)];
     self.amountField.placeholder = [manager stringForAmount:0];
     [self.decimalButton setTitle:manager.format.currencyDecimalSeparator forState:UIControlStateNormal];
+    
+    self.swapLeftLabel = [UILabel new];
+    self.swapLeftLabel.font = self.localCurrencyLabel.font;
+    self.swapLeftLabel.alpha = self.localCurrencyLabel.alpha;
+    self.swapLeftLabel.textAlignment = self.localCurrencyLabel.textAlignment;
+    self.swapLeftLabel.hidden = YES;
+    
+    self.swapRightLabel = [UILabel new];
+    self.swapRightLabel.font = self.amountField.font;
+    self.swapRightLabel.alpha = self.amountField.alpha;
+    self.swapRightLabel.textAlignment = self.amountField.textAlignment;
+    self.swapRightLabel.hidden = YES;
 
     [self updateLocalCurrencyLabel];
     
