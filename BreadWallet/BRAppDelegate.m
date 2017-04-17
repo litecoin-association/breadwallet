@@ -204,11 +204,11 @@ performFetchWithCompletionHandler:(void (^)(UIBackgroundFetchResult))completionH
     [[BREventManager sharedEventManager] sync];
     
     // set badge to alert user of buy bitcoin feature
-    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"has_alerted_buy_bitcoin"] == NO &&
-        [WKWebView class] && [[BRAPIClient sharedClient] featureEnabled:BRFeatureFlagsBuyBitcoin] &&
-        [UIApplication sharedApplication].applicationIconBadgeNumber == 0) {
-        [UIApplication sharedApplication].applicationIconBadgeNumber = 1;
-    }
+//    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"has_alerted_buy_bitcoin"] == NO &&
+//        [WKWebView class] && [[BRAPIClient sharedClient] featureEnabled:BRFeatureFlagsBuyBitcoin] &&
+//        [UIApplication sharedApplication].applicationIconBadgeNumber == 0) {
+//        [UIApplication sharedApplication].applicationIconBadgeNumber = 1;
+//    }
 }
 
 - (void)setupBalanceNotification:(UIApplication *)application

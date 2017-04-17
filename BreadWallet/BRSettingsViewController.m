@@ -291,7 +291,7 @@
         case 0: return 2;
         case 1: return (self.touchId) ? 3 : 2;
         case 2: return 3;
-        case 3: return 1;
+//        case 3: return 1;
     }
 
     return 0;
@@ -382,17 +382,17 @@ _switch_cell:
             }
             break;
 
-        case 3:
-            cell = [tableView dequeueReusableCellWithIdentifier:actionIdent];
-            cell.textLabel.text = @"early access";
+//        case 3:
+//            cell = [tableView dequeueReusableCellWithIdentifier:actionIdent];
+//            cell.textLabel.text = @"early access";
 
-            if (![WKWebView class] || ![[BRAPIClient sharedClient] featureEnabled:BRFeatureFlagsEarlyAccess]) {
-                cell = [[UITableViewCell alloc] initWithFrame:CGRectZero];
-                cell.userInteractionEnabled = NO;
-                cell.hidden = YES;
-            }
+//            if (![WKWebView class] || ![[BRAPIClient sharedClient] featureEnabled:BRFeatureFlagsEarlyAccess]) {
+//                cell = [[UITableViewCell alloc] initWithFrame:CGRectZero];
+//                cell.userInteractionEnabled = NO;
+//                cell.hidden = YES;
+//            }
 
-            break;
+//            break;
     }
 
     [self setBackgroundForCell:cell tableView:tableView indexPath:indexPath];

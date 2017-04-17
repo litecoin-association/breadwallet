@@ -500,12 +500,12 @@
                 [self.sendViewController handleFile:self.file];
                 self.file = nil;
             }
-            else if (! self.showTips &&
-                     [[NSUserDefaults standardUserDefaults] boolForKey:@"has_alerted_buy_bitcoin"] == NO &&
-                     [WKWebView class] && [[BRAPIClient sharedClient] featureEnabled:BRFeatureFlagsBuyBitcoin]) {
-                [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"has_alerted_buy_bitcoin"];
-                [self showBuyAlert];
-            }
+//            else if (! self.showTips &&
+//                     [[NSUserDefaults standardUserDefaults] boolForKey:@"has_alerted_buy_bitcoin"] == NO &&
+//                     [WKWebView class] && [[BRAPIClient sharedClient] featureEnabled:BRFeatureFlagsBuyBitcoin]) {
+//                [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"has_alerted_buy_bitcoin"];
+//                [self showBuyAlert];
+//            }
         }
     }
 }
@@ -911,44 +911,44 @@
     else [self tip:sender];
 }
 
-- (void)showBuyAlert
-{
-    // grab a blurred image for the background
-    UIGraphicsBeginImageContext(self.navigationController.view.bounds.size);
-    [self.navigationController.view drawViewHierarchyInRect:self.navigationController.view.bounds
-                                         afterScreenUpdates:NO];
-    UIImage *bgImg = UIGraphicsGetImageFromCurrentImageContext();
-    UIGraphicsEndImageContext();
-    UIImage *blurredBgImg = [bgImg blurWithRadius:3];
+//- (void)showBuyAlert
+//{
+//    // grab a blurred image for the background
+//    UIGraphicsBeginImageContext(self.navigationController.view.bounds.size);
+//    [self.navigationController.view drawViewHierarchyInRect:self.navigationController.view.bounds
+//                                         afterScreenUpdates:NO];
+//    UIImage *bgImg = UIGraphicsGetImageFromCurrentImageContext();
+//    UIGraphicsEndImageContext();
+//    UIImage *blurredBgImg = [bgImg blurWithRadius:3];
     
     // display the popup
-    __weak BREventConfirmView *view =
-    [[NSBundle mainBundle] loadNibNamed:@"BREventConfirmView" owner:nil options:nil][0];
-    view.titleLabel.text = NSLocalizedString(@"Buy bitcoin in breadwallet!", nil);
-    view.descriptionLabel.text =
-    NSLocalizedString(@"You can now buy bitcoin in\nbreadwallet with cash or\nbank transfer.", nil);
-    [view.okBtn setTitle:NSLocalizedString(@"Try It!", nil) forState:UIControlStateNormal];
+//    __weak BREventConfirmView *view =
+//    [[NSBundle mainBundle] loadNibNamed:@"BREventConfirmView" owner:nil options:nil][0];
+//    view.titleLabel.text = NSLocalizedString(@"Buy bitcoin in breadwallet!", nil);
+//    view.descriptionLabel.text =
+//    NSLocalizedString(@"You can now buy bitcoin in\nbreadwallet with cash or\nbank transfer.", nil);
+//    [view.okBtn setTitle:NSLocalizedString(@"Try It!", nil) forState:UIControlStateNormal];
     
-    view.image = blurredBgImg;
-    view.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
-    view.frame = self.navigationController.view.bounds;
-    view.alpha = 0;
-    [self.navigationController.view addSubview:view];
+//    view.image = blurredBgImg;
+//    view.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
+//    view.frame = self.navigationController.view.bounds;
+//    view.alpha = 0;
+//    [self.navigationController.view addSubview:view];
     
-    [UIView animateWithDuration:.5 animations:^{
-        view.alpha = 1;
-    }];
+//    [UIView animateWithDuration:.5 animations:^{
+//        view.alpha = 1;
+//    }];
     
-    view.completionHandler = ^(BOOL didApprove) {
-        if (didApprove) [self performSegueWithIdentifier:@"SettingsSegue" sender:@"buy alert"];
+//    view.completionHandler = ^(BOOL didApprove) {
+//        if (didApprove) [self performSegueWithIdentifier:@"SettingsSegue" sender:@"buy alert"];
         
-        [UIView animateWithDuration:.5 animations:^{
-            view.alpha = 0;
-        } completion:^(BOOL finished) {
-            [view removeFromSuperview];
-        }];
-    };
-}
+//        [UIView animateWithDuration:.5 animations:^{
+//            view.alpha = 0;
+//        } completion:^(BOOL finished) {
+//            [view removeFromSuperview];
+//        }];
+//    };
+//}
 
 #if SNAPSHOT
 - (IBAction)nextScreen:(id)sender
