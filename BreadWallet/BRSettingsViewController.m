@@ -446,9 +446,9 @@ _switch_cell:
     titleLabel.text = [self tableView:tableView titleForHeaderInSection:section];
     titleLabel.backgroundColor = [UIColor clearColor];
     titleLabel.font = [UIFont fontWithName:@"HelveticaNeue" size:13];
-    titleLabel.textColor = [UIColor grayColor];
-    titleLabel.shadowColor = [UIColor whiteColor];
-    titleLabel.shadowOffset = CGSizeMake(0.0, 1.0);
+    titleLabel.textColor = [UIColor whiteColor];
+//    titleLabel.shadowColor = [UIColor whiteColor];
+//    titleLabel.shadowOffset = CGSizeMake(0.0, 1.0);
     titleLabel.numberOfLines = 0;
     sectionHeader.backgroundColor = [UIColor clearColor];
     [sectionHeader addSubview:titleLabel];
