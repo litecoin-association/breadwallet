@@ -179,32 +179,7 @@
 
 - (IBAction)about:(id)sender
 {
-    if ([MFMailComposeViewController canSendMail]) {
-        MFMailComposeViewController *composeController = [MFMailComposeViewController new];
-        NSString *msg;
-        struct utsname systemInfo;
-
-        uname(&systemInfo);
-        msg = [NSString stringWithFormat:@"%s / iOS %@ / LoafWallet %@ - %@%@\n\n",
-               systemInfo.machine, UIDevice.currentDevice.systemVersion,
-               NSBundle.mainBundle.infoDictionary[@"CFBundleShortVersionString"],
-               NSBundle.mainBundle.infoDictionary[@"CFBundleVersion"],
-               ([BRWalletManager sharedInstance].watchOnly) ? @" (watch only)" : @""];
-
-        composeController.toRecipients = @[@"contact@loafwallet.xyz"];
-        composeController.subject = @"support request";
-        [composeController setMessageBody:msg isHTML:NO];
-        composeController.mailComposeDelegate = self;
-        [self.navigationController presentViewController:composeController animated:YES completion:nil];
-        composeController.view.backgroundColor =
-            [UIColor colorWithPatternImage:[UIImage imageNamed:@"wallpaper-default"]];
-        [BREventManager saveEvent:@"about:send_email"];
-    }
-    else {
-        [BREventManager saveEvent:@"about:email_not_configured"];
-        [[[UIAlertView alloc] initWithTitle:@"" message:NSLocalizedString(@"email not configured", nil) delegate:nil
-          cancelButtonTitle:NSLocalizedString(@"ok", nil) otherButtonTitles:nil] show];
-    }
+    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"mailto:contact@loafwallet.xyz"]];
 }
 
 #if DEBUG
