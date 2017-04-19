@@ -65,6 +65,18 @@
                       style:UIBarButtonItemStylePlain target:self action:@selector(pay:)];
     self.amountField.placeholder = [manager stringForAmount:0];
     [self.decimalButton setTitle:manager.format.currencyDecimalSeparator forState:UIControlStateNormal];
+    
+    self.swapLeftLabel = [UILabel new];
+    self.swapLeftLabel.font = self.localCurrencyLabel.font;
+    self.swapLeftLabel.alpha = self.localCurrencyLabel.alpha;
+    self.swapLeftLabel.textAlignment = self.localCurrencyLabel.textAlignment;
+    self.swapLeftLabel.hidden = YES;
+    
+    self.swapRightLabel = [UILabel new];
+    self.swapRightLabel.font = self.amountField.font;
+    self.swapRightLabel.alpha = self.amountField.alpha;
+    self.swapRightLabel.textAlignment = self.amountField.textAlignment;
+    self.swapRightLabel.hidden = YES;
 
     [self updateLocalCurrencyLabel];
     
@@ -129,10 +141,10 @@
 
     self.swapLeftLabel.hidden = YES;
     self.localCurrencyLabel.hidden = NO;
-    self.localCurrencyLabel.text = [NSString stringWithFormat:@"(%@)",
+    self.localCurrencyLabel.text = [NSString stringWithFormat:@"%@",
                                     (self.swapped) ? [manager stringForAmount:amount] :
                                     [manager localCurrencyStringForAmount:amount]];
-    self.localCurrencyLabel.textColor = (amount > 0) ? [UIColor grayColor] : [UIColor colorWithWhite:0.75 alpha:1.0];
+    self.localCurrencyLabel.textColor = (amount > 0) ? [UIColor grayColor] : [UIColor whiteColor];
 }
 
 // MARK: - IBAction
@@ -198,7 +210,7 @@
     if (self.swapLeftLabel.hidden) {
         self.swapLeftLabel.text = self.localCurrencyLabel.text;
         self.swapLeftLabel.textColor = (self.amountField.text.length > 0) ? self.amountField.textColor :
-                                       [UIColor colorWithWhite:0.75 alpha:1.0];
+                                       [UIColor whiteColor];
         self.swapLeftLabel.frame = self.localCurrencyLabel.frame;
         [self.localCurrencyLabel.superview addSubview:self.swapLeftLabel];
         self.swapLeftLabel.hidden = NO;
@@ -209,7 +221,7 @@
         self.swapRightLabel.text = (self.amountField.text.length > 0) ? self.amountField.text :
                                    self.amountField.placeholder;
         self.swapRightLabel.textColor = (self.amountField.text.length > 0) ? self.amountField.textColor :
-                                        [UIColor colorWithWhite:0.75 alpha:1.0];
+                                        [UIColor whiteColor];
         self.swapRightLabel.frame = self.amountField.frame;
         [self.amountField.superview addSubview:self.swapRightLabel];
         self.swapRightLabel.hidden = NO;
@@ -222,7 +234,7 @@
     uint64_t amount =
         [manager amountForLocalCurrencyString:(self.swapped) ? [s substringWithRange:NSMakeRange(1, s.length - 2)] : s];
 
-    self.localCurrencyLabel.text = [NSString stringWithFormat:@"(%@)",
+    self.localCurrencyLabel.text = [NSString stringWithFormat:@"%@",
                                     (self.swapped) ? [manager stringForAmount:amount] :
                                     [manager localCurrencyStringForAmount:amount]];
     self.amountField.text = (self.swapped) ? [manager localCurrencyStringForAmount:amount] :
@@ -255,7 +267,7 @@
                                    self.amountField.placeholder;
         self.swapLeftLabel.textColor = self.localCurrencyLabel.textColor;
         self.swapRightLabel.textColor = (self.amountField.text.length > 0) ? self.amountField.textColor :
-                                        [UIColor colorWithWhite:0.75 alpha:1.0];
+                                        [UIColor whiteColor];
         [self.swapLeftLabel sizeToFit];
         [self.swapRightLabel sizeToFit];
         self.swapLeftLabel.center = self.swapRightLabel.center = p;
@@ -297,7 +309,7 @@
     }
 
     self.swapRightLabel.textColor = (self.amountField.text.length > 0) ? self.amountField.textColor :
-                                    [UIColor colorWithWhite:0.75 alpha:1.0];
+                                    [UIColor whiteColor];
 
     [UIView animateWithDuration:0.1 animations:^{
         //self.swapLeftLabel.transform = CGAffineTransformMakeScale(0.85, 0.85);
@@ -335,6 +347,14 @@ replacementString:(NSString *)string
     if (! textVal) textVal = @"";
     numberFormatter.minimumFractionDigits = 0;
     zeroStr = [numberFormatter stringFromNumber:@0];
+
+    // if amount is prefixed with currency symbol, then equivalent to [zeroStr stringByAppendingString:numberFormatter.currencyDecimalSeparator]
+    // otherwise, numberFormatter.currencyDecimalSeparator must be inserted exactly after 0
+    NSString *(^zeroStrByInsertingCurrencyDecimalSeparator)() = ^NSString * {
+        NSRange zeroCharacterRange = [zeroStr rangeOfCharacterFromSet:self.charset];
+        return [zeroStr stringByReplacingCharactersInRange:NSMakeRange(NSMaxRange(zeroCharacterRange), 0)
+                                                withString:numberFormatter.currencyDecimalSeparator];
+    };
     
     if (string.length == 0) { // delete button
         textVal = [textVal stringByReplacingCharactersInRange:range withString:string];
@@ -347,7 +367,7 @@ replacementString:(NSString *)string
     }
     else if ([string isEqual:numberFormatter.currencyDecimalSeparator]) { // decimal point button
         if (decimalLoc == NSNotFound && numberFormatter.maximumFractionDigits > 0) {
-            textVal = (textVal.length == 0) ? [zeroStr stringByAppendingString:string] :
+            textVal = (textVal.length == 0) ? zeroStrByInsertingCurrencyDecimalSeparator() :
                       [textVal stringByReplacingCharactersInRange:range withString:string];
         }
     }
@@ -363,7 +383,7 @@ replacementString:(NSString *)string
             if (! [numberFormatter numberFromString:textVal]) textVal = nil;
         }
         else if (textVal.length == 0 && [string isEqual:@"0"]) { // if first digit is zero, append decimal point
-            textVal = [zeroStr stringByAppendingString:numberFormatter.currencyDecimalSeparator];
+            textVal = zeroStrByInsertingCurrencyDecimalSeparator();
         }
         else if (range.location > decimalLoc && [string isEqual:@"0"]) { // handle multiple zeros after decimal point
             textVal = [textVal stringByReplacingCharactersInRange:range withString:string];

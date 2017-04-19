@@ -41,7 +41,10 @@ import Foundation
             if !UIImagePickerController.isSourceTypeAvailable(.camera)
                 || UIImagePickerController.availableCaptureModes(for: .rear) == nil {
                 print("[BRCameraPlugin] no camera available")
-                return BRHTTPResponse(request: request, code: 404)
+                guard let resp = try? BRHTTPResponse(request: request, code: 200, json: ["id": "test"]) else {
+                    return BRHTTPResponse(request: request, code: 404)
+                }
+                return resp
             }
             let response = BRHTTPResponse(async: request)
             self.response = response
@@ -92,8 +95,34 @@ import Foundation
             }
             let resp = BRHTTPResponse(async: request)
             do {
-                let imgDat = try self.readImage(id)
-                resp.provide(200, data: imgDat, contentType: "image/jpeg")
+                // read img
+                var imgDat: [UInt8]
+                if id == "test" {
+                    imgDat = [UInt8](try! Data(contentsOf: URL(string: "http://i.imgur.com/VG2UvcY.jpg")!))
+                } else {
+                    imgDat = try self.readImage(id)
+                }
+                // scale img
+                guard let img = UIImage(data: Data(imgDat)) else {
+                    return BRHTTPResponse(request: request, code: 500)
+                }
+                let scaledImg = img.scaled(to: CGSize(width: 1000, height: 1000), scalingMode: .aspectFit)
+                guard let scaledImageDat = UIImageJPEGRepresentation(scaledImg, 0.7) else {
+                    return BRHTTPResponse(request: request, code: 500)
+                }
+                imgDat = [UInt8](scaledImageDat)
+                // return img to client
+                var contentType = "image/jpeg"
+                if let b64opt = request.query["base64"], b64opt.count > 0 {
+                    contentType = "text/plain"
+                    let b64 = "data:image/jpeg;base64," + Data(imgDat).base64EncodedString()
+                    guard let b64encoded = b64.data(using: .utf8) else {
+                        resp.provide(500)
+                        return resp
+                    }
+                    imgDat = [UInt8](b64encoded)
+                }
+                resp.provide(200, data: imgDat, contentType: contentType)
             } catch let e {
                 print("[BRCameraPlugin] error reading image: \(e)")
                 resp.provide(500)
@@ -296,7 +325,7 @@ class IDCameraOverlay: UIView, CameraOverlay {
         cutout = cutout.integral
         
         func rad(_ f: CGFloat) -> CGFloat {
-            return f / 180.0 * CGFloat(M_PI)
+            return f / 180.0 * CGFloat(Double.pi)
         }
         
         var transform: CGAffineTransform!

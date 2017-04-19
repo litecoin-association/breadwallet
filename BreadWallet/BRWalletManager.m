@@ -60,7 +60,6 @@
 #define CURRENCY_NAMES_KEY      @"CURRENCY_NAMES"
 #define CURRENCY_PRICES_KEY     @"CURRENCY_PRICES"
 #define SPEND_LIMIT_AMOUNT_KEY  @"SPEND_LIMIT_AMOUNT"
-#define PIN_UNLOCK_TIME_KEY     @"PIN_UNLOCK_TIME"
 #define SECURE_TIME_KEY         @"SECURE_TIME"
 #define FEE_PER_KB_KEY          @"FEE_PER_KB"
 
@@ -323,7 +322,7 @@ static NSDictionary *getKeychainDict(NSString *key, NSError **error)
                 NSLog(@"wallet doesn't contain address: %@", k.address);
 #if DEBUG
                 abort(); // don't wipe core data for debug builds
-#endif
+#else
                 [[NSManagedObject context] performBlockAndWait:^{
                     [BRAddressEntity deleteObjects:[BRAddressEntity allObjects]];
                     [BRTransactionEntity deleteObjects:[BRTransactionEntity allObjects]];
@@ -339,6 +338,7 @@ static NSDictionary *getKeychainDict(NSString *key, NSError **error)
                     [[NSNotificationCenter defaultCenter] postNotificationName:BRWalletBalanceChangedNotification
                      object:nil];
                 });
+#endif
             }
         });
 
@@ -366,7 +366,7 @@ static NSDictionary *getKeychainDict(NSString *key, NSError **error)
 // master public key used to generate wallet addresses
 - (NSData *)masterPublicKey
 {
-    return getKeychainData(MASTER_PUBKEY_KEY, nil);
+    return [getKeychainData(MASTER_PUBKEY_KEY, nil) subdataWithRange:NSMakeRange(0, 69)];
 }
 
 // requesting seedPhrase will trigger authentication
@@ -386,6 +386,9 @@ static NSDictionary *getKeychainDict(NSString *key, NSError **error)
             [BRTxMetadataEntity deleteObjects:[BRTxMetadataEntity allObjects]];
             [NSManagedObject saveContext];
         }];
+
+        [[NSUserDefaults standardUserDefaults] removeObjectForKey:PIN_UNLOCK_TIME_KEY];
+        [[NSUserDefaults standardUserDefaults] synchronize];
 
         setKeychainData(nil, CREATION_TIME_KEY, NO);
         setKeychainData(nil, MASTER_PUBKEY_KEY, NO);
@@ -563,6 +566,14 @@ static NSDictionary *getKeychainDict(NSString *key, NSError **error)
         return YES;
     }
     else return NO;
+}
+
+- (BOOL)isTestnet {
+#if BITCOIN_TESTNET
+    return true;
+#else 
+    return false;
+#endif
 }
 
 - (UITextField *)pinField
@@ -974,7 +985,6 @@ static NSDictionary *getKeychainDict(NSString *key, NSError **error)
 
     NSMutableURLRequest *req = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:FEE_PER_KB_URL]
                                 cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:10.0];
-
     NSLog(@"%@", req.URL.absoluteString);
 
     [[[NSURLSession sharedSession] dataTaskWithRequest:req
@@ -1051,12 +1061,7 @@ completion:(void (^)(NSArray *utxos, NSArray *amounts, NSArray *scripts, NSError
                        *scripts = [NSMutableArray array];
         BRUTXO o;
 
-        if (error) {
-            completion(nil, nil, nil, error);
-            return;
-        }
-
-        if (! [json isKindOfClass:[NSArray class]]) {
+        if (error || ! [json isKindOfClass:[NSArray class]]) {
             completion(nil, nil, nil,
 
                        [NSError errorWithDomain:@"LoafWallet" code:417 userInfo:@{NSLocalizedDescriptionKey:

@@ -54,7 +54,6 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    
     self.touchId = [BRWalletManager sharedInstance].touchIdEnabled;
 }
 
@@ -81,7 +80,6 @@
                 }
             }];
     }
-
     if (! self.txStatusObserver) {
         self.txStatusObserver =
             [[NSNotificationCenter defaultCenter] addObserverForName:BRPeerManagerTxStatusNotification object:nil
@@ -122,7 +120,7 @@
     }
     // only available on iOS 8 and above
     if ([WKWebView class] && [[BRAPIClient sharedClient] featureEnabled:BRFeatureFlagsEarlyAccess]) {
-#if DEBUG
+#if DEBUG || TESTFLIGHT
         _eaController = [[BRWebViewController alloc] initWithBundleName:@"bread-buy-staging" mountPoint:@"/ea"];
         //        self.eaController.debugEndpoint = @"http://localhost:8080";
 #else
@@ -181,32 +179,7 @@
 
 - (IBAction)about:(id)sender
 {
-    if ([MFMailComposeViewController canSendMail]) {
-        MFMailComposeViewController *composeController = [MFMailComposeViewController new];
-        NSString *msg;
-        struct utsname systemInfo;
-
-        uname(&systemInfo);
-        msg = [NSString stringWithFormat:@"%s / iOS %@ / LoafWallet %@ - %@%@\n\n",
-               systemInfo.machine, UIDevice.currentDevice.systemVersion,
-               NSBundle.mainBundle.infoDictionary[@"CFBundleShortVersionString"],
-               NSBundle.mainBundle.infoDictionary[@"CFBundleVersion"],
-               ([BRWalletManager sharedInstance].watchOnly) ? @" (watch only)" : @""];
-
-        composeController.toRecipients = @[@"contact@loafwallet.xyz"];
-        composeController.subject = @"support request";
-        [composeController setMessageBody:msg isHTML:NO];
-        composeController.mailComposeDelegate = self;
-        [self.navigationController presentViewController:composeController animated:YES completion:nil];
-        composeController.view.backgroundColor =
-            [UIColor colorWithPatternImage:[UIImage imageNamed:@"wallpaper-default"]];
-        [BREventManager saveEvent:@"about:send_email"];
-    }
-    else {
-        [BREventManager saveEvent:@"about:email_not_configured"];
-        [[[UIAlertView alloc] initWithTitle:@"" message:NSLocalizedString(@"email not configured", nil) delegate:nil
-          cancelButtonTitle:NSLocalizedString(@"ok", nil) otherButtonTitles:nil] show];
-    }
+    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"mailto:contact@loafwallet.xyz"]];
 }
 
 #if DEBUG
@@ -293,7 +266,7 @@
         case 0: return 2;
         case 1: return (self.touchId) ? 3 : 2;
         case 2: return 3;
-        case 3: return 1;
+//        case 3: return 1;
     }
 
     return 0;
@@ -384,17 +357,17 @@ _switch_cell:
             }
             break;
 
-        case 3:
-            cell = [tableView dequeueReusableCellWithIdentifier:actionIdent];
-            cell.textLabel.text = @"early access";
+//        case 3:
+//            cell = [tableView dequeueReusableCellWithIdentifier:actionIdent];
+//            cell.textLabel.text = @"early access";
 
-            if (![WKWebView class] || ![[BRAPIClient sharedClient] featureEnabled:BRFeatureFlagsEarlyAccess]) {
-                cell = [[UITableViewCell alloc] initWithFrame:CGRectZero];
-                cell.userInteractionEnabled = NO;
-                cell.hidden = YES;
-            }
+//            if (![WKWebView class] || ![[BRAPIClient sharedClient] featureEnabled:BRFeatureFlagsEarlyAccess]) {
+//                cell = [[UITableViewCell alloc] initWithFrame:CGRectZero];
+//                cell.userInteractionEnabled = NO;
+//                cell.hidden = YES;
+//            }
 
-            break;
+//            break;
     }
 
     [self setBackgroundForCell:cell tableView:tableView indexPath:indexPath];
@@ -448,9 +421,9 @@ _switch_cell:
     titleLabel.text = [self tableView:tableView titleForHeaderInSection:section];
     titleLabel.backgroundColor = [UIColor clearColor];
     titleLabel.font = [UIFont fontWithName:@"HelveticaNeue" size:13];
-    titleLabel.textColor = [UIColor grayColor];
-    titleLabel.shadowColor = [UIColor whiteColor];
-    titleLabel.shadowOffset = CGSizeMake(0.0, 1.0);
+    titleLabel.textColor = [UIColor whiteColor];
+//    titleLabel.shadowColor = [UIColor whiteColor];
+//    titleLabel.shadowOffset = CGSizeMake(0.0, 1.0);
     titleLabel.numberOfLines = 0;
     sectionHeader.backgroundColor = [UIColor clearColor];
     [sectionHeader addSubview:titleLabel];
@@ -659,14 +632,6 @@ _deselect_switch:
             [self showEarlyAccess];
             break;
     }
-}
-
-// MARK: - MFMailComposeViewControllerDelegate
-
-- (void)mailComposeController:(MFMailComposeViewController *)controller didFinishWithResult:(MFMailComposeResult)result
-error:(NSError *)error
-{
-    [self.navigationController dismissViewControllerAnimated:YES completion:nil];
 }
 
 // MARK: - UIAlertViewDelegate

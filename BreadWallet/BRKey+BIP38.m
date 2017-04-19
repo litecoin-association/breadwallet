@@ -392,7 +392,7 @@ passphrase:(NSString *)passphrase
     uint16_t prefix = CFSwapInt16BigToHost(*(const uint16_t *)d.bytes);
     uint8_t flag = ((const uint8_t *)d.bytes)[2];
     uint32_t addresshash = *(const uint32_t *)((const uint8_t *)d.bytes + 3);
-    UInt256 secret;
+    UInt256 secret = UINT256_ZERO;
 
     if (prefix == BIP38_NOEC_PREFIX) { // non EC multiplied key
         // d = prefix + flag + addresshash + encrypted1 + encrypted2

@@ -28,6 +28,7 @@ import Foundation
 
 @objc class BRWalletPlugin: NSObject, BRHTTPRouterPlugin, BRWebSocketClient {
     var sockets = [String: BRWebSocket]()
+    var tempBitIDKeys = [String: BRKey]() // this should only ever be mutated from the main thread
  
     let manager = BRWalletManager.sharedInstance()!
     
@@ -132,31 +133,41 @@ import Foundation
             var maybeSeed: Data?
             DispatchQueue.main.sync {
                 CFRunLoopPerformBlock(RunLoop.main.getCFRunLoop(), CFRunLoopMode.commonModes.rawValue) {
-                    maybeSeed = self.manager.seed(withPrompt: (bitidUrl.host ?? bitidUrl.description), forAmount: 0)
-                    guard let seed = maybeSeed else {
-                        request.queue.async {
-                            asyncResp.provide(401)
-                        }
-                        return
-                    }
-                    let seq = BRBIP32Sequence()
                     let biuri = bitidUrl.host ?? bitidUrl.absoluteString
-                    guard let kd = seq.bitIdPrivateKey(UInt32(bitidIndex), forURI: biuri, fromSeed: seed),
-                        let key = BRKey(privateKey: kd) else {
+                    var key = self.tempBitIDKeys[biuri]
+                    if key == nil {
+                        maybeSeed = self.manager.seed(withPrompt: (bitidUrl.host ?? bitidUrl.description), forAmount: 0)
+                        guard let seed = maybeSeed else {
                             request.queue.async {
-                                asyncResp.provide(500)
+                                asyncResp.provide(401)
                             }
                             return
+                        }
+                        let seq = BRBIP32Sequence()
+                        guard let kd = seq.bitIdPrivateKey(UInt32(bitidIndex), forURI: biuri, fromSeed: seed),
+                            let foundkey = BRKey(privateKey: kd) else {
+                                request.queue.async {
+                                    asyncResp.provide(500)
+                                }
+                                return
+                        }
+                        // we got the key. hold on to it for 1 minute so the user doesn't have to provide authentication
+                        // multiple times in a row
+                        self.tempBitIDKeys[biuri] = foundkey
+                        DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(60)) {
+                            self.tempBitIDKeys[biuri] = nil
+                        }
+                        key = foundkey
                     }
-                    let sig = BRBitID.signMessage(stringToSign, usingKey: key)
+                    
+                    let sig = BRBitID.signMessage(stringToSign, usingKey: key!)
                     let ret: [String: Any] = [
                         "signature": sig,
-                        "address": key.address ?? ""
+                        "address": key!.address ?? ""
                     ]
                     request.queue.async {
                         asyncResp.provide(200, json: ret)
                     }
-
                 }
             }
             return asyncResp
@@ -166,10 +177,17 @@ import Foundation
     // MARK: - basic wallet functions
     
     func walletInfo() -> [String: Any] {
+        let defs = UserDefaults.standard
         var d = [String: Any]()
         d["no_wallet"] = manager.noWallet
         d["watch_only"] = manager.watchOnly
         d["receive_address"] = manager.wallet?.receiveAddress
+        // the users btc,mbtc,bits setting
+        var mdigits = defs.integer(forKey: "SETTINGS_MAX_DIGITS")
+        if mdigits == 0 {
+            mdigits = 2
+        }
+        d["btc_denomination_digits"] = mdigits
         return d
     }
     

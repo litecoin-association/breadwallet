@@ -30,17 +30,14 @@ import Foundation
 // It has all the capabilities of the real API but with the ability to authenticate 
 // requests using the users private keys stored on device.
 //
-// Clients should set the "X-Should-Verify" to enable response verification and can set
-// "X-Should-Authenticate" to sign requests with the users private authentication key
+// Clients should set the "X-Should-Authenticate" to sign requests with the users private authentication key
 @objc open class BRAPIProxy: NSObject, BRHTTPMiddleware {
     var mountPoint: String
     var apiInstance: BRAPIClient
-    var shouldVerifyHeader: String = "x-should-verify"
     var shouldAuthHeader: String = "x-should-authenticate"
     
     var bannedSendHeaders: [String] {
         return [
-            shouldVerifyHeader,
             shouldAuthHeader,
             "connection",
             "authorization",
@@ -107,7 +104,7 @@ import Foundation
                             headers: hdrs, body: body)
                         return next(BRHTTPMiddlewareResponse(request: request, response: resp))
                     } else {
-                        print("[BRAPIProxy] error getting response from backend: \(nsError)")
+                        print("[BRAPIProxy] error getting response from backend: \(String(describing: nsError))")
                         return next(BRHTTPMiddlewareResponse(request: request, response: nil))
                     }
             }).resume()

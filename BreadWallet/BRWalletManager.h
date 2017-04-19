@@ -37,7 +37,9 @@
 #define DISPLAY_NAME [NSString stringWithFormat:LDQUOTE @"%@" RDQUOTE,\
                       NSBundle.mainBundle.infoDictionary[@"CFBundleDisplayName"]]
 
-#define WALLET_NEEDS_BACKUP_KEY                @"WALLET_NEEDS_BACKUP"
+#define WALLET_NEEDS_BACKUP_KEY @"WALLET_NEEDS_BACKUP"
+#define PIN_UNLOCK_TIME_KEY     @"PIN_UNLOCK_TIME"
+
 FOUNDATION_EXPORT NSString* _Nonnull const BRWalletManagerSeedChangedNotification;
 
 @protocol BRMnemonic;
@@ -65,6 +67,7 @@ FOUNDATION_EXPORT NSString* _Nonnull const BRWalletManagerSeedChangedNotificatio
 @property (nonatomic, readonly) double localCurrencyPrice; // exchange rate in local currency units per bitcoin
 @property (nonatomic, readonly) NSArray * _Nullable currencyCodes; // list of supported local currency codes
 @property (nonatomic, readonly) NSArray * _Nullable currencyNames; // names for local currency codes
+@property (nonatomic, readonly) BOOL isTestnet;
 
 + (instancetype _Nullable)sharedInstance;
 

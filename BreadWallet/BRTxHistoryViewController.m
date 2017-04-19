@@ -209,7 +209,7 @@ static NSString *dateFormat(NSString *template)
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
-    [self.buyController preload];
+    [self.buyController preload];    
 }
 
 - (void)viewWillDisappear:(BOOL)animated
@@ -255,22 +255,22 @@ static NSString *dateFormat(NSString *template)
     if (self.syncFailedObserver) [[NSNotificationCenter defaultCenter] removeObserver:self.syncFailedObserver];
 }
 
-- (BRWebViewController *)buyController {
-    if (_buyController) {
-        return _buyController;
-    }
-    if ([WKWebView class] && [[BRAPIClient sharedClient] featureEnabled:BRFeatureFlagsBuyBitcoin]) { // only available on iOS 8 and above
-#if DEBUG
-        _buyController = [[BRWebViewController alloc] initWithBundleName:@"bread-buy-staging" mountPoint:@"/buy"];
+//- (BRWebViewController *)buyController {
+//    if (_buyController) {
+//        return _buyController;
+//    }
+//    if ([WKWebView class] && [[BRAPIClient sharedClient] featureEnabled:BRFeatureFlagsBuyBitcoin]) { // only available on iOS 8 and above
+//#if DEBUG || TESTFLIGHT
+//        _buyController = [[BRWebViewController alloc] initWithBundleName:@"bread-buy-staging" mountPoint:@"/buy"];
         //        self.buyController.debugEndpoint = @"http://localhost:8080";
-#else
-        _buyController = [[BRWebViewController alloc] initWithBundleName:@"bread-buy" mountPoint:@"/buy"];
-#endif
-        [_buyController startServer];
-        [_buyController preload];
-    }
-    return _buyController;
-}
+//#else
+//        _buyController = [[BRWebViewController alloc] initWithBundleName:@"bread-buy" mountPoint:@"/buy"];
+//#endif
+//        [_buyController startServer];
+//        [_buyController preload];
+//    }
+//    return _buyController;
+//}
 
 - (uint32_t)blockHeight
 {
@@ -434,7 +434,6 @@ static NSString *dateFormat(NSString *template)
 {
     [self presentViewController:self.buyController animated:YES completion:nil];
 }
-
 // MARK: - UITableViewDataSource
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
@@ -444,14 +443,14 @@ static NSString *dateFormat(NSString *template)
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    bool buyEnabled = [[BRAPIClient sharedClient] featureEnabled:BRFeatureFlagsBuyBitcoin];
+//    bool buyEnabled = [[BRAPIClient sharedClient] featureEnabled:BRFeatureFlagsBuyBitcoin];
     switch (section) {
 //        case 0:
 //            if (self.transactions.count == 0) return 1;
 //            return (self.moreTx) ? self.transactions.count + 1 : self.transactions.count;
 
         case 0:
-            return (buyEnabled ? 3 : 2);
+            return 2;
     }
 
     return 0;
@@ -576,20 +575,15 @@ static NSString *dateFormat(NSString *template)
 
         case 0:
             cell = [tableView dequeueReusableCellWithIdentifier:actionIdent];
-            bool buyEnabled = [[BRAPIClient sharedClient] featureEnabled:BRFeatureFlagsBuyBitcoin];
-            long adjustedRow = !buyEnabled ? indexPath.row + 1 : indexPath.row;
+//            bool buyEnabled = [[BRAPIClient sharedClient] featureEnabled:BRFeatureFlagsBuyBitcoin];
+            long adjustedRow =  indexPath.row;
             switch (adjustedRow) {
                 case 0:
-                    cell.textLabel.text = NSLocalizedString(@"Buy Bitcoin", nil);
-                    cell.imageView.image = [UIImage imageNamed:@"bitcoin-buy-blue-small"];
-                    break;
-                    
-                case 1:
                     cell.textLabel.text = NSLocalizedString(@"import private key", nil);
                     cell.imageView.image = [UIImage imageNamed:@"cameraguide-blue-small"];
                     break;
 
-                case 2:
+                case 1:
                     cell = [tableView dequeueReusableCellWithIdentifier:disclosureIdent];
                     cell.textLabel.text = NSLocalizedString(@"settings", nil);
                     cell.imageView.image = [UIImage imageNamed:@"settings"];
@@ -699,21 +693,21 @@ static NSString *dateFormat(NSString *template)
 
         case 0:
         {
-            bool buyEnabled = [[BRAPIClient sharedClient] featureEnabled:BRFeatureFlagsBuyBitcoin];
-            long adjustedRow = !buyEnabled ? indexPath.row + 1 : indexPath.row;
+//            bool buyEnabled = [[BRAPIClient sharedClient] featureEnabled:BRFeatureFlagsBuyBitcoin];
+            long adjustedRow = indexPath.row;
             switch (adjustedRow) {
-                case 0: // buy bitcoin
-                    [BREventManager saveEvent:@"tx_history:buy_btc"];
-                    [tableView deselectRowAtIndexPath:indexPath animated:YES];
-                    [self showBuy];
-                    break;
+//                case 0: // buy bitcoin
+//                    [BREventManager saveEvent:@"tx_history:buy_btc"];
+//                    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+//                    [self showBuy];
+//                    break;
                     
-                case 1: // import private key
+                case 0: // import private key
                     [BREventManager saveEvent:@"tx_history:import_priv_key"];
                     [self scanQR:nil];
                     break;
 
-                case 2: // settings
+                case 1: // settings
                     [BREventManager saveEvent:@"tx_history:settings"];
                     destinationController = [self.storyboard instantiateViewControllerWithIdentifier:@"SettingsViewController"];
                     [self.navigationController pushViewController:destinationController animated:YES];

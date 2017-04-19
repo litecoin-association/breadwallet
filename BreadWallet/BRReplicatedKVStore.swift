@@ -686,7 +686,7 @@ open class BRReplicatedKVStore: NSObject {
                 }
             }
         default:
-            log("Error fetching remote version for key \(key), error: \(remoteErr)")
+            log("Error fetching remote version for key \(key), error: \(String(describing: remoteErr))")
             completionHandler(.replicationError)
         }
     }
@@ -723,7 +723,7 @@ open class BRReplicatedKVStore: NSObject {
             && (e != SQLITE_NULL && e != r) {
             let es = NSString(cString: sqlite3_errstr(e), encoding: String.Encoding.utf8.rawValue)
             let em = NSString(cString: sqlite3_errmsg(db), encoding: String.Encoding.utf8.rawValue)
-            log("\(s): errcode=\(e) errstr=\(es) errmsg=\(em)")
+            log("\(s): errcode=\(e) errstr=\(String(describing: es)) errmsg=\(String(describing: em))")
             throw BRReplicatedKVStoreError.sqLiteError
         }
     }
@@ -823,7 +823,7 @@ extension BRReplicatedKVStore {
                                data: Data(bytes: UnsafePointer<UInt8>(b), count: b.count))
     }
     
-    @objc public func set(_ object: BRKVStoreObject) throws -> BRKVStoreObject {
+    @objc @discardableResult public func set(_ object: BRKVStoreObject) throws -> BRKVStoreObject {
         let dat = object.data
         var bytes = [UInt8](repeating: 0, count: dat.count)
         (dat as NSData).getBytes(&bytes, length: dat.count)

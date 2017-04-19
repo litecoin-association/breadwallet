@@ -82,6 +82,7 @@ static NSString *sanitizeString(NSString *s)
 @property (strong, nonatomic) IBOutlet UIView *localCurrencyView;
 @property (strong, nonatomic) IBOutlet UILabel *localCurrencyNameLabel;
 @property (strong, nonatomic) IBOutlet UIButton *sendButton;
+@property (strong, nonatomic) IBOutlet UITextField *localAmountField;
 
 @end
 
@@ -133,7 +134,7 @@ static NSString *sanitizeString(NSString *s)
     BRWalletManager *manager = [BRWalletManager sharedInstance];
     
     self.amountField.placeholder = [manager stringForAmount:0];
-    [self updateLocalCurrencyLabel];
+    self.localAmountField.placeholder = [NSString stringWithFormat:@"0.00"];
     
     // Done and cancel button for decimal pad
     
@@ -144,6 +145,7 @@ static NSString *sanitizeString(NSString *s)
                             [[UIBarButtonItem alloc]initWithTitle:@"Done" style:UIBarButtonItemStyleDone target:self action:@selector(doneNumberPad)]];
     [decimalPad sizeToFit];
     self.amountField.inputAccessoryView = decimalPad;
+    self.localAmountField.inputAccessoryView = decimalPad;
     
     // Change default Currency Code (USD) to Local Currency Code
     
@@ -177,26 +179,51 @@ static NSString *sanitizeString(NSString *s)
     if (self.clipboardObserver) [[NSNotificationCenter defaultCenter] removeObserver:self.clipboardObserver];
 }
 
--(void)cancelNumberPad{
-    [self.amountField resignFirstResponder];
-    self.amountField.text = @"";
-    [self updateLocalCurrencyLabel];
+-(void)cancelNumberPad
+{
+    if (self.amountField.isFirstResponder) {
+        [self.amountField resignFirstResponder];
+        self.amountField.text = @"";
+        [self updateLocalCurrencyField];
+    } else if (self.localAmountField.isFirstResponder) {
+        [self.localAmountField resignFirstResponder];
+        self.localAmountField.text = @"";
+        [self updateCurrencyField];
+    }
 }
 
--(void)doneNumberPad{
-    [self updateLocalCurrencyLabel];
-    [self.amountField resignFirstResponder];
+-(void)doneNumberPad
+{
+    if (self.amountField.isFirstResponder) {
+        [self updateLocalCurrencyField];
+        [self.amountField resignFirstResponder];
+        printf("amount");
+    } else if (self.localAmountField.isFirstResponder) {
+        [self updateCurrencyField];
+        [self.localAmountField resignFirstResponder];
+        printf("other");
+    }
 }
 
-- (void)updateLocalCurrencyLabel
+- (void)updateLocalCurrencyField
 {
     BRWalletManager *manager = [BRWalletManager sharedInstance];
     uint64_t amount = [manager amountForString:self.amountField.text];
     
-    self.localCurrencyLabel.hidden = NO;
-    self.localCurrencyLabel.text = [NSString stringWithFormat:@"%@",
+    self.localAmountField.hidden = NO;
+    self.localAmountField.text = [NSString stringWithFormat:@"%@",
                                     [manager localCurrencyStringForAmount:amount]];
     self.localCurrencyLabel.textColor = (amount > 0) ? [UIColor blackColor] : [UIColor grayColor];
+}
+
+- (void)updateCurrencyField
+{
+    BRWalletManager *manager = [BRWalletManager sharedInstance];
+    
+    NSString *s = self.localAmountField.text;
+    uint64_t amount = [manager amountForLocalCurrencyString: s];
+    
+    self.amountField.text = [NSString stringWithFormat:@"%@", [manager stringForAmount:amount]];
 }
 
 - (void)handleURL:(NSURL *)url

@@ -29,6 +29,6 @@
 
 #define SETTINGS_MAX_DIGITS_KEY @"SETTINGS_MAX_DIGITS"
 
-@interface BRSettingsViewController : UITableViewController <UIAlertViewDelegate, MFMailComposeViewControllerDelegate>
+@interface BRSettingsViewController : UITableViewController <UIAlertViewDelegate>
 
 @end

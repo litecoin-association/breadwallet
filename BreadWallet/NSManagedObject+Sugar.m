@@ -230,7 +230,7 @@ static NSUInteger _fetchBatchSize = 100;
             NSLog(@"%s: %@", __func__, error);
 #if DEBUG
             abort();
-#endif
+#else
             // if this is a not a debug build, attempt to delete and create a new persisent data store before crashing
             if (! [[NSFileManager defaultManager] removeItemAtURL:storeURL error:&error]) {
                 NSLog(@"%s: %@", __func__, error);
@@ -242,6 +242,7 @@ static NSUInteger _fetchBatchSize = 100;
                 NSLog(@"%s: %@", __func__, error);
                 abort(); // Forsooth, I am slain!
             }
+#endif
         }
 
         if (coordinator) {

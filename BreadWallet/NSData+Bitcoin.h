@@ -148,7 +148,7 @@ size_t chacha20Poly1305AEADDecrypt(void *_Nullable out, size_t outLen, const voi
 - (uint64_t)varIntAtOffset:(NSUInteger)offset length:(NSUInteger * _Nonnull)length;
 - (UInt256)hashAtOffset:(NSUInteger)offset;
 - (NSString *_Nullable)stringAtOffset:(NSUInteger)offset length:(NSUInteger *_Nonnull)length;
-- (NSData *_Nonnull)dataAtOffset:(NSUInteger)offset length:(NSUInteger *_Nonnull)length;
+- (NSData *_Nullable)dataAtOffset:(NSUInteger)offset length:(NSUInteger *_Nonnull)length;
 
 - (NSArray *_Nonnull)scriptElements; // an array of NSNumber and NSData objects representing each script element
 - (int)intValue; // returns the opcode used to store the receiver in a script (i.e. OP_PUSHDATA1)
