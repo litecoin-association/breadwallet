@@ -37,6 +37,7 @@
 #import "BREventManager.h"
 #import "breadwallet-Swift.h"
 #import <WebKit/WebKit.h>
+#import "BRBuyLTCViewController.h"
 
 #define TRANSACTION_CELL_HEIGHT 75
 
@@ -450,7 +451,7 @@ static NSString *dateFormat(NSString *template)
 //            return (self.moreTx) ? self.transactions.count + 1 : self.transactions.count;
 
         case 0:
-            return 2;
+            return 3;
     }
 
     return 0;
@@ -579,11 +580,14 @@ static NSString *dateFormat(NSString *template)
             long adjustedRow =  indexPath.row;
             switch (adjustedRow) {
                 case 0:
+                    cell.textLabel.text = NSLocalizedString(@"buy litecoin", nil);
+                    cell.imageView.image = [UIImage imageNamed:@"bitcoin-buy-blue-small"];
+                    break;
+                case 1:
                     cell.textLabel.text = NSLocalizedString(@"import private key", nil);
                     cell.imageView.image = [UIImage imageNamed:@"cameraguide-blue-small"];
                     break;
-
-                case 1:
+                case 2:
                     cell = [tableView dequeueReusableCellWithIdentifier:disclosureIdent];
                     cell.textLabel.text = NSLocalizedString(@"settings", nil);
                     cell.imageView.image = [UIImage imageNamed:@"settings"];
@@ -701,13 +705,16 @@ static NSString *dateFormat(NSString *template)
 //                    [tableView deselectRowAtIndexPath:indexPath animated:YES];
 //                    [self showBuy];
 //                    break;
-                    
-                case 0: // import private key
+                case 0: // buy litecoin
+                    [BREventManager saveEvent:@"tx_history:buy_ltc"];
+                    destinationController = [self.storyboard instantiateViewControllerWithIdentifier:@"BuyLTCViewController"];
+                    [self.navigationController pushViewController:destinationController animated:YES];
+                    break;
+                case 1: // import private key
                     [BREventManager saveEvent:@"tx_history:import_priv_key"];
                     [self scanQR:nil];
                     break;
-
-                case 1: // settings
+                case 2: // settings
                     [BREventManager saveEvent:@"tx_history:settings"];
                     destinationController = [self.storyboard instantiateViewControllerWithIdentifier:@"SettingsViewController"];
                     [self.navigationController pushViewController:destinationController animated:YES];
