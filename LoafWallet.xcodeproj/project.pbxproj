@@ -1843,6 +1843,7 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/breadwallet.app/breadwallet";
 				CLANG_ENABLE_MODULES = YES;
+				DEVELOPMENT_TEAM = FAPFEJXE9S;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "BreadWallet/LoafWallet-Prefix.pch";
 				GCC_WARN_PEDANTIC = NO;
@@ -1862,6 +1863,7 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/breadwallet.app/breadwallet";
 				CLANG_ENABLE_MODULES = YES;
+				DEVELOPMENT_TEAM = FAPFEJXE9S;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "BreadWallet/LoafWallet-Prefix.pch";
 				GCC_WARN_PEDANTIC = NO;
@@ -2115,6 +2117,7 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/breadwallet.app/breadwallet";
 				CLANG_ENABLE_MODULES = YES;
+				DEVELOPMENT_TEAM = FAPFEJXE9S;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "BreadWallet/BreadWallet-Prefix.pch";
 				GCC_WARN_PEDANTIC = NO;
