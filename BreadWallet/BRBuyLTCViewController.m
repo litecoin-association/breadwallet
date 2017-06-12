@@ -8,7 +8,6 @@
 
 #import "BRBuyLTCViewController.h"
 #import "BRWalletManager.h"
-#import "BRPaymentRequest.h"
 
 @interface BRBuyLTCViewController ()
 @property (strong, nonatomic) IBOutlet UIWebView *webView;
@@ -20,8 +19,7 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    NSString *APIKEY = @"58a81dde-3bb2-56b7-998c-b28e7d500e25";
-    NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"https://buy.coinbase.com?code=%@&address=%@&crypto_currency=LTC", APIKEY, self.paymentAddress]];
+    NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"https://buy.loafwallet.org/?address=%@", self.paymentAddress]];
     NSURLRequest *urlRequest = [NSURLRequest requestWithURL:url];
     [_webView loadRequest:urlRequest];
 }
