@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		1B49E3E31CFBC32800B64632 /* BRGenerateViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1B49E3E21CFBC32800B64632 /* BRGenerateViewController.m */; };
+		1B700D551EBD13D7007004E9 /* BRBuyLTCViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1B700D541EBD13D7007004E9 /* BRBuyLTCViewController.m */; };
 		1BA766201D11AB1A0029F807 /* BRHistoryViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1BA7661F1D11AB1A0029F807 /* BRHistoryViewController.m */; };
 		22005B961C9276AF00F87733 /* BRLinkPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22005B951C9276AF00F87733 /* BRLinkPlugin.swift */; };
 		220128D31C753C670001CAC1 /* BRSocketHelpers.c in Sources */ = {isa = PBXBuildFile; fileRef = 220128D11C753C670001CAC1 /* BRSocketHelpers.c */; };
@@ -227,6 +228,8 @@
 /* Begin PBXFileReference section */
 		1B49E3E11CFBC30F00B64632 /* BRGenerateViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BRGenerateViewController.h; sourceTree = "<group>"; };
 		1B49E3E21CFBC32800B64632 /* BRGenerateViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BRGenerateViewController.m; sourceTree = "<group>"; };
+		1B700D531EBD13D7007004E9 /* BRBuyLTCViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BRBuyLTCViewController.h; sourceTree = "<group>"; };
+		1B700D541EBD13D7007004E9 /* BRBuyLTCViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BRBuyLTCViewController.m; sourceTree = "<group>"; };
 		1BA7661E1D11AB1A0029F807 /* BRHistoryViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BRHistoryViewController.h; sourceTree = "<group>"; };
 		1BA7661F1D11AB1A0029F807 /* BRHistoryViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BRHistoryViewController.m; sourceTree = "<group>"; };
 		22005B951C9276AF00F87733 /* BRLinkPlugin.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BRLinkPlugin.swift; sourceTree = "<group>"; };
@@ -811,6 +814,8 @@
 			isa = PBXGroup;
 			children = (
 				759FBB32193290F600AB4465 /* BRRootViewController.h */,
+				1B700D531EBD13D7007004E9 /* BRBuyLTCViewController.h */,
+				1B700D541EBD13D7007004E9 /* BRBuyLTCViewController.m */,
 				759FBB33193290F600AB4465 /* BRRootViewController.m */,
 				759FBB34193290F600AB4465 /* BRSendViewController.h */,
 				759FBB35193290F600AB4465 /* BRSendViewController.m */,
@@ -1374,6 +1379,7 @@
 				84F68C8A1975E9E2002FC300 /* BRScanViewController.m in Sources */,
 				2204604E1B9F61E600D07B61 /* BREventManager.m in Sources */,
 				752E28D219234C3600DB5A3C /* BRKey+BIP38.m in Sources */,
+				1B700D551EBD13D7007004E9 /* BRBuyLTCViewController.m in Sources */,
 				220128D71C76E4F30001CAC1 /* BRWalletPlugin.swift in Sources */,
 				220460551BA0BEEE00D07B61 /* BREventConfirmView.m in Sources */,
 				752E28D919234C3600DB5A3C /* BRTransaction.m in Sources */,
