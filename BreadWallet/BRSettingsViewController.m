@@ -126,7 +126,7 @@
 #else
         _eaController = [[BRWebViewController alloc] initWithBundleName:@"bread-buy" mountPoint:@"/ea"];
 #endif
-        [_eaController startServer];
+//        [_eaController startServer];
     }
     return _eaController;
 }
