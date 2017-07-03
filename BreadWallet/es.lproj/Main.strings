@@ -11,7 +11,7 @@
 "D1b-HB-lKH.text" = "comenzar/recuperar otra cartera";
 
 /* Class = "UILabel"; text = "exchange rate data provided by\nbitpay.com/rates"; ObjectID = "D4H-hd-LsX"; */
-"D4H-hd-LsX.text" = "datos de tasa de cambio proporcionados por\nbitpay.com/rates";
+"D4H-hd-LsX.text" = "datos de tasa de cambio proporcionados por\nlitecoin.com";
 
 /* Class = "UILabel"; text = "if you ever lose your phone, you will need this phrase to recover your wallet"; ObjectID = "EQG-Km-ZKY"; */
 "EQG-Km-ZKY.text" = "si alguna vez pierdes tu teléfono, necesitarás esta frase para recuperar tu cartera";

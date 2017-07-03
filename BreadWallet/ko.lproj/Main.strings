@@ -11,7 +11,7 @@
 "D1b-HB-lKH.text" = "지갑을 복원하거나 새로 만들기";
 
 /* Class = "UILabel"; text = "exchange rate data provided by\nbitpay.com/rates"; ObjectID = "D4H-hd-LsX"; */
-"D4H-hd-LsX.text" = "환율 정보 제공\nbitpay.com/rates";
+"D4H-hd-LsX.text" = "환율 정보 제공\nlitecoin.com";
 
 /* Class = "UILabel"; text = "if you ever lose your phone, you will need this phrase to recover your wallet"; ObjectID = "EQG-Km-ZKY"; */
 "EQG-Km-ZKY.text" = "휴대전화를 잃어버렸을때, 지갑을 복원하는데 이 문구가 필요합니다";
