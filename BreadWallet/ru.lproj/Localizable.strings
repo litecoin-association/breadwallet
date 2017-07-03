@@ -1,5 +1,5 @@
 /* No comment provided by engineer. */
-"%@ is for 'bits'. %@ = 1 bitcoin." = "%1$@ = 1 Litecoin.";
+"%@ is for 'bits'. %@ = 1 bitcoin." = "%1$@ = 1 лайткоин.";
 
 /* No comment provided by engineer. */
 "%@ is not allowed to access the camera" = "%@ необходим доступ к камере";
@@ -38,13 +38,13 @@
 "\nA device passcode is needed to safeguard your wallet. Go to settings and turn passcode on to continue." = "\nКод доступа необходим для защиты вашего кошелька. Перейдите в настройки и включите код доступа, чтобы продолжить.";
 
 /* No comment provided by engineer. */
-"\nADDRESS ALREADY USED\n\nbitcoin addresses are intended for single use only\n\nre-use reduces privacy for both you and the recipient and can result in loss if the recipient doesn't directly control the address" = "\nЭТОТ АДРЕС УЖЕ ИСПОЛЬЗОВАН\n\nLitecoin-адреса предназначены только для одного использования\n\nповторное использование уменьшает Вашу приватность и приватность получателя и может привести к потере денег, если получатель не контролирует адрес";
+"\nADDRESS ALREADY USED\n\nbitcoin addresses are intended for single use only\n\nre-use reduces privacy for both you and the recipient and can result in loss if the recipient doesn't directly control the address" = "\nЭТОТ АДРЕС УЖЕ ИСПОЛЬЗОВАН\n\nлайткоин-адреса предназначены только для одного использования\n\nповторное использование уменьшает Вашу приватность и приватность получателя и может привести к потере денег, если получатель не контролирует адрес";
 
 /* No comment provided by engineer. */
 "\nallow camera access in\nSettings->Privacy->Camera->%@" = "\nразрешите доступ к камере:\nНастройки -> Конфиденциальность -> Камера -> %@";
 
 /* No comment provided by engineer. */
-"\nDO NOT let anyone see your recovery\nphrase or they can spend your bitcoins.\n" = "\nНЕ позволяйте никому видеть вашу фразу восстановления, иначе они смогут потратить ваши Litecoin.\n";
+"\nDO NOT let anyone see your recovery\nphrase or they can spend your bitcoins.\n" = "\nНЕ позволяйте никому видеть вашу фразу восстановления, иначе они смогут потратить ваши лайткоин.\n";
 
 /* No comment provided by engineer. */
 "\nDO NOT take a screenshot.\nScreenshots are visible to other apps\nand devices.\n" = "НЕ ДЕЛАЙТЕ скриншот.\nСкриншоты видны другим приложениям и устройствам.";
@@ -89,19 +89,19 @@
 "Bitcoin address" = "Биткойн-адрес";
 
 /* No comment provided by engineer. */
-"Bitcoin addresses can also be copied to the clipboard. A bitcoin address always starts with '1' or '3'." = "Адреса Litecoin также могут быть скопированы в буфер обмена. Litecoin-адрес всегда начинается с «L» или «3».";
+"Bitcoin addresses can also be copied to the clipboard. A bitcoin address always starts with '1' or '3'." = "Адреса лайткоин также могут быть скопированы в буфер обмена. лайткоин-адрес всегда начинается с «L» или «3».";
 
 /* No comment provided by engineer. */
-"bitcoin network fee" = "комиссия сети Litecoin";
+"bitcoin network fee" = "комиссия сети лайткоин";
 
 /* No comment provided by engineer. */
-"bitcoin payments can't be less than %@" = "Litecoin-платежи не могут быть меньше, чем %@";
+"bitcoin payments can't be less than %@" = "лайткоин-платежи не могут быть меньше, чем %@";
 
 /* No comment provided by engineer. */
-"bitcoin transaction not signed" = "Litecoin-транзакция не подписана";
+"bitcoin transaction not signed" = "лайткоин-транзакция не подписана";
 
 /* No comment provided by engineer. */
-"bitcoin transaction outputs can't be less than %@" = "выходы Litecoin-транзакций не могут быть меньше, чем %@";
+"bitcoin transaction outputs can't be less than %@" = "выходы лайткоин-транзакций не могут быть меньше, чем %@";
 
 /* No comment provided by engineer. */
 "block #%d of %d" = "блок #%1$d в %2$d";
@@ -134,7 +134,7 @@
 "choose wallet passcode" = "придумайте пароль к кошельку";
 
 /* No comment provided by engineer. */
-"clipboard doesn't contain a valid bitcoin address" = "в буфере обмена нет корректного Litecoin-адреса";
+"clipboard doesn't contain a valid bitcoin address" = "в буфере обмена нет корректного лайткоин-адреса";
 
 /* No comment provided by engineer. */
 "close app" = "закрыть программу";
@@ -173,16 +173,16 @@
 "couldn't sweep balance" = "не получилось перенести баланс";
 
 /* No comment provided by engineer. */
-"couldn't transmit payment to bitcoin network" = "не удалось передать платёж в сеть Litecoin";
+"couldn't transmit payment to bitcoin network" = "не удалось передать платёж в сеть лайткоин";
 
 /* No comment provided by engineer. */
 "current wallet passcode" = "текущий пароль";
 
 /* No comment provided by engineer. */
-"DEVICE SECURITY COMPROMISED\nAny 'jailbreak' app can access any other app's keychain data (and steal your bitcoins)." = "БЕЗОПАСНОСТЬ УСТРОЙСТВА ПОД УГРОЗОЙ\nЛюбое «jailbreak» приложение может получить доступ к вашим приватным ключам (и украсть ваши Litecoins).";
+"DEVICE SECURITY COMPROMISED\nAny 'jailbreak' app can access any other app's keychain data (and steal your bitcoins)." = "БЕЗОПАСНОСТЬ УСТРОЙСТВА ПОД УГРОЗОЙ\nЛюбое «jailbreak» приложение может получить доступ к вашим приватным ключам (и украсть ваши лайткоин).";
 
 /* No comment provided by engineer. */
-"DEVICE SECURITY COMPROMISED\nAny 'jailbreak' app can access any other app's keychain data (and steal your bitcoins). Wipe this wallet immediately and restore on a secure device." = "БЕЗОПАСНОСТЬ УСТРОЙСТВА ПОД УГРОЗОЙ\nЛюбое «jailbreak» приложение может получить доступ к вашим приватным ключам (и украсть ваши Litecoins). Немедленно удалите этот кошелёк и восстановите его в безопасном месте.";
+"DEVICE SECURITY COMPROMISED\nAny 'jailbreak' app can access any other app's keychain data (and steal your bitcoins). Wipe this wallet immediately and restore on a secure device." = "БЕЗОПАСНОСТЬ УСТРОЙСТВА ПОД УГРОЗОЙ\nЛюбое «jailbreak» приложение может получить доступ к вашим приватным ключам (и украсть ваши лайткоин). Немедленно удалите этот кошелёк и восстановите его в безопасном месте.";
 
 /* No comment provided by engineer. */
 "do it later" = "отложить на потом";
@@ -200,7 +200,7 @@
 "enter old passcode" = "введите старый пароль";
 
 /* No comment provided by engineer. */
-"error signing bitcoin transaction" = "ошибка подписания Litecoin-транзакции";
+"error signing bitcoin transaction" = "ошибка подписания лайткоин-транзакции";
 
 /* No comment provided by engineer. */
 "error signing transaction" = "ошибка подписания транзакции";
@@ -230,13 +230,13 @@
 "insufficient funds" = "недостаточно средств";
 
 /* No comment provided by engineer. */
-"insufficient funds for bitcoin network fee" = "недостаточно средств для комиссии сети Litecoin";
+"insufficient funds for bitcoin network fee" = "недостаточно средств для комиссии сети лайткоин";
 
 /* No comment provided by engineer. */
 "INVALID" = "НЕКОРРЕКТНО";
 
 /* No comment provided by engineer. */
-"Let others scan this QR code to get your bitcoin address. Anyone can send bitcoins to your wallet by transferring them to your address." = "Другие пользователи могут сканировать этот QR код, чтобы получить ваш Litecoin-адрес. Кто угодно сможет отправить биткойны на ваш кошелек путём передачи их на ваш адрес.";
+"Let others scan this QR code to get your bitcoin address. Anyone can send bitcoins to your wallet by transferring them to your address." = "Другие пользователи могут сканировать этот QR код, чтобы получить ваш лайткоин-адрес. Кто угодно сможет отправить биткойны на ваш кошелек путём передачи их на ваш адрес.";
 
 /* No comment provided by engineer. */
 "minute" = "минут";
@@ -266,16 +266,16 @@
 "no peers found" = "узлы не найдены";
 
 /* No comment provided by engineer. */
-"not a bitcoin QR code" = "не Litecoin QR-код";
+"not a bitcoin QR code" = "не лайткоин QR-код";
 
 /* No comment provided by engineer. */
-"not a valid bitcoin address" = "некорректный Litecoin-адрес";
+"not a valid bitcoin address" = "некорректный лайткоин-адрес";
 
 /* No comment provided by engineer. */
 "not a valid private key" = "некорректный закрытый ключ";
 
 /* No comment provided by engineer. */
-"not connected to the bitcoin network" = "не подключено к сети Litecoin";
+"not connected to the bitcoin network" = "не подключено к сети лайткоин";
 
 /* No comment provided by engineer. */
 "ok" = "ok";
@@ -308,7 +308,7 @@
 "post-dated" = "чек с будущей датой";
 
 /* No comment provided by engineer. */
-"Receive bitcoins at this address: %@" = "Получить биткойны на этот адрес: %@";
+"Receive bitcoins at this address: %@" = "Получить лайткоин на этот адрес: %@";
 
 /* No comment provided by engineer. */
 "received" = "получено";
@@ -353,7 +353,7 @@
 "reset" = "сброс";
 
 /* No comment provided by engineer. */
-"Scan someone else's QR code to get their bitcoin address. You can send a payment to anyone with an address." = "Отсканируйте чей-нибудь QR-код, чтобы получить Litecoin-адрес. Вы можете отправить платеж кому угодно, имея адрес.";
+"Scan someone else's QR code to get their bitcoin address. You can send a payment to anyone with an address." = "Отсканируйте чей-нибудь QR-код, чтобы получить лайткоин-адрес. Вы можете отправить платеж кому угодно, имея адрес.";
 
 /* No comment provided by engineer. */
 "Screenshots are visible to other apps and devices. Generate a new recovery phrase and keep it secret." = "Скриншоты видимы другими приложениями и устройствами. Создайте новую фразу восстановления и держите ее в секрете.";
@@ -365,7 +365,7 @@
 "seen by %d of %d peers" = "видели %1$d из %2$d узлов";
 
 /* No comment provided by engineer. */
-"Send %@ from this private key into your wallet? The bitcoin network will receive a fee of %@." = "Отправить %1$@ из этого закрытого ключа в ваш кошелёк? Сеть Litecoin получит комиссию в %3$@.";
+"Send %@ from this private key into your wallet? The bitcoin network will receive a fee of %@." = "Отправить %1$@ из этого закрытого ключа в ваш кошелёк? Сеть лайткоин получит комиссию в %3$@.";
 
 /* No comment provided by engineer. */
 "send address as email" = "отправить адрес по почте";
@@ -416,10 +416,10 @@
 "the app will now close" = "приложение сейчас закроется";
 
 /* No comment provided by engineer. */
-"This is your bitcoin address. Tap to copy it or send it by email or sms. The address will change each time you receive funds, but old addresses always work." = "Это ваш Litecoin-адрес. Нажмите, чтобы скопировать его или отправить его по электронной почте или SMS. Адрес будет меняться каждый раз, когда вы получаете средства, но старые адреса останутся работоспособными.";
+"This is your bitcoin address. Tap to copy it or send it by email or sms. The address will change each time you receive funds, but old addresses always work." = "Это ваш лайткоин-адрес. Нажмите, чтобы скопировать его или отправить его по электронной почте или SMS. Адрес будет меняться каждый раз, когда вы получаете средства, но старые адреса останутся работоспособными.";
 
 /* No comment provided by engineer. */
-"This is your bitcoin balance. Bitcoin is a currency. The exchange rate changes with the market." = "Это ваш баланс Litecoin. Litecoin является валютой. Валютный курс меняется в соответствие с рынком.";
+"This is your bitcoin balance. Bitcoin is a currency. The exchange rate changes with the market." = "Это ваш баланс лайткоин. лайткоин является валютой. Валютный курс меняется в соответствие с рынком.";
 
 /* No comment provided by engineer. */
 "this payment address is already in your wallet" = "этот адрес уже находится в вашем бумажнике";
@@ -524,10 +524,10 @@
 "Receive" = "Receive";
 
 /* No comment provided by engineer. */
-"Easily send Litecoin anywhere in the world with LoafWallet's live currency conversion rates, and QR scanner for quick on-the-go payments." = "Возможность легких переводов Litecoin в любую точку мира с использованием системы конвертации текущих курсов валют LoafWallet, наличие сканнера QR штрих-кода для платежей предоплаты.";
+"Easily send Litecoin anywhere in the world with LoafWallet's live currency conversion rates, and QR scanner for quick on-the-go payments." = "Возможность легких переводов лайткоин в любую точку мира с использованием системы конвертации текущих курсов валют LoafWallet, наличие сканнера QR штрих-кода для платежей предоплаты.";
 
 /* No comment provided by engineer. */
-"Receive Litecoins with your receive address. Share you Litecoin Address with others, and request a payment. Your Litecoin address can be copied to your clipboard, sent via email and shared via other forms of social media." = "Возможность получения Litecoins на ваш входящий адрес; возможность рассылки вашего Litecoin-адреса вашим контрагентам с запросом платежа. Возможность копирования Litecoin-адреса в ваш буфер памяти, пересылки его по электронной почте и предоставления доступа через другие соцсети.";
+"Receive Litecoins with your receive address. Share you Litecoin Address with others, and request a payment. Your Litecoin address can be copied to your clipboard, sent via email and shared via other forms of social media." = "Возможность получения лайткоин на ваш входящий адрес; возможность рассылки вашего лайткоин-адреса вашим контрагентам с запросом платежа. Возможность копирования лайткоин-адреса в ваш буфер памяти, пересылки его по электронной почте и предоставления доступа через другие соцсети.";
 
 /* No comment provided by engineer. */
 "Browse through your transaction history, secured with your passcode. This is not visible to others, unless they possess your LoafWallet passcode. Find indepth details about every transaction." = "Возможность скрытого от посторонних лиц просмотра вашей истории транзакций/операций, защищенного кодом доступа, код доступа обеспечивает невидимость ваших просмотров при условии, что посторонние лица не обладают этим кодом. Возможность поиска мельчайших деталей по каждой транзакции.";

@@ -11,7 +11,7 @@
 "D1b-HB-lKH.text" = "начать/восстановить другой кошелек";
 
 /* Class = "UILabel"; text = "exchange rate data provided by\nbitpay.com/rates"; ObjectID = "D4H-hd-LsX"; */
-"D4H-hd-LsX.text" = "Курсы обмена предоставлены bitpay.com/rates";
+"D4H-hd-LsX.text" = "Курсы обмена предоставлены litecoin.com";
 
 /* Class = "UILabel"; text = "if you ever lose your phone, you will need this phrase to recover your wallet"; ObjectID = "EQG-Km-ZKY"; */
 "EQG-Km-ZKY.text" = "если Вы когда-либо потеряете свой телефон, вам понадобится эта фраза, чтобы восстановить Ваш кошелек";
