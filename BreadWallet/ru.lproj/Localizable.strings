@@ -44,7 +44,7 @@
 "\nallow camera access in\nSettings->Privacy->Camera->%@" = "\nразрешите доступ к камере:\nНастройки -> Конфиденциальность -> Камера -> %@";
 
 /* No comment provided by engineer. */
-"\nDO NOT let anyone see your recovery\nphrase or they can spend your bitcoins.\n" = "\nНЕ позволяйте никому видеть вашу фразу восстановления, иначе они смогут потратить ваши лайткоин.\n";
+"\nDO NOT let anyone see your recovery\nphrase or they can spend your bitcoins.\n" = "\nНЕ позволяйте никому видеть вашу фразу восстановления, иначе они смогут потратить ваши лайткоины.\n";
 
 /* No comment provided by engineer. */
 "\nDO NOT take a screenshot.\nScreenshots are visible to other apps\nand devices.\n" = "НЕ ДЕЛАЙТЕ скриншот.\nСкриншоты видны другим приложениям и устройствам.";
@@ -308,7 +308,7 @@
 "post-dated" = "чек с будущей датой";
 
 /* No comment provided by engineer. */
-"Receive bitcoins at this address: %@" = "Получить лайткоин на этот адрес: %@";
+"Receive bitcoins at this address: %@" = "Получить лайткоины на этот адрес: %@";
 
 /* No comment provided by engineer. */
 "received" = "получено";
@@ -419,7 +419,7 @@
 "This is your bitcoin address. Tap to copy it or send it by email or sms. The address will change each time you receive funds, but old addresses always work." = "Это ваш лайткоин-адрес. Нажмите, чтобы скопировать его или отправить его по электронной почте или SMS. Адрес будет меняться каждый раз, когда вы получаете средства, но старые адреса останутся работоспособными.";
 
 /* No comment provided by engineer. */
-"This is your bitcoin balance. Bitcoin is a currency. The exchange rate changes with the market." = "Это ваш баланс лайткоин. лайткоин является валютой. Валютный курс меняется в соответствие с рынком.";
+"This is your bitcoin balance. Bitcoin is a currency. The exchange rate changes with the market." = "Это ваш лайткоин баланс. Лайткоин является валютой. Валютный курс меняется в соответствие с рынком.";
 
 /* No comment provided by engineer. */
 "this payment address is already in your wallet" = "этот адрес уже находится в вашем бумажнике";
