@@ -308,10 +308,10 @@ static const UniChar base58chars[] = {
     uint8_t version = *(const uint8_t *)d.bytes;
         
 #if BITCOIN_TESTNET
-    return (version == BITCOIN_PUBKEY_ADDRESS_TEST || version == BITCOIN_SCRIPT_ADDRESS_TEST) ? YES : NO;
+    return (version == BITCOIN_PUBKEY_ADDRESS_TEST || version == BITCOIN_SCRIPT_ADDRESS_TEST || version == BITCOIN_SCRIPT_ADDRESS_TEST_LEGACY) ? YES : NO;
 #endif
 
-    return (version == BITCOIN_PUBKEY_ADDRESS || version == BITCOIN_SCRIPT_ADDRESS) ? YES : NO;
+    return (version == BITCOIN_PUBKEY_ADDRESS || version == BITCOIN_SCRIPT_ADDRESS || version == BITCOIN_SCRIPT_ADDRESS_LEGACY) ? YES : NO;
 }
 
 - (BOOL)isValidBitcoinPrivateKey
