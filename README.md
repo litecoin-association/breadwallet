@@ -9,7 +9,7 @@ The simplest and most secure Litecoin wallet on any platform
 
 ### The first standalone iOS Litecoin wallet:
 
-Unlike other iOS bitcoin wallets, **LoafWallet** is a real standalone Litecoin client. There is no server to get hacked or go down, so you can always access your money. Using [SPV](https://en.bitcoin.it/wiki/Thin_Client_Security#Header-Only_Clients) mode, **LoafWallet** connects directly to the Litecoin network with the fast performance you need on a mobile device.
+Unlike other iOS litecoin wallets, **LoafWallet** is a real standalone Litecoin client. There is no server to get hacked or go down, so you can always access your money. Using [SPV](https://en.bitcoin.it/wiki/Thin_Client_Security#Header-Only_Clients) mode, **LoafWallet** connects directly to the Litecoin network with the fast performance you need on a mobile device.
 
 ### The next step in wallet security:
 
