@@ -116,7 +116,7 @@ int tapCount = 0;
     }
     
     self.titleLabel.text = NSLocalizedString(@"Pay", nil);
-    self.descriptionLabel.text = NSLocalizedString(@"Easily send Litecoin anywhere in the world with LoafWallet's live currency conversion rates, and QR scanner for quick on-the-go payments.", nil);
+    self.descriptionLabel.text = NSLocalizedString(@"Easily send TosCoin anywhere in the world with TosWallet's live currency conversion rates, and QR scanner for quick on-the-go payments.", nil);
     
     [self.progessButton addTarget:self action:@selector(tap) forControlEvents:UIControlEventTouchUpInside];
     
@@ -233,11 +233,11 @@ int tapCount = 0;
     if (tapCount == 1) {
 
         self.titleLabel.text = NSLocalizedString(@"Receive", nil);
-        self.descriptionLabel.text = NSLocalizedString(@"Receive Litecoins with your receive address. Share you Litecoin Address with others, and request a payment. Your Litecoin address can be copied to your clipboard, sent via email and shared via other forms of social media.", nil);
+        self.descriptionLabel.text = NSLocalizedString(@"Receive Toscoins with your receive address. Share you Toscoin Address with others, and request a payment. Your Toscoin address can be copied to your clipboard, sent via email and shared via other forms of social media.", nil);
     } else if (tapCount == 2) {
 
         self.titleLabel.text = NSLocalizedString(@"History", nil);
-        self.descriptionLabel.text = NSLocalizedString(@"Browse through your transaction history, secured with your passcode. This is not visible to others, unless they possess your LoafWallet passcode. Find indepth details about every transaction.", nil);
+        self.descriptionLabel.text = NSLocalizedString(@"Browse through your transaction history, secured with your passcode. This is not visible to others, unless they possess your TosWallet passcode. Find indepth details about every transaction.", nil);
         [self.progessButton setTitle:@"→" forState:UIControlStateNormal];
     } else if (tapCount == 3) {
         

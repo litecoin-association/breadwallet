@@ -26,19 +26,19 @@
 
 #import <Foundation/Foundation.h>
 
-
 #if BITCOIN_TESTNET
-#define BITCOIN_STANDARD_PORT 19335
+#define BITCOIN_STANDARD_PORT 33813
 #else
-#define BITCOIN_STANDARD_PORT 9333
+#define BITCOIN_STANDARD_PORT 24147
 #endif
 
 #define BITCOIN_TIMEOUT_CODE  1001
 
 #define SERVICES_NODE_NETWORK 0x01 // services value indicating a node carries full blocks, not just headers
 #define SERVICES_NODE_BLOOM   0x04 // BIP111: https://github.com/bitcoin/bips/blob/master/bip-0111.mediawiki
-#define USER_AGENT            [NSString stringWithFormat:@"/loaf:%@/",\
+#define USER_AGENT            [NSString stringWithFormat:@"/TosWallet:%@/",\
                                NSBundle.mainBundle.infoDictionary[@"CFBundleShortVersionString"]]
+// default : stringWithFormat:@"/loaf:%@/"
 
 // explanation of message types at: https://en.bitcoin.it/wiki/Protocol_specification
 #define MSG_VERSION     @"version"

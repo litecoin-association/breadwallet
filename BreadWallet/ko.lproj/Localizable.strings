@@ -1,5 +1,5 @@
 /* No comment provided by engineer. */
-"%@ is for 'bits'. %@ = 1 bitcoin." = "%1$@는 'bits'라고 합니다. %2$@ = 1비트코인";
+"%@ is for 'bits'. %@ = 1 bitcoin." = "%1$@ = 1 Toscoin.";
 
 /* No comment provided by engineer. */
 "%@ is not allowed to access the camera" = "%@에게 카메라 접근 권한이 없습니다";
@@ -38,13 +38,13 @@
 "\nA device passcode is needed to safeguard your wallet. Go to settings and turn passcode on to continue." = "\n지갑을 보호하기 위해 패스코드가 필요합니다. 설정에 가서 패스코드를 활성화해주세요.";
 
 /* No comment provided by engineer. */
-"\nADDRESS ALREADY USED\n\nbitcoin addresses are intended for single use only\n\nre-use reduces privacy for both you and the recipient and can result in loss if the recipient doesn't directly control the address" = "\n이미 한번 사용된 주소 입니다.\n\n빗코인 주소는 한 번만 사용하기를 권장합니다.\n\n주소의 재사용은 당신과 받는 사람의 개인정보가 노출될 가능성이 높아지고, 만약 받는 사람이 직접 주소를 관리하고 있지 않다면 빗코인을 잃어버리는 결과를 가져올 수도 있습니다.";
+"\nADDRESS ALREADY USED\n\nbitcoin addresses are intended for single use only\n\nre-use reduces privacy for both you and the recipient and can result in loss if the recipient doesn't directly control the address" = "\n이미 한번 사용된 주소 입니다.\n\n토스코인 주소는 한 번만 사용하기를 권장합니다.\n\n주소의 재사용은 당신과 받는 사람의 개인정보가 노출될 가능성이 높아지고, 만약 받는 사람이 직접 주소를 관리하고 있지 않다면 토스코인을 잃어버리는 결과를 가져올 수도 있습니다.";
 
 /* No comment provided by engineer. */
 "\nallow camera access in\nSettings->Privacy->Camera->%@" = "\n설정->개인 정보 보호->카메라->%@\n에서 이 애플리케이션의 카메라 접근을 허용해 주십시요.";
 
 /* No comment provided by engineer. */
-"\nDO NOT let anyone see your recovery\nphrase or they can spend your bitcoins.\n" = "\n절대로 다른 사람에게 복원 문구를 보여주면 안됩니다. \n그 사람이 당신의 빗코인을 써버릴 수 있습니다.\n";
+"\nDO NOT let anyone see your recovery\nphrase or they can spend your bitcoins.\n" = "\n절대로 다른 사람에게 복원 문구를 보여주면 안됩니다. \n그 사람이 당신의 토스코인을 써버릴 수 있습니다.\n";
 
 /* No comment provided by engineer. */
 "\nDO NOT take a screenshot.\nScreenshots are visible to other apps\nand devices.\n" = "스크린샷을 찍지 마세요.\n \n다른 기기나 앱들이 이 스크린샷을 읽을 수도 있습니다.";
@@ -86,22 +86,22 @@
 "bad signature" = "잘못된 서명";
 
 /* No comment provided by engineer. */
-"Bitcoin address" = "비트코인 주소";
+"Bitcoin address" = "토스코인 주소";
 
 /* No comment provided by engineer. */
-"Bitcoin addresses can also be copied to the clipboard. A bitcoin address always starts with '1' or '3'." = "비트코인 주소를 클립보드로 복사할 수도 있습니다. 비트코인 주소는 항상 '1'이나 '3'으로 시작합니다.";
+"Bitcoin addresses can also be copied to the clipboard. A bitcoin address always starts with '1' or '3'." = "토스코인 주소를 클립보드로 복사할 수도 있습니다. 토스코인 주소는 항상 'T'로 시작합니다.";
 
 /* No comment provided by engineer. */
-"bitcoin network fee" = "비트코인 네트워크 수수료";
+"bitcoin network fee" = "토스코인 네트워크 수수료";
 
 /* No comment provided by engineer. */
-"bitcoin payments can't be less than %@" = "비트코인 송금은 %@보다 작을 수 없습니다";
+"bitcoin payments can't be less than %@" = "토스코인 송금은 %@보다 작을 수 없습니다";
 
 /* No comment provided by engineer. */
-"bitcoin transaction not signed" = "비트코인 거래가 서명되지 않음";
+"bitcoin transaction not signed" = "토스코인 거래가 서명되지 않음";
 
 /* No comment provided by engineer. */
-"bitcoin transaction outputs can't be less than %@" = "비트코인 거래 금액은 %@보다 낮을 수 없습니다";
+"bitcoin transaction outputs can't be less than %@" = "토스코인 거래 금액은 %@보다 낮을 수 없습니다";
 
 /* No comment provided by engineer. */
 "block #%d of %d" = "%2$d개중 %1$d번째 블록";
@@ -128,7 +128,7 @@
 "choose passcode for %@" = "%@를 위한 암호 설정";
 
 /* No comment provided by engineer. */
-"clipboard doesn't contain a valid bitcoin address" = "클립보드에 제대로 된 비트코인 주소가 없습니다";
+"clipboard doesn't contain a valid bitcoin address" = "클립보드에 제대로 된 토스코인 주소가 없습니다";
 
 /* No comment provided by engineer. */
 "close app" = "앱 닫기";
@@ -155,7 +155,7 @@
 "copy request to clipboard" = "클립보드로 요청 복사하기";
 
 /* No comment provided by engineer. */
-"copy wallet addresses to clipboard?" = "빗코인 지갑 주소를 클립보드에 복사하시겠습니까?";
+"copy wallet addresses to clipboard?" = "토스코인 지갑 주소를 클립보드에 복사하시겠습니까?";
 
 /* No comment provided by engineer. */
 "couldn't check address balance" = "이 주소의 잔액을 확인하지 못하였습니다.";
@@ -167,13 +167,13 @@
 "couldn't sweep balance" = "잔액을 지갑으로 옮기지 못했습니다";
 
 /* No comment provided by engineer. */
-"couldn't transmit payment to bitcoin network" = "지불 내용을 비트코인 네트워크에 전송할 수 없었습니다";
+"couldn't transmit payment to bitcoin network" = "지불 내용을 토스코인 네트워크에 전송할 수 없었습니다";
 
 /* No comment provided by engineer. */
-"DEVICE SECURITY COMPROMISED\nAny 'jailbreak' app can access any other app's keychain data (and steal your bitcoins)." = "장치 보안이 손상된 상태입니다\n\n단말기가 탈옥 돼 있으면 어떤 '탈옥'앱이든 다른앱의 키체인 데이터에 접근할 수 있습니다(그리고 당신의 비트코인을 훔칠 수 있습니다).";
+"DEVICE SECURITY COMPROMISED\nAny 'jailbreak' app can access any other app's keychain data (and steal your bitcoins)." = "장치 보안이 손상된 상태입니다\n\n단말기가 탈옥 돼 있으면 어떤 '탈옥'앱이든 다른앱의 키체인 데이터에 접근할 수 있습니다(그리고 당신의 토스코인을 훔칠 수 있습니다).";
 
 /* No comment provided by engineer. */
-"DEVICE SECURITY COMPROMISED\nAny 'jailbreak' app can access any other app's keychain data (and steal your bitcoins). Wipe this wallet immediately and restore on a secure device." = "장치 보안이 변형된 상태입니다\n단말기가 탈옥 돼 있으면 어떤 '탈옥'앱이든 다른앱의 키체인 데이터에 접근할 수 있습니다(그리고 당신의 비트코인을 훔칠 수 있습니다).\n즉시 지갑을 지우고 안전한 장치에서 지갑을 복구해주세요.";
+"DEVICE SECURITY COMPROMISED\nAny 'jailbreak' app can access any other app's keychain data (and steal your bitcoins). Wipe this wallet immediately and restore on a secure device." = "장치 보안이 변형된 상태입니다\n단말기가 탈옥 돼 있으면 어떤 '탈옥'앱이든 다른앱의 키체인 데이터에 접근할 수 있습니다(그리고 당신의 토스코인을 훔칠 수 있습니다).\n즉시 지갑을 지우고 안전한 장치에서 지갑을 복구해주세요.";
 
 /* No comment provided by engineer. */
 "do it later" = "나중에 하기";
@@ -191,7 +191,7 @@
 "enter old passcode" = "이전 암호 입력";
 
 /* No comment provided by engineer. */
-"error signing bitcoin transaction" = "비트코인 거래 서명 중 오류 발생";
+"error signing bitcoin transaction" = "토스코인 거래 서명 중 오류 발생";
 
 /* No comment provided by engineer. */
 "error signing transaction" = "거래 서명 중 오류 발생";
@@ -221,13 +221,13 @@
 "insufficient funds" = "잔액 부족";
 
 /* No comment provided by engineer. */
-"insufficient funds for bitcoin network fee" = "비트코인 네트워크 수수료로 낼 잔액이 부족합니다";
+"insufficient funds for bitcoin network fee" = "토스코인 네트워크 수수료로 낼 잔액이 부족합니다";
 
 /* No comment provided by engineer. */
 "INVALID" = "유효하지 않음";
 
 /* No comment provided by engineer. */
-"Let others scan this QR code to get your bitcoin address. Anyone can send bitcoins to your wallet by transferring them to your address." = "다른 사람이 QR코드를 스캔해서 당신의 비트코인 주소를 알수 있습니다. 당신의 비트코인 주소를 알려주면 누구든지 당신의 지갑으로 비트코인을 보낼 수 있습니다.";
+"Let others scan this QR code to get your bitcoin address. Anyone can send bitcoins to your wallet by transferring them to your address." = "다른 사람이 QR코드를 스캔해서 당신의 토스코인 주소를 알수 있습니다. 당신의 토스코인 주소를 알려주면 누구든지 당신의 지갑으로 토스코인을 보낼 수 있습니다.";
 
 /* No comment provided by engineer. */
 "minute" = "분";
@@ -254,16 +254,16 @@
 "no peers found" = "피어를 찾을 수 없습니다";
 
 /* No comment provided by engineer. */
-"not a bitcoin QR code" = "비트코인 QR 코드가 아닙니다";
+"not a bitcoin QR code" = "토스코인 QR 코드가 아닙니다";
 
 /* No comment provided by engineer. */
-"not a valid bitcoin address" = "유효한 비트코인 주소가 아님";
+"not a valid bitcoin address" = "유효한 토스코인 주소가 아님";
 
 /* No comment provided by engineer. */
 "not a valid private key" = "유효한 비밀 키가 아님";
 
 /* No comment provided by engineer. */
-"not connected to the bitcoin network" = "비트코인 네트워크에 연결돼 있지 않습니다";
+"not connected to the bitcoin network" = "토스코인 네트워크에 연결돼 있지 않습니다";
 
 /* No comment provided by engineer. */
 "ok" = "ok";
@@ -296,7 +296,7 @@
 "post-dated" = "후일부";
 
 /* No comment provided by engineer. */
-"Receive bitcoins at this address: %@" = "이 주소로 비트코인을 받습니다: %@";
+"Receive bitcoins at this address: %@" = "이 주소로 토스코인을 받습니다: %@";
 
 /* No comment provided by engineer. */
 "received" = "받음";
@@ -341,7 +341,7 @@
 "reset" = "초기화";
 
 /* No comment provided by engineer. */
-"Scan someone else's QR code to get their bitcoin address. You can send a payment to anyone with an address." = "다른 사람의 비트코인 주소를 얻으려면 QR코드를 스캔하세요. 주소가 있으면 누구에게든 돈을 보낼 수 있습니다";
+"Scan someone else's QR code to get their bitcoin address. You can send a payment to anyone with an address." = "다른 사람의 토스코인 주소를 얻으려면 QR코드를 스캔하세요. 주소가 있으면 누구에게든 돈을 보낼 수 있습니다";
 
 /* No comment provided by engineer. */
 "Screenshots are visible to other apps and devices. Generate a new recovery phrase and keep it secret." = "스크린샷은 다른 앱이나 기기에서 볼  수 있습니다. 복원 문구를 새로 만들고 비밀로 간직하세요.";
@@ -353,7 +353,7 @@
 "seen by %d of %d peers" = "%2$d개의 피어중 %1$d개의 피어가 보았습니다";
 
 /* No comment provided by engineer. */
-"Send %@ from this private key into your wallet? The bitcoin network will receive a fee of %@." = "이 비밀 키에서 %1$@ 를 당신의 지갑으로 옮기겠습니까? 비트코인 네트워크에 %3$@ 의 수수료가 지급됩니다.";
+"Send %@ from this private key into your wallet? The bitcoin network will receive a fee of %@." = "이 비밀 키에서 %1$@ 를 당신의 지갑으로 옮기겠습니까? 토스코인 네트워크에 %3$@ 의 수수료가 지급됩니다.";
 
 /* No comment provided by engineer. */
 "send address as email" = "이메일로 주소 보내기";
@@ -386,7 +386,7 @@
 "sms not currently available" = "지금 SMS사용이 불가능 합니다";
 
 /* No comment provided by engineer. */
-"spent address" = "비트코인을 소비한 주소";
+"spent address" = "토스코인을 소비한 주소";
 
 /* No comment provided by engineer. */
 "spent input" = "사용된 입력";
@@ -404,10 +404,10 @@
 "the app will now close" = "앱을 종료합니다";
 
 /* No comment provided by engineer. */
-"This is your bitcoin address. Tap to copy it or send it by email or sms. The address will change each time you receive funds, but old addresses always work." = "이게 당신의 비트코인 주소입니다. 탭 해서 복사하거나 이메일, SMS로 다른 사람에게 보내세요. 주소는 당신이 돈을 받을 때마다 새로 생성됩니다. 하지만 이전 주소도 언제든지 사용할 수 있습니다.";
+"This is your bitcoin address. Tap to copy it or send it by email or sms. The address will change each time you receive funds, but old addresses always work." = "이게 당신의 토스코인 주소입니다. 탭 해서 복사하거나 이메일, SMS로 다른 사람에게 보내세요. 주소는 당신이 돈을 받을 때마다 새로 생성됩니다. 하지만 이전 주소도 언제든지 사용할 수 있습니다.";
 
 /* No comment provided by engineer. */
-"This is your bitcoin balance. Bitcoin is a currency. The exchange rate changes with the market." = "이게 당신의 비트코인 잔액입니다. 비트코인은 화폐입니다. 환율은 시장 상황에 따라 변합니다.";
+"This is your bitcoin balance. Bitcoin is a currency. The exchange rate changes with the market." = "이게 당신의 토스코인 잔액입니다. 토스코인은 화폐입니다. 환율은 시장 상황에 따라 변합니다.";
 
 /* No comment provided by engineer. */
 "this payment address is already in your wallet" = "이 결제 주소는 당신 지갑에 있는 주소입니다";
@@ -494,7 +494,7 @@
 "WRITE DOWN YOUR RECOVERY PHRASE" = "복원 문구를 옮겨 적어주세요";
 
 /* No comment provided by engineer. */
-"you received bitcoin!" = "비트코인을 받았습니다!";
+"you received bitcoin!" = "토스코인을 받았습니다!";
 
 /* No comment provided by engineer. */
 "Your wallet may be out of sync.\nThis can often be fixed by rescanning the blockchain." = "지갑이 동기화 돼있지 않은 것 같습니다.\n보통 블록체인을 재스캔하면 고쳐집니다.";
@@ -506,13 +506,13 @@
 "Receive" = "Receive";
 
 /* No comment provided by engineer. */
-"Easily send Litecoin anywhere in the world with LoafWallet's live currency conversion rates, and QR scanner for quick on-the-go payments." = "Easily send Litecoin anywhere in the world with LoafWallet's live currency conversion rates, and QR scanner for quick on-the-go payments.";
+"Easily send TosCoin anywhere in the world with TosWallet's live currency conversion rates, and QR scanner for quick on-the-go payments." = "Easily send TosCoin anywhere in the world with TosWallet's live currency conversion rates, and QR scanner for quick on-the-go payments.";
 
 /* No comment provided by engineer. */
-"Receive Litecoins with your receive address. Share you Litecoin Address with others, and request a payment. Your Litecoin address can be copied to your clipboard, sent via email and shared via other forms of social media." = "Receive Litecoins with your receive address. Share you Litecoin Address with others, and request a payment. Your Litecoin address can be copied to your clipboard, sent via email and shared via other forms of social media.";
+"Receive Toscoins with your receive address. Share you Toscoin Address with others, and request a payment. Your Toscoin address can be copied to your clipboard, sent via email and shared via other forms of social media." = "Receive Toscoins with your receive address. Share you Toscoin Address with others, and request a payment. Your Toscoin address can be copied to your clipboard, sent via email and shared via other forms of social media.";
 
 /* No comment provided by engineer. */
-"Browse through your transaction history, secured with your passcode. This is not visible to others, unless they possess your LoafWallet passcode. Find indepth details about every transaction." = "Browse through your transaction history, secured with your passcode. This is  not visible to others, unless they possess your LoafWallet passcode. Find indepth details about every transaction.";
+"Browse through your transaction history, secured with your passcode. This is not visible to others, unless they possess your TosWallet passcode. Find indepth details about every transaction." = "Browse through your transaction history, secured with your passcode. This is  not visible to others, unless they possess your TosWallet passcode. Find indepth details about every transaction.";
 
 /* No comment provided by engineer. */
 "History" = "History";

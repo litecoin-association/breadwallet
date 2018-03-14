@@ -2,8 +2,8 @@
 /* Class = "UIButton"; normalTitle = "recover wallet"; ObjectID = "4w7-k8-9wY"; */
 "4w7-k8-9wY.normalTitle" = "recover wallet";
 
-/* Class = "UILabel"; text = "contact@loafwallet.xyz"; ObjectID = "5OA-tB-Exg"; */
-"5OA-tB-Exg.text" = "contact@loafwallet.xyz";
+/* Class = "UILabel"; text = ""; ObjectID = "5OA-tB-Exg"; */
+"5OA-tB-Exg.text" = "admin@tosblock.com"; // settings-about
 
 /* Class = "UILabel"; text = "local currency"; ObjectID = "8e2-ar-Ehc"; */
 "8e2-ar-Ehc.text" = "local currency";
@@ -84,7 +84,7 @@
 "t1j-JZ-FW0.text" = "no transactions";
 
 /* Class = "UILabel"; text = "breadwallet %ver%%net%\ncopyright © 2016 breadwallet LLC"; ObjectID = "uvz-hk-Nr4"; */
-"uvz-hk-Nr4.text" = "LoafWallet %ver%%net%\n© 2016 Litecoin Association\n\n Based on BreadWallet\n © BreadWallet LLC";
+"uvz-hk-Nr4.text" = "TosWallet %ver%%net%\n\nBased on LoafWallet\n\n© 2016 Litecoin Association\n© BreadWallet LLC" // settings-about
 
 /* Class = "UILabel"; text = "start a new wallet by generating a wallet recovery phrase"; ObjectID = "wDZ-DN-szv"; */
 "wDZ-DN-szv.text" = "start a new wallet by generating a wallet recovery phrase";

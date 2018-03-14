@@ -598,7 +598,7 @@
     [[NSUserDefaults standardUserDefaults] setDouble:balance forKey:BALANCE_KEY];
 
     if (self.percent.hidden) {
-        self.navigationItem.title = [NSString stringWithFormat:@"%@  LTC", [manager stringForAmount:balance]];
+        self.navigationItem.title = [NSString stringWithFormat:@"%@  TOS", [manager stringForAmount:balance]];
     }
 }
 

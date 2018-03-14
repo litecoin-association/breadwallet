@@ -302,6 +302,7 @@
         [title isEqual:NSLocalizedString(@"copy request to clipboard", nil)]) {
         [UIPasteboard generalPasteboard].string = (self.paymentRequest.amount > 0) ? self.paymentRequest.string :
                                                   self.paymentAddress;
+        
         NSLog(@"\n\nCOPIED PAYMENT REQUEST/ADDRESS:\n\n%@", [UIPasteboard generalPasteboard].string);
 
         [self.view addSubview:[[[BRBubbleView viewWithText:NSLocalizedString(@"copied", nil)

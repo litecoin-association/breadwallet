@@ -96,7 +96,7 @@ class BRAWKeypad: WKInterfaceController {
     }
     
     func fmt() {
-        var s = "Ł"
+        var s = "Ŧ"
         var d = digits
         while d.count > 0 && d[0] == "0" { d.removeFirst() } // remove remove forward zero padding
         while d.count < 3 { d.insert("0", at: 0) } // add it back correctly
@@ -109,6 +109,6 @@ class BRAWKeypad: WKInterfaceController {
         display.setText(s)
         ctx?.valueInBits = s
             .replacingOccurrences(of: ".", with: "")
-            .replacingOccurrences(of: "Ł", with: "")
+            .replacingOccurrences(of: "Ŧ", with: "")
     }
 }

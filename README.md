@@ -1,7 +1,3 @@
-# Deprecated
-
-This repository is now depreceated. Please take a look at the latest repo for the LoafWallet-iOS Project @ https://github.com/litecoin-foundation/loafwallet-ios
-
 LoafWallet
 ----------------------------------
 

@@ -479,13 +479,13 @@
 "Receive" = "Receive";
 
 /* No comment provided by engineer. */
-"Easily send Litecoin anywhere in the world with LoafWallet's live currency conversion rates, and QR scanner for quick on-the-go payments." = "Invia Facilmente i tuoi Litecoins in qualsiasi parte del mondo con LoafWallet, usando i tassi di conversione in tempo reale, e lo scanner QR per pagamenti on-the-go.";
+"Easily send TosCoin anywhere in the world with TosWallet's live currency conversion rates, and QR scanner for quick on-the-go payments." = "Invia Facilmente i tuoi TosCoins in qualsiasi parte del mondo con TosWallet, usando i tassi di conversione in tempo reale, e lo scanner QR per pagamenti on-the-go.";
 
 /* No comment provided by engineer. */
-"Receive Litecoins with your receive address. Share you Litecoin Address with others, and request a payment. Your Litecoin address can be copied to your clipboard, sent via email and shared via other forms of social media." = "Ricevi Litecoins direttamente sul tuo indirizzo. Condividilo e richiedi un pagamento. Il tuo indirizzo Litecoin può essere copiato negli appunti, inviato via e-mail e condiviso tramite altre forme di social media.";
+"Receive Toscoins with your receive address. Share you Toscoin Address with others, and request a payment. Your Toscoin address can be copied to your clipboard, sent via email and shared via other forms of social media." = "Ricevi Litecoins direttamente sul tuo indirizzo. Condividilo e richiedi un pagamento. Il tuo indirizzo Litecoin può essere copiato negli appunti, inviato via e-mail e condiviso tramite altre forme di social media.";
 
 /* No comment provided by engineer. */
-"Browse through your transaction history, secured with your passcode. This is not visible to others, unless they possess your LoafWallet passcode. Find indepth details about every transaction." = "Accedi alla cronologia delle transazioni con il tuo codice di accesso. Questa funzione non è visibile da altri, a meno che non possiedano il tuo codice di accesso LoafWallet. Trova informazioni approfondite su ogni transazione.";
+"Browse through your transaction history, secured with your passcode. This is not visible to others, unless they possess your TosWallet passcode. Find indepth details about every transaction." = "Accedi alla cronologia delle transazioni con il tuo codice di accesso. Questa funzione non è visibile da altri, a meno che non possiedano il tuo codice di accesso LoafWallet. Trova informazioni approfondite su ogni transazione.";
 
 /* No comment provided by engineer. */
 "History" = "Cronologia";

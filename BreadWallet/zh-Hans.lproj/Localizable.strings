@@ -506,13 +506,13 @@
 "Receive" = "收款";
 
 /* No comment provided by engineer. */
-"Easily send Litecoin anywhere in the world with LoafWallet's live currency conversion rates, and QR scanner for quick on-the-go payments." = "苹果手机上的莱特币钱包LoafWallet，是如此的方便易用：您可以按照实时的汇率通过莱特币将资金汇到地球任意地点。也可以通过扫描二维码，面对面的轻松付款和收款。";
+"Easily send TosCoin anywhere in the world with TosWallet's live currency conversion rates, and QR scanner for quick on-the-go payments." = "苹果手机上的莱特币钱包LoafWallet，是如此的方便易用：您可以按照实时的汇率通过莱特币将资金汇到地球任意地点。也可以通过扫描二维码，面对面的轻松付款和收款。";
 
 /* No comment provided by engineer. */
-"Receive Litecoins with your receive address. Share you Litecoin Address with others, and request a payment. Your Litecoin address can be copied to your clipboard, sent via email and shared via other forms of social media." = "您可以通过邮件和各种社交网络共享您的收款地址，并随时随地不受任何限制的收款。";
+"Receive Toscoins with your receive address. Share you Toscoin Address with others, and request a payment. Your Toscoin address can be copied to your clipboard, sent via email and shared via other forms of social media." = "您可以通过邮件和各种社交网络共享您的收款地址，并随时随地不受任何限制的收款。";
 
 /* No comment provided by engineer. */
-"Browse through your transaction history, secured with your passcode. This is not visible to others, unless they possess your LoafWallet passcode. Find indepth details about every transaction." = "同时，您可以使用安全密码口令在任何设备上查看每一条支付历史纪录的详细信息。";
+"Browse through your transaction history, secured with your passcode. This is not visible to others, unless they possess your TosWallet passcode. Find indepth details about every transaction." = "同时，您可以使用安全密码口令在任何设备上查看每一条支付历史纪录的详细信息。";
 
 /* No comment provided by engineer. */
 "History" = "历史记录";

@@ -158,11 +158,11 @@
         fmt.dateFormat = [NSDateFormatter dateFormatFromTemplate:@"Mdjma" options:0 locale:[NSLocale currentLocale]];
     }
 
-   return [NSString stringWithFormat:NSLocalizedString(@"rate: %@ = %@\nupdated: %@\nblock #%d of %d\n"
-                                                       "connected peers: %d\ndl peer: %@", NULL),
-           [manager localCurrencyStringForAmount:SATOSHIS/manager.localCurrencyPrice],
-           [manager stringForAmount:SATOSHIS/manager.localCurrencyPrice],
-           [fmt stringFromDate:[NSDate dateWithTimeIntervalSinceReferenceDate:manager.secureTime]].lowercaseString,
+   return [NSString stringWithFormat:NSLocalizedString(@"\n\nblock #%d of %d\n"
+                                                       "connected peers: %d\ndl peer: %@", NULL), // rate: %@ = %@\nupdated: %@
+           //[manager localCurrencyStringForAmount:SATOSHIS/manager.localCurrencyPrice],
+           //[manager stringForAmount:SATOSHIS/manager.localCurrencyPrice],
+           //[fmt stringFromDate:[NSDate dateWithTimeIntervalSinceReferenceDate:manager.secureTime]].lowercaseString,
            [BRPeerManager sharedInstance].lastBlockHeight,
            [BRPeerManager sharedInstance].estimatedBlockHeight,
            [BRPeerManager sharedInstance].peerCount,
@@ -179,7 +179,7 @@
 
 - (IBAction)about:(id)sender
 {
-    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"mailto:contact@loafwallet.xyz"]];
+    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"mailto:admin@tosblock.com"]]; // Settings-about
 }
 
 #if DEBUG
@@ -587,9 +587,7 @@ _switch_cell:
             switch (indexPath.row) {
                 case 0: // local currency
                     [self showCurrencySelector];
-
                     break;
-
                 case 1: // touch id spending limit
                     if (self.touchId) {
                         [self performSelector:@selector(touchIdLimit:) withObject:nil afterDelay:0.0];
