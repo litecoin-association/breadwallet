@@ -1,5 +1,5 @@
 ﻿/* No comment provided by engineer. */
-"%@ is for 'bits'. %@ = 1 bitcoin." = "%1$@ = 1 Litecoin.";
+"%@ is for 'bits'. %@ = 1 bitcoin." = "%1$@ = 1 Toscoin.";
 
 /* No comment provided by engineer. */
 "%@ is not allowed to access the camera" = "%@ is not allowed to access the camera";
@@ -38,16 +38,16 @@
 "\nA device passcode is needed to safeguard your wallet. Go to settings and turn passcode on to continue." = "\nA device passcode is needed to safeguard your wallet. Go to settings and turn passcode on to continue.";
 
 /* No comment provided by engineer. */
-"\nADDRESS ALREADY USED\n\nbitcoin addresses are intended for single use only\n\nre-use reduces privacy for both you and the recipient and can result in loss if the recipient doesn't directly control the address" = "\nADDRESS ALREADY USED\n\nLitecoin addresses are intended for single use only\n\nre-use reduces privacy for both you and the recipient and can result in loss if the recipient doesn't directly control the address";
+"\nADDRESS ALREADY USED\n\nbitcoin addresses are intended for single use only\n\nre-use reduces privacy for both you and the recipient and can result in loss if the recipient doesn't directly control the address" = "\nADDRESS ALREADY USED\n\nToscoin addresses are intended for single use only\n\nre-use reduces privacy for both you and the recipient and can result in loss if the recipient doesn't directly control the address";
 
 /* No comment provided by engineer. */
 "\nallow camera access in\nSettings->Privacy->Camera->%@" = "\nallow camera access in\nSettings->Privacy->Camera->%@";
 
 /* No comment provided by engineer. */
-"\nDO NOT let anyone see your recovery phrase or they can spend your bitcoins.\n\nNEVER type your recovery phrase into password managers or elsewhere. Other devices may be infected.\n" = "\nDO NOT let anyone see your recovery phrase or they can spend your Litecoin.\n\nNEVER type your recovery phrase into password managers or elsewhere. Other devices may be infected.\n";
+"\nDO NOT let anyone see your recovery phrase or they can spend your bitcoins.\n\nNEVER type your recovery phrase into password managers or elsewhere. Other devices may be infected.\n" = "\nDO NOT let anyone see your recovery phrase or they can spend your Toscoin.\n\nNEVER type your recovery phrase into password managers or elsewhere. Other devices may be infected.\n";
 
 /* No comment provided by engineer. */
-"\nDO NOT let anyone see your recovery\nphrase or they can spend your bitcoins.\n" = "\nDO NOT let anyone see your recovery\nphrase or they can spend your Litecoins.\n";
+"\nDO NOT let anyone see your recovery\nphrase or they can spend your bitcoins.\n" = "\nDO NOT let anyone see your recovery\nphrase or they can spend your Toscoins.\n";
 
 /* No comment provided by engineer. */
 "\nDO NOT take a screenshot.\nScreenshots are visible to other apps\nand devices.\n" = "\nDO NOT take a screenshot.\nScreenshots are visible to other apps\nand devices.\n";
@@ -89,22 +89,22 @@
 "bad signature" = "bad signature";
 
 /* No comment provided by engineer. */
-"Bitcoin address" = "Litecoin address";
+"Bitcoin address" = "Toscoin address";
 
 /* No comment provided by engineer. */
-"Bitcoin addresses can also be copied to the clipboard. A bitcoin address always starts with '1' or '3'." = "Litecoin addresses can also be copied to the clipboard. A bitcoin address always starts with 'L' or '3'.";
+"Bitcoin addresses can also be copied to the clipboard. A bitcoin address always starts with '1' or '3'." = "Toscoin addresses can also be copied to the clipboard. A bitcoin address always starts with 'L' or '3'.";
 
 /* No comment provided by engineer. */
-"bitcoin network fee" = "Litecoin network fee";
+"bitcoin network fee" = "Toscoin network fee";
 
 /* No comment provided by engineer. */
-"bitcoin payments can't be less than %@" = "Litecoin payments can't be less than %@";
+"bitcoin payments can't be less than %@" = "Toscoin payments can't be less than %@";
 
 /* No comment provided by engineer. */
-"bitcoin transaction not signed" = "Litecoin transaction not signed";
+"bitcoin transaction not signed" = "Toscoin transaction not signed";
 
 /* No comment provided by engineer. */
-"bitcoin transaction outputs can't be less than %@" = "Litecoin transaction outputs can't be less than %@";
+"bitcoin transaction outputs can't be less than %@" = "Toscoin transaction outputs can't be less than %@";
 
 /* No comment provided by engineer. */
 "block #%d of %d" = "block #%1$d of %2$d";
@@ -137,7 +137,7 @@
 "choose wallet passcode" = "choose wallet passcode";
 
 /* No comment provided by engineer. */
-"clipboard doesn't contain a valid bitcoin address" = "Clipboard doesn't contain a valid Litecoin address";
+"clipboard doesn't contain a valid bitcoin address" = "Clipboard doesn't contain a valid Toscoin address";
 
 /* No comment provided by engineer. */
 "close app" = "close app";
@@ -176,16 +176,16 @@
 "couldn't sweep balance" = "couldn't sweep balance";
 
 /* No comment provided by engineer. */
-"couldn't transmit payment to bitcoin network" = "Couldn't transmit payment to Litecoin network";
+"couldn't transmit payment to bitcoin network" = "Couldn't transmit payment to Toscoin network";
 
 /* No comment provided by engineer. */
 "current wallet passcode" = "current wallet passcode";
 
 /* No comment provided by engineer. */
-"DEVICE SECURITY COMPROMISED\nAny 'jailbreak' app can access any other app's keychain data (and steal your bitcoins)." = "DEVICE SECURITY COMPROMISED\nAny 'jailbreak' app can access any other app's keychain data (and steal your Litecoins).";
+"DEVICE SECURITY COMPROMISED\nAny 'jailbreak' app can access any other app's keychain data (and steal your bitcoins)." = "DEVICE SECURITY COMPROMISED\nAny 'jailbreak' app can access any other app's keychain data (and steal your Toscoins).";
 
 /* No comment provided by engineer. */
-"DEVICE SECURITY COMPROMISED\nAny 'jailbreak' app can access any other app's keychain data (and steal your bitcoins). Wipe this wallet immediately and restore on a secure device." = "DEVICE SECURITY COMPROMISED\nAny 'jailbreak' app can access any other app's keychain data (and steal your Litecoins). Wipe this wallet immediately and restore on a secure device.";
+"DEVICE SECURITY COMPROMISED\nAny 'jailbreak' app can access any other app's keychain data (and steal your bitcoins). Wipe this wallet immediately and restore on a secure device." = "DEVICE SECURITY COMPROMISED\nAny 'jailbreak' app can access any other app's keychain data (and steal your Toscoins). Wipe this wallet immediately and restore on a secure device.";
 
 /* No comment provided by engineer. */
 "do it later" = "do it later";
@@ -203,7 +203,7 @@
 "enter old passcode" = "enter old passcode";
 
 /* No comment provided by engineer. */
-"error signing bitcoin transaction" = "Error signing Litecoin transaction";
+"error signing bitcoin transaction" = "Error signing Toscoin transaction";
 
 /* No comment provided by engineer. */
 "error signing transaction" = "Error signing transaction";
@@ -233,13 +233,13 @@
 "insufficient funds" = "insufficient funds";
 
 /* No comment provided by engineer. */
-"insufficient funds for bitcoin network fee" = "Insufficient funds for Litecoin network fee";
+"insufficient funds for bitcoin network fee" = "Insufficient funds for Toscoin network fee";
 
 /* No comment provided by engineer. */
 "INVALID" = "INVALID";
 
 /* No comment provided by engineer. */
-"Let others scan this QR code to get your bitcoin address. Anyone can send bitcoins to your wallet by transferring them to your address." = "Let others scan this QR code to get your Litecoin address. Anyone can send Litecoins to your wallet by transferring them to your address.";
+"Let others scan this QR code to get your bitcoin address. Anyone can send bitcoins to your wallet by transferring them to your address." = "Let others scan this QR code to get your Toscoin address. Anyone can send Toscoins to your wallet by transferring them to your address.";
 
 /* No comment provided by engineer. */
 "minute" = "minute";
@@ -263,22 +263,22 @@
 "next, write down your recovery phrase" = "next, write down your recovery phrase";
 
 /* No comment provided by engineer. */
-"no exchange rate data" = "no exchange rate data";
+"no exchange rate data" = "COMING SOON !\n\nWe are still working on it.";
 
 /* No comment provided by engineer. */
 "no peers found" = "no peers found";
 
 /* No comment provided by engineer. */
-"not a bitcoin QR code" = "not a Litecoin QR code";
+"not a bitcoin QR code" = "not a Toscoin QR code";
 
 /* No comment provided by engineer. */
-"not a valid bitcoin address" = "not a valid Litecoin address";
+"not a valid bitcoin address" = "not a valid Toscoin address";
 
 /* No comment provided by engineer. */
 "not a valid private key" = "not a valid private key";
 
 /* No comment provided by engineer. */
-"not connected to the bitcoin network" = "not connected to the Litecoin network";
+"not connected to the bitcoin network" = "not connected to the Toscoin network";
 
 /* No comment provided by engineer. */
 "ok" = "ok";
@@ -314,7 +314,7 @@
 "post-dated" = "post-dated";
 
 /* No comment provided by engineer. */
-"Receive bitcoins at this address: %@" = "Receive Litecoins at this address: %@";
+"Receive bitcoins at this address: %@" = "Receive Toscoins at this address: %@";
 
 /* No comment provided by engineer. */
 "received" = "received";
@@ -359,7 +359,7 @@
 "reset" = "reset";
 
 /* No comment provided by engineer. */
-"Scan someone else's QR code to get their bitcoin address. You can send a payment to anyone with an address." = "Scan someone else's QR code to get their Litecoin address. You can send a payment to anyone with an address.";
+"Scan someone else's QR code to get their bitcoin address. You can send a payment to anyone with an address." = "Scan someone else's QR code to get their Toscoin address. You can send a payment to anyone with an address.";
 
 /* No comment provided by engineer. */
 "Screenshots are visible to other apps and devices. Generate a new recovery phrase and keep it secret." = "Screenshots are visible to other apps and devices. Generate a new recovery phrase and keep it secret.";
@@ -371,7 +371,7 @@
 "seen by %d of %d peers" = "seen by %1$d of %2$d peers";
 
 /* No comment provided by engineer. */
-"Send %@ from this private key into your wallet? The bitcoin network will receive a fee of %@." = "Send %1$@ from this private key into your wallet? The Litecoin network will receive a fee of %3$@.";
+"Send %@ from this private key into your wallet? The bitcoin network will receive a fee of %@." = "Send %1$@ from this private key into your wallet? The Toscoin network will receive a fee of %3$@.";
 
 /* No comment provided by engineer. */
 "send address as email" = "send address as email";
@@ -422,10 +422,10 @@
 "the app will now close" = "the app will now close";
 
 /* No comment provided by engineer. */
-"This is your bitcoin address. Tap to copy it or send it by email or sms. The address will change each time you receive funds, but old addresses always work." = "This is your Litecoin address. Tap to copy it or send it by email or sms. The address will change each time you receive funds, but old addresses always work.";
+"This is your bitcoin address. Tap to copy it or send it by email or sms. The address will change each time you receive funds, but old addresses always work." = "This is your Toscoin address. Tap to copy it or send it by email or sms. The address will change each time you receive funds, but old addresses always work.";
 
 /* No comment provided by engineer. */
-"This is your bitcoin balance. Bitcoin is a currency. The exchange rate changes with the market." = "This is your Litecoin balance. Litecoin is a currency. The exchange rate changes with the market.";
+"This is your bitcoin balance. Bitcoin is a currency. The exchange rate changes with the market." = "This is your Toscoin balance. Toscoin is a currency. The exchange rate changes with the market.";
 
 /* No comment provided by engineer. */
 "this payment address is already in your wallet" = "this payment address is already in your wallet";
@@ -518,7 +518,7 @@
 "WRITE DOWN YOUR RECOVERY PHRASE" = "WRITE DOWN YOUR RECOVERY PHRASE";
 
 /* No comment provided by engineer. */
-"you received bitcoin!" = "You received Litecoin!";
+"you received bitcoin!" = "You received Toscoin!";
 
 /* No comment provided by engineer. */
 "Your wallet may be out of sync.\nThis can often be fixed by rescanning the blockchain." = "Your wallet may be out of sync.\nThis can often be fixed by rescanning the blockchain.";
@@ -530,13 +530,13 @@
 "Receive" = "Receive";
 
 /* No comment provided by engineer. */
-"Easily send Litecoin anywhere in the world with LoafWallet's live currency conversion rates, and QR scanner for quick on-the-go payments." = "Easily send Litecoin anywhere in the world with LoafWallet's live currency conversion rates, and QR scanner for quick on-the-go payments.";
+"Easily send Toscoin anywhere in the world with TosWallet's live currency conversion rates, and QR scanner for quick on-the-go payments." = "Easily send Toscoin anywhere in the world with TosWallet's live currency conversion rates, and QR scanner for quick on-the-go payments.";
 
 /* No comment provided by engineer. */
-"Receive Litecoins with your receive address. Share you Litecoin Address with others, and request a payment. Your Litecoin address can be copied to your clipboard, sent via email and shared via other forms of social media." = "Receive Litecoins with your receive address. Share you Litecoin Address with others, and request a payment. Your Litecoin address can be copied to your clipboard, sent via email and shared via other forms of social media.";
+"Receive Toscoins with your receive address. Share you Toscoin Address with others, and request a payment. Your Toscoin address can be copied to your clipboard, sent via email and shared via other forms of social media." = "Receive Toscoins with your receive address. Share you Toscoin Address with others, and request a payment. Your Toscoin address can be copied to your clipboard, sent via email and shared via other forms of social media.";
 
 /* No comment provided by engineer. */
-"Browse through your transaction history, secured with your passcode. This is not visible to others, unless they possess your LoafWallet passcode. Find indepth details about every transaction." = "Browse through your transaction history, secured with your passcode. This is  not visible to others, unless they possess your LoafWallet passcode. Find indepth details about every transaction.";
+"Browse through your transaction history, secured with your passcode. This is not visible to others, unless they possess your TosWallet passcode. Find indepth details about every transaction." = "Browse through your transaction history, secured with your passcode. This is  not visible to others, unless they possess your TosWallet passcode. Find indepth details about every transaction.";
 
 /* No comment provided by engineer. */
 "History" = "History";

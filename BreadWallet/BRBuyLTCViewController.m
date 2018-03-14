@@ -19,7 +19,7 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"https://buy.loafwallet.org/?address=%@", self.paymentAddress]];
+    NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"https://www.tosblock.com"]];
     NSURLRequest *urlRequest = [NSURLRequest requestWithURL:url];
     [_webView loadRequest:urlRequest];
 }

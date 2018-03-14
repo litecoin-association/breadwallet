@@ -113,7 +113,7 @@ static NSString *dateFormat(NSString *template)
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.5*NSEC_PER_SEC), dispatch_get_main_queue(), ^{
         self.transactions = @[tx, tx, tx, tx, tx, tx];
         [self.tableView reloadData];
-        self.navigationItem.title = [NSString stringWithFormat:@"%@  LTC", [manager stringForAmount:42980000]];
+        self.navigationItem.title = [NSString stringWithFormat:@"%@  TOS", [manager stringForAmount:42980000]];
     });
 
     return;
@@ -152,7 +152,7 @@ static NSString *dateFormat(NSString *template)
 
                 if (! [self.navigationItem.title isEqual:NSLocalizedString(@"syncing...", nil)]) {
                     if (! manager.didAuthenticate) self.navigationItem.titleView = self.logo;
-                    self.navigationItem.title = [NSString stringWithFormat:@"%@  LTC",
+                    self.navigationItem.title = [NSString stringWithFormat:@"%@  TOS",
                                                  [manager stringForAmount:manager.wallet.balance]];
                 }
 
@@ -192,7 +192,7 @@ static NSString *dateFormat(NSString *template)
             [[NSNotificationCenter defaultCenter] addObserverForName:BRPeerManagerSyncFinishedNotification object:nil
             queue:nil usingBlock:^(NSNotification *note) {
                 if (! manager.didAuthenticate) self.navigationItem.titleView = self.logo;
-                self.navigationItem.title = [NSString stringWithFormat:@"%@  LTC",
+                self.navigationItem.title = [NSString stringWithFormat:@"%@  TOS",
                                              [manager stringForAmount:manager.wallet.balance]];
             }];
     }
@@ -202,7 +202,7 @@ static NSString *dateFormat(NSString *template)
             [[NSNotificationCenter defaultCenter] addObserverForName:BRPeerManagerSyncFailedNotification object:nil
             queue:nil usingBlock:^(NSNotification *note) {
                 if (! manager.didAuthenticate) self.navigationItem.titleView = self.logo;
-                self.navigationItem.title = [NSString stringWithFormat:@"%@  LTC",
+                self.navigationItem.title = [NSString stringWithFormat:@"%@  TOS",
                                              [manager stringForAmount:manager.wallet.balance]];
             }];
     }
@@ -451,7 +451,7 @@ static NSString *dateFormat(NSString *template)
 //            return (self.moreTx) ? self.transactions.count + 1 : self.transactions.count;
 
         case 0:
-            return 3;
+            return 2; // Set amount of menu
     }
 
     return 0;
@@ -579,15 +579,17 @@ static NSString *dateFormat(NSString *template)
 //            bool buyEnabled = [[BRAPIClient sharedClient] featureEnabled:BRFeatureFlagsBuyBitcoin];
             long adjustedRow =  indexPath.row;
             switch (adjustedRow) {
+                /*
                 case 0:
                     cell.textLabel.text = NSLocalizedString(@"buy litecoin", nil);
                     cell.imageView.image = [UIImage imageNamed:@"bitcoin-buy-blue-small"];
                     break;
-                case 1:
+                */
+                case 0:
                     cell.textLabel.text = NSLocalizedString(@"import private key", nil);
                     cell.imageView.image = [UIImage imageNamed:@"cameraguide-blue-small"];
                     break;
-                case 2:
+                case 1:
                     cell = [tableView dequeueReusableCellWithIdentifier:disclosureIdent];
                     cell.textLabel.text = NSLocalizedString(@"settings", nil);
                     cell.imageView.image = [UIImage imageNamed:@"settings"];
@@ -705,16 +707,18 @@ static NSString *dateFormat(NSString *template)
 //                    [tableView deselectRowAtIndexPath:indexPath animated:YES];
 //                    [self showBuy];
 //                    break;
+                /*
                 case 0: // buy litecoin
                     [BREventManager saveEvent:@"tx_history:buy_ltc"];
                     destinationController = [self.storyboard instantiateViewControllerWithIdentifier:@"BuyLTCViewController"];
                     [self.navigationController pushViewController:destinationController animated:YES];
                     break;
-                case 1: // import private key
+                */
+                case 0: // import private key
                     [BREventManager saveEvent:@"tx_history:import_priv_key"];
                     [self scanQR:nil];
                     break;
-                case 2: // settings
+                case 1: // settings
                     [BREventManager saveEvent:@"tx_history:settings"];
                     destinationController = [self.storyboard instantiateViewControllerWithIdentifier:@"SettingsViewController"];
                     [self.navigationController pushViewController:destinationController animated:YES];

@@ -506,13 +506,13 @@
 "Receive" = "Receive";
 
 /* No comment provided by engineer. */
-"Easily send Litecoin anywhere in the world with LoafWallet's live currency conversion rates, and QR scanner for quick on-the-go payments." = "Easily send Litecoin anywhere in the world with LoafWallet's live currency conversion rates, and QR scanner for quick on-the-go payments.";
+"Easily send TosCoin anywhere in the world with TosWallet's live currency conversion rates, and QR scanner for quick on-the-go payments." = "Easily send Litecoin anywhere in the world with LoafWallet's live currency conversion rates, and QR scanner for quick on-the-go payments.";
 
 /* No comment provided by engineer. */
-"Receive Litecoins with your receive address. Share you Litecoin Address with others, and request a payment. Your Litecoin address can be copied to your clipboard, sent via email and shared via other forms of social media." = "Receive Litecoins with your receive address. Share you Litecoin Address with others, and request a payment. Your Litecoin address can be copied to your clipboard, sent via email and shared via other forms of social media.";
+"Receive Toscoins with your receive address. Share you Toscoin Address with others, and request a payment. Your Toscoin address can be copied to your clipboard, sent via email and shared via other forms of social media." = "Receive Toscoins with your receive address. Share you Toscoin Address with others, and request a payment. Your Toscoin address can be copied to your clipboard, sent via email and shared via other forms of social media.";
 
 /* No comment provided by engineer. */
-"Browse through your transaction history, secured with your passcode. This is not visible to others, unless they possess your LoafWallet passcode. Find indepth details about every transaction." = "Browse through your transaction history, secured with your passcode. This is  not visible to others, unless they possess your LoafWallet passcode. Find indepth details about every transaction.";
+"Browse through your transaction history, secured with your passcode. This is not visible to others, unless they possess your TosWallet passcode. Find indepth details about every transaction." = "Browse through your transaction history, secured with your passcode. This is  not visible to others, unless they possess your TosWallet passcode. Find indepth details about every transaction.";
 
 /* No comment provided by engineer. */
 "History" = "History";

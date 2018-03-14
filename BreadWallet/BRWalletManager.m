@@ -44,13 +44,13 @@
 #define CIRCLE  @"\xE2\x97\x8C" // dotted circle (utf-8)
 #define DOT     @"\xE2\x97\x8F" // black circle (utf-8)
 
-#define UNSPENT_URL          @"https://insight.litecore.io/api/addrs/utxo"
-#define UNSPENT_FAILOVER_URL @"https://node-2.insight.litecore.io/api/addrs/utxo"
-#define TICKER_URL           @"https://litecoin.com/api/v1/ticker"
-#define TICKER_FAILOVER_URL  @"https://www.loshan.co.uk/api/v1/info"
+#define UNSPENT_URL          @"https://insight.toscore.io/api/addrs/utxo" // https://insight.litecore.io/api/addrs/utxo
+#define UNSPENT_FAILOVER_URL @"https://node-2.insight.toscore.io/api/addrs/utxo" // https://node-2.insight.litecore.io/api/addrs/utxo
+#define TICKER_URL           @"https://toscoin.com/api/v1/ticker" // https://litecoin.com/api/v1/ticker
+#define TICKER_FAILOVER_URL  @"https://www.tosblock.co.jp/api/v1/info" // https://www.loshan.co.uk/api/v1/info
 
 #define SEED_ENTROPY_LENGTH   (128/8)
-#define SEC_ATTR_SERVICE      @"com.litecoin.loafwallet"
+#define SEC_ATTR_SERVICE      @"com.toscoin.toswallet"
 #define DEFAULT_CURRENCY_CODE @"USD"
 #define DEFAULT_SPENT_LIMIT   SATOSHIS
 
@@ -71,7 +71,7 @@
 #define PIN_FAIL_HEIGHT_KEY @"pinfailheight"
 #define AUTH_PRIVKEY_KEY    @"authprivkey"
 #define SEED_KEY            @"seed" // depreceated
-#define USER_ACCOUNT_KEY    @"https://api.breadwallet.com"
+#define USER_ACCOUNT_KEY    @"https://api.toswallet.com"
 
 static BOOL setKeychainData(NSData *data, NSString *key, BOOL authenticated)
 {
@@ -239,9 +239,9 @@ static NSDictionary *getKeychainDict(NSString *key, NSError **error)
     self.format.negativeFormat = [self.format.positiveFormat
                                   stringByReplacingCharactersInRange:[self.format.positiveFormat rangeOfString:@"#"]
                                   withString:@"-#"];
-    self.format.currencyCode = @"LTC";
+    self.format.currencyCode = @"TOS";
     self.format.currencySymbol = BITS NARROW_NBSP;
-    self.format.maximumFractionDigits = 8;
+    self.format.maximumFractionDigits = 6;
     self.format.minimumFractionDigits = 0; // iOS 8 bug, minimumFractionDigits now has to be set after currencySymbol
     self.format.maximum = @(MAX_MONEY/(int64_t)pow(10.0, self.format.maximumFractionDigits));
     _localFormat = [NSNumberFormatter new];
@@ -558,7 +558,7 @@ static NSDictionary *getKeychainDict(NSString *key, NSError **error)
     }
 
     // TODO explain reason when touch id is disabled after 30 days without pin unlock
-    if ([self authenticatePinWithTitle:[NSString stringWithFormat:NSLocalizedString(@"passcode for %@", nil),
+    if ([self authenticatePinWithTitle:[NSString stringWithFormat:NSLocalizedString(@"passcode for TosWallet", nil), // (@"AApasscode for %@", nil)
                                         DISPLAY_NAME] message:authprompt]) {
         [self.alertView dismissWithClickedButtonIndex:self.alertView.cancelButtonIndex animated:YES];
 //        [self hideKeyboard];
@@ -733,7 +733,7 @@ static NSDictionary *getKeychainDict(NSString *key, NSError **error)
     NSError *error = nil;
     NSString *pin = getKeychainString(PIN_KEY, &error);
     NSString *title = [NSString stringWithFormat:CIRCLE @"\t" CIRCLE @"\t" CIRCLE @"\t" CIRCLE @"\n%@",
-                       [NSString stringWithFormat:NSLocalizedString(@"choose passcode for %@", nil), DISPLAY_NAME]];
+                       [NSString stringWithFormat:NSLocalizedString(@"choose passcode for TosWallet", nil), DISPLAY_NAME]]; // default : (@"choose passcode for %@", nil)
 
     if (error) return NO; // error reading existing pin from keychain
 

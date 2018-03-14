@@ -26,10 +26,19 @@
 
 #import <Foundation/Foundation.h>
 
-#define TX_FEE_PER_KB        100000ULL     // standard tx fee per kb of tx size, rounded up to nearest kb
+#define TX_FEE_PER_KB        1000ULL     // standard tx fee per kb of tx size, rounded up to nearest kb
 #define TX_OUTPUT_SIZE       34          // estimated size for a typical transaction output
 #define TX_INPUT_SIZE        148         // estimated size for a typical compact pubkey transaction input
-#define TX_MIN_OUTPUT_AMOUNT 100000 //no txout can be below this amount
+#define TX_MIN_OUTPUT_AMOUNT 1          //no txout can be below this amount
+/* TX_MIN_OUTPUT_AMOUNT
+ 1 = 0.000001 Tos
+ 10 = 0.00001 Tos
+ 100 = 0.0001 Tos
+ 1000 = 0.001 Tos
+ 10000 = 0.01 Tos
+ 100000 = 0.1 Tos
+ 1000000 = 1  Tos
+*/
 #define TX_MAX_SIZE          100000      // no tx can be larger than this size in bytes
 #define TX_FREE_MAX_SIZE     0        // tx must not be larger than this size in bytes without a fee
 #define TX_FREE_MIN_PRIORITY 57600000ULL // tx must not have a priority below this value without a fee

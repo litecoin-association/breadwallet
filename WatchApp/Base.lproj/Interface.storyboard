@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder.WatchKit.Storyboard" version="3.0" toolsVersion="12118" systemVersion="16E195" targetRuntime="watchKit" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="AgC-eL-Hgc">
+<document type="com.apple.InterfaceBuilder.WatchKit.Storyboard" version="3.0" toolsVersion="12121" systemVersion="16G29" targetRuntime="watchKit" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="AgC-eL-Hgc">
     <device id="watch38" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="watchOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="12086"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="12089"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBWatchKitPlugin" version="12029"/>
     </dependencies>
     <scenes>
@@ -145,7 +145,7 @@
                                                     <group width="1" height="20" alignment="left" spacing="0.0" id="MaL-Zz-53G" userLabel="Top Container">
                                                         <items>
                                                             <imageView width="14" height="14" alignment="left" verticalAlignment="center" image="SentMoneyIcon" contentMode="scaleAspectFill" id="aCP-8g-nh2" userLabel="Status icon"/>
-                                                            <label alignment="right" verticalAlignment="center" text="Ł14,659" minimumScaleFactor="0.5" id="PXD-22-aMP" userLabel="Amount label">
+                                                            <label alignment="right" verticalAlignment="center" text="Ŧ14,659" minimumScaleFactor="0.5" id="PXD-22-aMP" userLabel="Amount label">
                                                                 <fontDescription key="font" type="system" pointSize="14"/>
                                                             </label>
                                                         </items>
@@ -231,7 +231,7 @@
                     <items>
                         <group width="1" height="0.20000000000000001" alignment="left" id="7tF-UO-81W">
                             <items>
-                                <label width="1" widthAdjustment="-30" height="1" alignment="left" text="Ł0.00" textAlignment="right" baselineAdjustment="alignCenters" minimumScaleFactor="0.5" id="dp3-9o-r55">
+                                <label width="1" widthAdjustment="-30" height="1" alignment="left" text="Ŧ0.00" textAlignment="right" baselineAdjustment="alignCenters" minimumScaleFactor="0.5" id="dp3-9o-r55">
                                     <color key="textColor" red="0.99088680744171143" green="0.53554928302764893" blue="0.28542831540107727" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                     <fontDescription key="font" type="system" weight="semibold" pointSize="20"/>
                                 </label>

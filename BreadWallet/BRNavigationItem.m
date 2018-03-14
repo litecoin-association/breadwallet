@@ -54,7 +54,7 @@ static void *kTitleViewStateObservingContext = &kTitleViewStateObservingContext;
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
 	if ( context == kTitleStateObservingContext ) {
-		if ((nil == self.title) || ([self.title rangeOfString:@"  LTC"].location == NSNotFound)) {
+		if ((nil == self.title) || ([self.title rangeOfString:@"  TOS"].location == NSNotFound)) {
 			self.titleView = nil;
 		} else {
 			[self updateLabel];
@@ -86,7 +86,7 @@ static void *kTitleViewStateObservingContext = &kTitleViewStateObservingContext;
 		UIFont *titleFont = [UIFont fontWithName:@"HelveticaNeue-Medium" size:23.0];
 		UIFont *smallFont = [UIFont fontWithName:@"HelveticaNeue-Light" size:12.0];
 		NSString *simpleString = self.title;
-		NSRange range = [simpleString rangeOfString:@"  LTC"];
+		NSRange range = [simpleString rangeOfString:@"  TOS"];
 		range.length = (simpleString.length - range.location);
 		
 		NSMutableAttributedString *stylizedString = [[NSMutableAttributedString alloc] initWithString:simpleString];

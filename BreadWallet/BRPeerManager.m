@@ -53,56 +53,57 @@
 #define SYNC_STARTHEIGHT_KEY @"SYNC_STARTHEIGHT"
 
 #if BITCOIN_TESTNET
-
+// ---- TESTNET
 static const struct { uint32_t height; char *hash; uint32_t timestamp; uint32_t target; } checkpoint_array[] = {
     { 0, "4966625a4b2851d9fdee139e56211a0d88575f59ed816ff5e6a63deb4e3e29a0", 1486949366, 0x1e0ffff0 }
 };
 
 static const char *dns_seeds[] = {
-    "testnet-seed.litecointools.com", "seed-b.litecoin.loshan.co.uk"
+    "testnet-seed.tosblock.com"
 };
 
-#else // main net
-
+#else // ---- MAINNET
 // blockchain checkpoints - these are also used as starting points for partial chain downloads, so they need to be at
 // difficulty transition boundaries in order to verify the block difficulty at the immediately following transition
 static const struct { uint32_t height; char *hash; uint32_t timestamp; uint32_t target; } checkpoint_array[] = {
-    { 0, "12a765e31ffd4059bada1e25190f6e98c99d9714d334efa41a195a7e7e04bfe2", 1317972665, 0x1e0ffff0 },
-    { 20160, "633036c8df655531c2449b2d09b264cc0b49d945a89be23fd3c1a97361ca198c", 1319798300, 0x1d055262 },
-    { 40320, "d148cdd2cf44069cef4b63f0feaf30a8d291ca9ea9ba7e83f226b9738c1d5e9c", 1322522019, 0x1d018053 },
-    { 100800, "7b0b620d15f781faaaa73b43607a49d5becb2b803ef19b4010014646cc177a61", 1331873688, 0x1d00ae9f },
-    { 141120, "5d5e15a45cecf2b9528e36e63c407167423a2f9963a96bbce3b67b75fd10be2a", 1338009318, 0x1d00d6a6 },
-    { 181440, "d7fa3152959f3c25e33edf825f7cbef75ee651d5f9183cc4ed8d19d57b8f35a4", 1343534530, 0x1c1cd430 },
-    { 221760, "88cf3446129161a633050244f112e3041a2d53152ee9293984b20f468fbadb8a", 1349481542, 0x1c135d42 },
-    { 262080, "13a5d47f01fe3ab17ebf2b15b605efa41efe06b02bb685bc2ad4cec22af0b478", 1355560195, 0x1c0a01e5 },
-    { 302400, "e798d897a837bf4989d329266128754ec1cbeff1eb0c0afd67f71d2b7c44bdaa", 1361913149, 0x1c102ea7 },
-    { 342720, "33f62e026a202be550e8a9df37d638d38991553544e279cb264123378bf46042", 1367113967, 0x1c0095a5 },
-    { 383040, "5c0a443361c1356796a7db472c69433b6ce6108d61e4403fd9a9d91e01009ce3", 1372971948, 0x1b481262 },
-    { 423360, "7b23f9447b8078c8fc0e832e4b56f1d2afa758382e254593b6b72a8fc6020150", 1379024440, 0x1b438e6a },
-    { 463680, "260c78e92a390b9eb4d8f5d9324a33d0222943f119b324de53452d48bd7bd7f4", 1384968613, 0x1b2ddc00 },
-    { 504000, "97db0624d3d5137bc085f0d731607314972bb4124b85b73420ef9aa5fc10d640", 1390892377, 0x1b1aa868 },
-    { 544320, "95ae252971d1ec9deeed1ed19fe9537e04348a82839a9e2bf8856faaa03e324e", 1396719779, 0x1b0a9622 },
-    { 584640, "df5454af79491c392fe740b5efd47afbe1cb53cd8d86be3ab9c97fdd2786d237", 1402630524, 0x1b065b94 },
-    { 624960, "ccac71fafe98107b81ac3e0eed41190e4d47600962c93c49db8843b53f760bda", 1408389228, 0x1b02552d },
-    { 665280, "163c902de2306f22922754f83edacc97a87617d1e3413af7c9808e702bf1a383", 1414354222, 0x1b01bce9 },
-    { 705600, "e350118d9047c1ca5f047a1b1ee400562fb0cfb8b3c8032b56b8545b456a03ab", 1420305710, 0x1b01399e },
-    { 745920, "04809a35ff6e5054e21d14582072605b812b7d4ae11d3450e7c03a7237e1d35d", 1426441593, 0x1b019b8c },
-    { 786240, "d1b9fa6999f7a09d1dc52511750e47d263aaa7ea4a262762fff8665890d631a5", 1432507384, 0x1b01a8ec },
-    { 826560, "e12ce49268950a38fd7f0bab0d2a5edd9799201c1f3e9441a7602428556c839d", 1438510426, 0x1b016999 },
-    { 866880, "72a9f3d3710fc6c96f87dd8fca0e033a1a89f69a4c2fd8944fd1d50e6772021e", 1444547836, 0x1b0157fd },
-    { 889056, "910af99e39a6f9436bf4710a09ee19483e9b9b3f131dc9bef37dbe5eac72031f", 1447887833, 0x1b016720 },
-    { 913248, "9784249cbeccd4df8d7701287da3002a6de4a56618248f84f37187dbf4ec6efc", 1451495881, 0x1b014465 },
-    { 933408, "f9f3fbcbb1fa40d0f9a1724085ac7cadaa414edd97c436571d06b3b5f3b46956", 1454513411, 0x1b01386f },
-    { 953568, "e46e01cf1239cffa69408ac162d517bac5a4899972e0328fd0ba4d93e8ad3764", 1457542869, 0x1b013c91 },
-    { 973728, "6316b454ead6c97be48c98979ec9ebb49763c21d436f47ff6918f02a58b46cec", 1460575822, 0x1b014319 },
-    { 993888, "1d80e7793bd9e16e0ce84d93b105d6732ed63e1a6fe491c1b7ea310e75eb504e", 1463613744, 0x1b014cbd },
-    { 1058400, "76ce37c66d449a4ffbfc35674cf932da701066a001dc223754f9250dd2bdbc62", 1473296285, 0x1b013ca7 },
-    { 1209600, "cd5f60477e402aa57adcffd6a7b911961131aa98c2625ec55642112f984f92c0", 1495573366, 0x1a458768 },
-    { 1233792, "22602bac09e261b8da4e3eeeb06edb8cd3f2569209ae8b27501433942dfb2a61", 1499211195, 0x1a431b96 }
+    { 0, "fbee487873531d16bcb6dfa67e0bf02c43a6697c67ba2c03a432f156c5149093", 1502464687, 0x1e0ffff0 }
+    /*
+    { 2400, "680df8399539d732dbdccd71d032d9f5f140f3aa2800057e3254d688e805bb03", 1502919542, 0x1e0fffff },
+    { 4800, "0b0cd9da083abe553fdb5b79350417dff2dcb00936f520a5b73b9d7e80a28fd5", 1503568124, 0x1e0fffff },
+    { 7200, "691197aeacaad372c08d0eb43f9806d266725404179bbac7eb02120331ff0d26", 1503722938, 0x1e0bdff5 },
+    { 9600, "bead05c2b2ad0147ed9f9f56ac036e1192b60dc2a6f070005fa75b8d253b5f7d", 1503876237, 0x1e0a193e },
+    { 12000, "d8e302471afb1aa7f05d384bbcc26f7ec021ae5cfb878d46df583ebe913ccad6", 1504030386, 0x1e0fd04f },
+    { 14400, "edeef78b5b2d9962747775c766ad9de1723ef721f70134d2bd9dc6e13075752d", 1504248309, 0x1e0a374b },
+    { 16800, "a18ee3b4d77c711a57927ed9328e796b2ebf40d2c5f0825bea73f6c547b05cf8", 1504401838, 0x1e0b70b4 },
+    { 19200, "1b964308520c48ae8dc1f7fbd1f48bcdaf557c6ed0c50114ea8443c2e9044522", 1504554471, 0x1e0cc070 },
+    { 21600, "1cee7d34fee36c4726fa52aee28bb1272d915c80b2f6e24d2be14c07f46561f8", 1504706490, 0x1e07f33d },
+    { 24000, "938a206add129d776395859e589f8f824227f8f1d0fb51099eec14962148b19e", 1504858851, 0x1e09c546 },
+    { 26400, "21e181dab8dcc242259c59b47350a7047dbc7338c1f0e06f65f718369c8c04b7", 1505011662, 0x1e0c39f6 },
+    { 28800, "2fda30c44e2469f07b91f3bf7440fe63a304f8aad4177459180796a3c5cc2efd", 1505164626, 0x1e092bfd },
+    { 31200, "381830a953ff26b4983c1bc7c3f7dc6f0ef5c5fb957cafc964ccdd63009c29d3", 1505311910, 0x1d01a8e3 },
+    { 33600, "f189fe27122067cd08677fce6f35bb520fe74b214025f607d60d1a7d1bd23aff", 1505477093, 0x1d0120b2 },
+    { 36000, "3066f61358bd43e60d6622756fefca560cb81c986f696728daa55cb5df3773a6", 1505759221, 0x1d02b673 },
+    { 38400, "2b334a6257af95802e17a3ae8bf38b5d190991e941a87fc5aca97c6358ac4973", 1505915238, 0x1d76460b },
+    { 40800, "314fb41d4731adf54c070060cbd989b9437f5ad368cf9f5bbd234880539a04a5", 1506066438, 0x1d5f8822 },
+    { 43200, "011d088fa7b3d2022b12a36025d0471968781d3b0c01f2174286bcf697379435", 1506218150, 0x1d6f6d78 },
+    { 45600, "1564ba40bb62e2f43f6c27d4ffb92c6f53c9462f285dca171d242a5f70328d36", 1506368928, 0x1d4029a7 },
+    { 48000, "abc011d4a29dfd9b6096397db6139e5e4fa9339e98b6cf8b9255f4e0ea3b2cb2", 1506539659, 0x1d583617 },
+    { 50400, "dacf1a12061cb364c553633b16023b2f46464a4c43ca374651cd87b8aca0fea0", 1506690896, 0x1d354df3 },
+    { 52800, "d84ea69b1276be1d7fddaed1a9ebadbd9e61f35b3f84dc7c0ee130c8652a482a", 1506842486, 0x1d33a007 },
+    { 55200, "c7bb1629b83ac4e515c15e15aa16f6ffa3577b119bfb9e3b41cae926bb54ee0e", 1506994225, 0x1d49335f },
+    { 57600, "3fc27120645469883e9baccb26f1f215ba5f5f390ec96b16a3b3b63d550e8ed6", 1507145364, 0x1d3652f4 },
+    { 60000, "06dc541af2d1f30fb7aa2ad4357a4b257d5f145b365b9473e60abdab58525def", 1507296566, 0x1d396599 },
+    { 62400, "c4be653eb81d574cd93fde50d431fb759e6fde237cef1ee53599fadc9e3ae504", 1507447792, 0x1d26e337 },
+    { 64800, "a626726c4a721e49058d2d46fba2989e68ad01a0ed4edcc4e1c1319b5baea226", 1507599001, 0x1d338ccb },
+    { 67200, "b0f326d8c4d695f71182baa21c2d280fc71e814bd236f04bee7a710bb491f300", 1507756907, 0x1d42788e },
+    { 69600, "14ffdfd36d7cd2d2c8a7b2230badc19e51f78626fa2c1d917ee7e462687ca89f", 1507907871, 0x1d34509e },
+    { 72000, "3e3930b9fec597c3445656c00b1e1f6b142a9c3b8d4d9da3e938d7ae02c11775", 1508058825, 0x1d2f0d3d },
+    { 74400, "060ae987000905c43f3d660c241049f167777be2591de28ba367976b4394df60", 1508210060, 0x1d2889f3 }
+    */
 };
 
 static const char *dns_seeds[] = {
-    "dnsseed.litecointools.com", "dnsseed.litecoinpool.org", "dnsseed.ltc.xurious.com", "seed-a.litecoin.loshan.co.uk", "dnsseed.koin-project.com", "dnsseed.thrasher.io"
+    "spv.tosblock.com"
 };
 
 #endif
@@ -995,7 +996,7 @@ static const char *dns_seeds[] = {
     }
 
     // drop peers that don't support SPV filtering
-    if (peer.version >= 70011 && ! (peer.services & SERVICES_NODE_BLOOM)) {
+    if (peer.version > 80007 && ! (peer.services & SERVICES_NODE_BLOOM)) {
         [peer disconnect];
         return;
     }
@@ -1007,6 +1008,7 @@ static const char *dns_seeds[] = {
         [peer sendPingMessageWithPongHandler:^(BOOL success) {
             if (! success) return;
             [peer sendMempoolMessage:self.publishedTx.allKeys completion:^(BOOL success) {
+
                 if (! success) return;
                 peer.synced = YES;
                 [self removeUnrelayedTransactions];
@@ -1018,10 +1020,9 @@ static const char *dns_seeds[] = {
                 });
             }];
         }];
-
         return; // we're already connected to a download peer
     }
-
+    
     // select the peer with the lowest ping time to download the chain from if we're behind
     // BUG: XXX a malicious peer can report a higher lastblock to make us select them as the download peer, if two
     // peers agree on lastblock, use one of them instead
